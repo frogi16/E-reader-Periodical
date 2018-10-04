@@ -1,6 +1,6 @@
 #include "Authenticator.h"
 
-
+#include <fstream>
 
 Authenticator::Authenticator(std::string consumerKey) : mConsumerKey(consumerKey)
 {	
@@ -23,30 +23,49 @@ Authenticator::Authenticator(std::string consumerKey) : mConsumerKey(consumerKey
 
 UserData Authenticator::authenticate()
 {
-	CURLcode requestResult = getRequestToken();
+	std::fstream loginFile;
+	loginFile.open("user.txt", std::ios::in);
+	std::string accessToken;
+	std::string username;
+	loginFile >> accessToken >> username;
+	loginFile.close();
 
-	if (requestResult == CURLcode::CURLE_OK)
+	if (username.size()>0 && accessToken.size()>0)
 	{
-		std::string requestToken = extractRequestToken(response);
-
-		//redirecting user to pocket site in order to log in to account
-		ShellExecute(0, 0, std::string("https://getpocket.com/auth/authorize?request_token=" + requestToken + "&redirect_uri=" + callbackString).c_str(), 0, 0, SW_SHOW);
-
-		//run server
-		listen(callbackString_t);
-
-		while (!gotCallback)
-		{
-			Sleep(100);
-		}
-
-		requestResult = getAccessToken(requestToken);
+		std::cout << "Using saved user credentials" << std::endl;
+		return UserData{ accessToken, username };
+	}
+	else
+	{
+		std::cout << "Authenticating using Pocket API" << std::endl;
+		CURLcode requestResult = getRequestToken();
 
 		if (requestResult == CURLcode::CURLE_OK)
 		{
-			auto info = extractAccessTokenAndUsername(response);
+			std::string requestToken = extractRequestToken(response);
 
-			return UserData{ info.first, info.second };
+			//redirecting user to pocket site in order to log in to account
+			ShellExecute(0, 0, std::string("https://getpocket.com/auth/authorize?request_token=" + requestToken + "&redirect_uri=" + callbackString).c_str(), 0, 0, SW_SHOW);
+
+			//run server
+			listen(callbackString_t);
+
+			while (!gotCallback)
+			{
+				Sleep(100);
+			}
+
+			requestResult = getAccessToken(requestToken);
+
+			if (requestResult == CURLcode::CURLE_OK)
+			{
+				auto info = extractAccessTokenAndUsername(response);
+				loginFile.open("user.txt", std::ios::out);
+				loginFile << info.first << " " << info.second;
+				loginFile.close();
+
+				return UserData{ info.first, info.second };
+			}
 		}
 	}
 }

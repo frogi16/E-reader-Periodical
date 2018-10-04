@@ -2,12 +2,11 @@
 
 #include <algorithm>
 
-RSSupdater::RSSupdater() : lastUpdate(time(NULL))
+RSSupdater::RSSupdater() : lastUpdate(NULL), updateFrequency(60*5)
 {
-	downloadFeeds();		//skip checkUpdate(), just download feeds
 }
 
-void RSSupdater::checkUpdates()
+std::vector<std::string> RSSupdater::checkUpdates()
 {
 	time_t now;
 	now = time(NULL);
@@ -17,14 +16,16 @@ void RSSupdater::checkUpdates()
 	if (elapsedTime >= updateFrequency)
 	{
 		lastUpdate = now;
-		downloadFeeds();
+		return downloadFeeds();
 	}
+
+	return std::vector<std::string> ();
 }
 
-void RSSupdater::forceUpdates()
+std::vector<std::string> RSSupdater::forceUpdates()
 {
 	lastUpdate = time(NULL);
-	downloadFeeds();
+	return downloadFeeds();
 }
 
 void RSSupdater::setUpdateFrequency(double seconds)
@@ -34,7 +35,7 @@ void RSSupdater::setUpdateFrequency(double seconds)
 
 void RSSupdater::setUpdateFrequency(int minutes)
 {
-	updateFrequency = minutes * 60;
+	updateFrequency = static_cast<double>(minutes) * 60.0;
 }
 
 void RSSupdater::watchFeed(std::string link)
@@ -56,15 +57,20 @@ RSSupdater::~RSSupdater()
 {
 }
 
-void RSSupdater::downloadFeeds()
+std::vector<std::string> RSSupdater::downloadFeeds()
 {
+	std::vector<std::string> newItemLinks;
+
 	for (auto& feed : feeds)
 	{
 		downloader.downloadSource(feed);
-		downloader.convertToXML();
-		
-		auto data = downloader.getData();
+		std::vector<std::string> links = feedsDatabase.updateFeed(feed, downloader.getData());
+		newItemLinks.insert(newItemLinks.end(), links.begin(), links.end());					//inefficient if size of links vector is big. TODO: prevent copying elements of links. Maybe deque?
 	}
+
+	feedsDatabase.saveDatabase();
+
+	return newItemLinks;
 }
 
 size_t RSSupdater::CurlWrite_CallbackFunc_StdString(void * contents, size_t size, size_t nmemb, std::string * s)

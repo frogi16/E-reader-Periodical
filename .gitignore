@@ -260,3 +260,6 @@ paket-files/
 __pycache__/
 *.pyc
 *.dll
+/Pocket Integration/database.xml
+/Pocket Integration/user.txt
+/Pocket Integration/watchedFeeds.txt

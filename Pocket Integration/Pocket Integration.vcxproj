@@ -94,8 +94,8 @@
       <PreprocessorDefinitions>CURL_STATICLIB;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>F:\Programowanie\pugixml-1.6\src;F:\Programowanie\Tidy\lib;F:\Programowanie\Casablanca\result\Binaries\Release;C:\libcurl\builds\libcurl-vc15-x64-release-static-ipv6-sspi-winssl\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>tidy.lib;cpprest141_2_10.lib;libcurl_a.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>F:\Programowanie\pugixml-1.6\src;F:\Programowanie\Tidy\lib;F:\Programowanie\Casablanca\build\Binaries\Debug;C:\libcurl\builds\libcurl-vc15-x64-release-static-ipv6-sspi-winssl\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>tidy.lib;cpprest141_2_10d.lib;libcurl_a.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -130,24 +130,30 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>F:\Programowanie\pugixml-1.6\src;F:\Programowanie\Tidy\lib;F:\Programowanie\Casablanca\result\Binaries\Release;C:\libcurl\builds\libcurl-vc15-x64-release-static-ipv6-sspi-winssl\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>F:\Programowanie\pugixml-1.6\src;F:\Programowanie\Tidy\lib;F:\Programowanie\Casablanca\build\Binaries\Release;C:\libcurl\builds\libcurl-vc15-x64-release-static-ipv6-sspi-winssl\lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>tidy.lib;cpprest141_2_10.lib;libcurl_a.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\pugixml-1.6\src\pugixml.cpp" />
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="ArticleAdder.cpp" />
     <ClCompile Include="Authenticator.cpp" />
+    <ClCompile Include="FeedsDatabase.cpp" />
     <ClCompile Include="maincpp.cpp" />
     <ClCompile Include="MyServer.cpp" />
     <ClCompile Include="RSSupdater.cpp" />
+    <ClCompile Include="Scraper.cpp" />
     <ClCompile Include="SourceDownloader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
+    <ClInclude Include="ArticleAdder.h" />
     <ClInclude Include="Authenticator.h" />
+    <ClInclude Include="FeedsDatabase.h" />
     <ClInclude Include="MyServer.h" />
     <ClInclude Include="RSSupdater.h" />
+    <ClInclude Include="Scraper.h" />
     <ClInclude Include="SourceDownloader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

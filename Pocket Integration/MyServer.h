@@ -15,7 +15,7 @@ class Authenticator;
 class MyServer
 {
 public:
-	MyServer() {}
+	MyServer() : mOwner(nullptr) {}
 	MyServer(utility::string_t url, Authenticator*  owner);
 
 	pplx::task<void> open() { return m_listener.open(); }

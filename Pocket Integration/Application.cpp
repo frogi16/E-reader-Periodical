@@ -1,58 +1,65 @@
 #include "Application.h"
 
+#include <fstream>
 
-
-Application::Application() : authenticator(consumerKey)
+Application::Application() : 
+	authenticator(consumerKey),
+	adder(consumerKey)
 {
 	curl_global_init(CURL_GLOBAL_ALL);
-	updater.setUpdateFrequency(5);
-	updater.watchFeed(std::string("https://www.imperiumromanum.edu.pl/feed/"));
+	updater.setUpdateFrequency(5);		//update every 5 minutes
+
+	std::fstream watchedFeeds("watchedFeeds.txt", std::ios::in);
+
+	while (!watchedFeeds.eof())
+	{
+		std::string feed;
+		watchedFeeds >> feed;
+		updater.watchFeed(feed);
+	}
 }
 
 void Application::run()
 {
 	authenticateConnection();
-	checkRSS();
-	addArticles();
-	addArticle(std::string("https://jadisco.pl/"));
+
+	while (true)
+	{
+		auto newArticleLinks = checkRSS();
+		addArticles(newArticleLinks);
+
+		Sleep(1000 * 60);
+	}
 }
 
 void Application::authenticateConnection()
 {
+	std::cout << "Authenticating connection" << std::endl;
+
 	if (users.size() > 0)
 	{
-		currentUser.username = users.begin()->first;
+		currentUser.username = users.begin()->first;			//for now application just uses first user on the list. Later, maybe with GUI, there should be some possibility to choose user.
 		currentUser.accessToken = users.begin()->second;
 	}
 	else
 	{
-		auto data = authenticator.authenticate();
-		users[data.username] = data.accessToken;
-		currentUser.username = data.username;
-		currentUser.accessToken = data.accessToken;
+		UserData user = authenticator.authenticate();
+		users[user.username] = user.accessToken;
+		currentUser = user;
 	}
 }
 
-void Application::checkRSS()
+std::vector<std::string> Application::checkRSS()
 {
-	updater.forceUpdates();
-	//updater.checkUpdates();
+	std::cout << "Checking for new articles" << std::endl;
+	return updater.checkUpdates();
 }
 
-void Application::addArticles()
+void Application::addArticles(std::vector<std::string> urls)
 {
+	//std::cout << "Sending articles to pocket" << std::endl;
+	//adder.addArticles(urls, currentUser.accessToken);
 }
-
-void Application::addArticle(std::string url)
-{
-	CURL* handle = curl_easy_init();
-
-	curl_easy_setopt(handle, CURLOPT_URL, "https://getpocket.com/v3/add");			//where to post	
-	std::string parameters = "url=" + url + "&consumer_key=" + consumerKey + "&access_token=" + currentUser.accessToken;
-	curl_easy_setopt(handle, CURLOPT_POSTFIELDS, parameters.c_str());				//what to post
-	auto result = curl_easy_perform(handle);
-}
-
 
 Application::~Application()
 {

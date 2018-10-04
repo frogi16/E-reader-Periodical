@@ -49,19 +49,19 @@ void SourceDownloader::downloadSource(std::string url)
 			fprintf(stderr, "Failed to easy perform [%s]\n", errorBuffer);
 		}
 
-
 		curl_easy_cleanup(curlHandle);
 	}
 }
 
+/*
 void SourceDownloader::convertToXML()
 {
 	//tidy documentation is horrible (in my opinion...) and I found only one really usefull text - http://api.html-tidy.org/tidy/tidylib_api_5.6.0/libtidy_04.html which is more or less repeated below
 	//tidy uses primitive system based on returning integers to indicate if function caused any errors. For simplicity I paste it below:
-	/*	0 == Success, good to go.
-		1 == Warnings, but no errors. Check the error buffer or track error messages for details.
-		2 == Errors (and maybe warnings). By default, Tidy will not produce output. You can force output with the TidyForceOutput option. As with warnings, check the error buffer or track error messages for details.
-		<0 == Severe error. Usually the value equals -errno. See errno.h.*/
+	//	0 == Success, good to go.
+	//	1 == Warnings, but no errors. Check the error buffer or track error messages for details.
+	//	2 == Errors (and maybe warnings). By default, Tidy will not produce output. You can force output with the TidyForceOutput option. As with warnings, check the error buffer or track error messages for details.
+	//	<0 == Severe error. Usually the value equals -errno. See errno.h.
 
 	TidyBuffer errbuf = { 0 };
 	int rc = -1;				//return code
@@ -89,9 +89,9 @@ void SourceDownloader::convertToXML()
 	{
 		if (rc > 0)
 		{
-			/*std::ofstream myfile;
+			std::ofstream myfile;
 			myfile.open("output.txt");
-			myfile << XMLdata.bp << "\n\n";*/
+			myfile << XMLdata.bp << "\n\n";
 		}
 		else
 		{
@@ -107,19 +107,22 @@ void SourceDownloader::convertToXML()
 	tidyRelease(tidyDoc);
 	sourceCode.clear();			//source code has been tidyied and converted into xml, so raw data can be removed
 }
+*/
 
 pugi::xml_node SourceDownloader::getData()
 {
-	document.load_buffer(XMLdata.bp, XMLdata.size);			//loading data into pugi document
-	tidyBufFree(&XMLdata);									//removing xml data in tidy buffer
+	document.load_string(sourceCode.c_str());
+	sourceCode.clear();
+	//document.load_buffer(XMLdata.bp, XMLdata.size);			//loading data into pugi document
+	//tidyBufFree(&XMLdata);									//removing xml data in tidy buffer
+
 	return document;
 }
 
 std::vector<pugi::xml_node> SourceDownloader::selectData(std::string attributeName, std::string attributeValue)
 {
 	std::vector<pugi::xml_node> results;
-	document.load_buffer(XMLdata.bp, XMLdata.size);			//loading data into pugi document
-	tidyBufFree(&XMLdata);									//removing xml data in tidy buffer
+	document.load_string(sourceCode.c_str());				//loading data into pugi document
 
 	std::queue<pugi::xml_node> childs;
 	childs.push(document);
