@@ -1,92 +1,70 @@
 #include "FeedsDatabase.h"
 #include <fstream>
 #include <iostream>
-
+//lastBuildDate, item, link, description;
 FeedsDatabase::FeedsDatabase()
 {
+	lastBuildDateKeyword.alternatives.push_back("lastBuildDate");			//defining lists of keywords we will be searching for. Keywords will be used one by one, only when needed.
+	lastBuildDateKeyword.alternatives.push_back("updated");
+
+	pubDateKeyword.alternatives.push_back("pubDate");
+	pubDateKeyword.alternatives.push_back("updated");
+
+	itemKeyword.alternatives.push_back("item");
+	itemKeyword.alternatives.push_back("entry");
+
+	linkKeyword.alternatives.push_back("link");
+	linkKeyword.alternatives.push_back("id");
+
+	descriptionKeyword.alternatives.push_back("description");
+	descriptionKeyword.alternatives.push_back("content");
+
+	titleKeyword.alternatives.push_back("title");
+
 	loadDatabase();
 }
 
 std::vector<std::string> FeedsDatabase::updateFeed(std::string feedLink, pugi::xml_node root)
 {
 	std::vector<std::string> newItemLinks;
-	std::vector<pugi::xml_node> lastBuildNode = scraper.selectDataByName(root, "lastBuildDate");
+
+	try
+	{
+		auto search = searchForKeyword(root, lastBuildDateKeyword, 1);		//selectDataByName returns vector of all matching nodes, but often we search for unique node (or specified number of them),
+																			//therefore use of searchForKeyword function. It allows to use defined lists of alternative keywords, which are used in order
+																			//of pushing to container, only if previous search doesn't return expected number of results.
+		std::string lastBuild = search[0].first_child().value();
+
+		if (lastBuild > feeds[feedLink].lastBuildTime)						//if feed has been updated since last check (if feed can't be found in map result is always true)
+		{
+			std::cout << "Updating " << feedLink << std::endl;
+
+			auto itemNodes = searchForKeyword(root, itemKeyword, 1);
+
+			FeedData& feed = feeds[feedLink];								//reference to feeds[feedLink]
+			feed.link = feedLink;											//assigning link to feed. It will have no effect if feed was already used.
+			feed.lastBuildTime = lastBuild;
+
+			for (auto& itemNode : itemNodes)
+			{
+				auto search = searchForKeyword(itemNode, linkKeyword, 1, true);
+				std::string itemLink = search[0].first_child().value();
+
+				if (!isItemSaved(feed.items, itemLink))						//if this item was already saved there is no need to do anything and we can just go to the next one
+				{
+					newItemLinks.push_back(itemLink);
+					feed.items.push_back(createItem(itemLink, itemNode));
+				}
+			}
+		}
+
+		std::cout << "Found " << newItemLinks.size() << " new articles" << std::endl;
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << "Unexpected behavior:\n" << e.what() << "\nUpdating this feed failed.\n";
+	}
 	
-	if (lastBuildNode.size() == 0)								//alternative keyword
-	{
-		lastBuildNode = scraper.selectDataByName(root, "updated");
-	}
-	std::string lastBuild;
-	lastBuild = lastBuildNode[0].first_child().value();			//selectDataByName returns vector of all matching nodes, but often we search for unique node, therefore use of [0]
-																//I thought about checking if size of vector is equal 1 and decided that this would be too annoying.
-	auto test = feeds[feedLink].lastBuildTime;
-
-	if (lastBuild > feeds[feedLink].lastBuildTime)				//if feed has been updated since last check (if feed can't be found in map result is always true)
-	{
-		std::cout << "Updating " << feedLink << std::endl;
-
-		auto items = scraper.selectDataByName(root, "item");
-
-		if (items.size() == 0)
-		{
-			items = scraper.selectDataByName(root, "entry");
-		}
-
-		if (!isFeedSaved(feedLink))										//if feed is new we have to create new FeedData and assign the link
-		{
-			FeedData data;
-			data.link = feedLink;
-			feeds[feedLink] = data;
-		}
-
-		FeedData& feed = feeds[feedLink];						//reference to feeds[feedLink]
-		feed.lastBuildTime = lastBuild;
-
-		for (auto& item : items)
-		{
-			auto linkNode = scraper.selectDataByName(item, "link");
-
-			if (!linkNode[0].first_child())
-			{
-				linkNode = scraper.selectDataByName(item, "id");
-			}
-
-
-			std::string itemLink = linkNode[0].first_child().value();
-
-			if (!isItemSaved(feed.items, itemLink))
-			{
-				Item newItem;
-
-				newItem.link = itemLink;
-				newItemLinks.push_back(itemLink);
-
-				auto titleNode = scraper.selectDataByName(item, "title");
-				std::string itemTitle = titleNode[0].first_child().value();
-				newItem.title = itemTitle;
-
-				auto descriptionNode = scraper.selectDataByName(item, "description");
-				if (descriptionNode.size() == 0)
-				{
-					descriptionNode= scraper.selectDataByName(item, "content");
-				}
-				std::string itemDescription = descriptionNode[0].first_child().value();
-				newItem.description = itemDescription;
-
-				auto pubDateNode = scraper.selectDataByName(item, "pubDate");
-				if (pubDateNode.size() == 0)
-				{
-					pubDateNode = scraper.selectDataByName(item, "updated");
-				}
-				std::string itemPubDate = pubDateNode[0].first_child().value();
-				newItem.pubDate = itemPubDate;
-
-				feed.items.push_back(newItem);
-			}
-		}
-	}
-
-	std::cout << "Found " << newItemLinks.size() << " new articles" << std::endl;
 	return newItemLinks;
 }
 
@@ -125,7 +103,7 @@ void FeedsDatabase::saveDatabase()
 
 			auto titleNode = itemNode.append_child("title").append_child(pugi::node_pcdata);
 			titleNode.set_value(item.title.c_str());
-			
+
 			auto linkNode = itemNode.append_child("link").append_child(pugi::node_pcdata);
 			linkNode.set_value(item.link.c_str());
 
@@ -157,7 +135,7 @@ void FeedsDatabase::loadDatabase()
 		feeds[feedLink] = FeedData();
 		feeds[feedLink].link = feedLink;
 
-		for (auto i = std::next(feed.children().begin()); i != feed.children().end(); i++)		//TODO: next because first node is link to feed. Can be improved.
+		for (auto i = std::next(feed.children().begin()); i != feed.children().end(); i++)		//TODO: have to use next because first node is a link to a feed. Can be improved.
 		{
 			pugi::xml_node item = (*i);
 			Item target;
@@ -178,4 +156,50 @@ bool FeedsDatabase::isFeedSaved(std::string feedLink)
 bool FeedsDatabase::isItemSaved(std::vector<Item> savedItems, std::string itemLink)
 {
 	return (std::find(savedItems.begin(), savedItems.end(), itemLink) != savedItems.end());
+}
+
+std::vector<pugi::xml_node> FeedsDatabase::searchForKeyword(pugi::xml_node root, Keyword keyword, size_t minimalResultNumber, bool checkForChild)
+{
+	for (auto& alternative : keyword.alternatives)
+	{
+		std::vector<pugi::xml_node> result = scraper.selectDataByName(root, alternative);
+
+		if (result.size() >= minimalResultNumber)
+		{
+			if (checkForChild)
+			{
+				if (result[0].first_child())
+				{
+					return result;
+				}
+			}
+			else
+			{
+				return result;
+			}
+
+
+			/*if(!checkForChild || result[0].first_child())				//notation above is basically an implication: checkForChild => result[0].first_child() and could be written in this way. Probably faster, but harder to read
+				return result;*/
+		}
+	}
+
+	throw std::string("Filtering nodes for " + keyword.mainKeyword() + " returned less than expected " + std::to_string(minimalResultNumber) + " results.");
+}
+
+Item FeedsDatabase::createItem(std::string itemLink, pugi::xml_node itemNode)
+{
+	Item newItem;
+	newItem.link = itemLink;
+
+	auto titleNode = searchForKeyword(itemNode, titleKeyword, 1);
+	newItem.title = titleNode[0].first_child().value();
+
+	auto descriptionNode = searchForKeyword(itemNode, descriptionKeyword, 1);
+	newItem.description = descriptionNode[0].first_child().value();
+
+	auto pubDateNode = searchForKeyword(itemNode, pubDateKeyword, 1);
+	newItem.pubDate = pubDateNode[0].first_child().value();
+
+	return newItem;
 }

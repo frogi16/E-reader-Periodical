@@ -53,76 +53,17 @@ void SourceDownloader::downloadSource(std::string url)
 	}
 }
 
-/*
-void SourceDownloader::convertToXML()
-{
-	//tidy documentation is horrible (in my opinion...) and I found only one really usefull text - http://api.html-tidy.org/tidy/tidylib_api_5.6.0/libtidy_04.html which is more or less repeated below
-	//tidy uses primitive system based on returning integers to indicate if function caused any errors. For simplicity I paste it below:
-	//	0 == Success, good to go.
-	//	1 == Warnings, but no errors. Check the error buffer or track error messages for details.
-	//	2 == Errors (and maybe warnings). By default, Tidy will not produce output. You can force output with the TidyForceOutput option. As with warnings, check the error buffer or track error messages for details.
-	//	<0 == Severe error. Usually the value equals -errno. See errno.h.
-
-	TidyBuffer errbuf = { 0 };
-	int rc = -1;				//return code
-	Bool ok;
-
-	TidyDoc tidyDoc = tidyCreate();							//initialize "document"
-
-	ok = tidyOptSetBool(tidyDoc, TidyXhtmlOut, yes);		//convert to XHTML
-	
-	if (ok)
-		rc = tidySetErrorBuffer(tidyDoc, &errbuf);			//link tidy document to error buffer
-	if (rc >= 0)
-		rc = tidyParseString(tidyDoc, sourceCode.c_str());	//load source code and parse it
-	if (rc >= 0)
-		rc = tidyCleanAndRepair(tidyDoc);					//tidy it up!
-	if (rc >= 0)
-		rc = tidyRunDiagnostics(tidyDoc);					//reports the document type and diagnostic statistics on parsed and repaired markup. 
-
-	if (rc > 1)												//if error, force output.
-		rc = (tidyOptSetBool(tidyDoc, TidyForceOutput, yes) ? rc : -1);
-	if (rc >= 0)
-		rc = tidySaveBuffer(tidyDoc, &XMLdata);				//save output into XMLdata variable
-
-	if (rc >= 0)
-	{
-		if (rc > 0)
-		{
-			std::ofstream myfile;
-			myfile.open("output.txt");
-			myfile << XMLdata.bp << "\n\n";
-		}
-		else
-		{
-			std::ofstream myfile;
-			myfile.open("output.txt");
-			myfile << "\nDiagnostics:\n\n%s" << errbuf.bp << "\n\n";
-		}
-	}
-	else
-		printf("A severe error (%d) occurred.\n", rc);
-
-	tidyBufFree(&errbuf);
-	tidyRelease(tidyDoc);
-	sourceCode.clear();			//source code has been tidyied and converted into xml, so raw data can be removed
-}
-*/
-
 pugi::xml_node SourceDownloader::getData()
 {
 	document.load_string(sourceCode.c_str());
 	sourceCode.clear();
-	//document.load_buffer(XMLdata.bp, XMLdata.size);			//loading data into pugi document
-	//tidyBufFree(&XMLdata);									//removing xml data in tidy buffer
-
 	return document;
 }
 
 std::vector<pugi::xml_node> SourceDownloader::selectData(std::string attributeName, std::string attributeValue)
 {
 	std::vector<pugi::xml_node> results;
-	document.load_string(sourceCode.c_str());				//loading data into pugi document
+	document.load_string(sourceCode.c_str());																//loading data into pugi document
 
 	std::queue<pugi::xml_node> childs;
 	childs.push(document);
@@ -160,13 +101,13 @@ SourceDownloader::~SourceDownloader()
 }
 
 size_t SourceDownloader::curlWriteToString
-   (void * contents,					//pointer to place where recieved data is
-	size_t size,						//size of one data element
-	size_t nmemb,						//number of elements which was recieved from site and passed to write function
-	std::string * s)					//destination where recieved data will be stored
+   (void * contents,							//pointer to place where recieved data is
+	size_t size,								//size of one data element
+	size_t nmemb,								//number of elements which was recieved from site and passed to write function
+	std::string * s)							//destination where recieved data will be stored
 {
-	size_t newLength = size*nmemb;		//space necessary to write new data
-	size_t oldLength = s->size();		//currently used space
+	size_t newLength = size*nmemb;				//space necessary to write new data
+	size_t oldLength = s->size();				//currently used space
 
 	try
 	{
@@ -184,5 +125,5 @@ size_t SourceDownloader::curlWriteToString
 																							//2) source end
 																							//3) destination beginning
 	
-	return size*nmemb;					//return number of bytes which function could save (everything it recieved if try block succeed, less if something went wrong. In that case further transfer will be stopped)
+	return size*nmemb;							//return number of bytes which function could save (everything it recieved if try block succeed, less if something went wrong. In that case further transfer will be stopped)
 }

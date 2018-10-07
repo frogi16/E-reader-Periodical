@@ -1,9 +1,8 @@
 #pragma once
 
 /*	
-	Reused from my Scrapper project. I was already using libcurl in this project, so there is only one new library - pugixml. Tidy is not needed because RSS uses plain XML, no HTML.
-	That's why I commented out convertToXML(). Without formatting and tidying converting can be done in one line.
-	TODO: Research if there is any way to avoid using std::string sourceCode and download source directly into pugi document.
+	Reused from my previous project - Scraper. This project was already using libcurl, so I just added pugixml. Tidy is not needed because RSS uses XML and no plain HTML has to be tidyied.
+	That's why I removed convertToXML() and changed few things. Full source code can be found in Scraper repo.
 */
 
 /*
@@ -30,14 +29,12 @@ class SourceDownloader
 public:
 	SourceDownloader();
 	void downloadSource(std::string url);
-	//void convertToXML();					//tidy xml is
 	pugi::xml_node getData();
 	std::vector<pugi::xml_node> selectData(std::string attributeName=0, std::string attributeValue=0);
 	~SourceDownloader();
 private:
 	static size_t curlWriteToString(void *contents, size_t size, size_t nmemb, std::string *s);
 	std::string sourceCode;
-	//TidyBuffer XMLdata = { 0 };
 	pugi::xml_document document;
 };
 

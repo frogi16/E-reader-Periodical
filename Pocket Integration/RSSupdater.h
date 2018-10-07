@@ -14,7 +14,6 @@ public:
 	std::vector<std::string> checkUpdates();		//returns vector of links to new items
 	std::vector<std::string> forceUpdates();		//returns vector of links to new items
 	void setUpdateFrequency(double seconds);
-	void setUpdateFrequency(int minutes);
 	void watchFeed(std::string link);
 	~RSSupdater();
 private:

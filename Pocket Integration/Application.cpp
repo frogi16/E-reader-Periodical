@@ -7,16 +7,7 @@ Application::Application() :
 	adder(consumerKey)
 {
 	curl_global_init(CURL_GLOBAL_ALL);
-	updater.setUpdateFrequency(5);		//update every 5 minutes
-
-	std::fstream watchedFeeds("watchedFeeds.txt", std::ios::in);
-
-	while (!watchedFeeds.eof())
-	{
-		std::string feed;
-		watchedFeeds >> feed;
-		updater.watchFeed(feed);
-	}
+	updater.setUpdateFrequency(5*60);							//update every 5 minutes
 }
 
 void Application::run()
@@ -43,7 +34,7 @@ void Application::authenticateConnection()
 	}
 	else
 	{
-		UserData user = authenticator.authenticate();
+		UserData user = authenticator.authenticate();			//authenticate by connecting to pocket and redirecting user to their website (uses OAuth 2.0)
 		users[user.username] = user.accessToken;
 		currentUser = user;
 	}
@@ -59,6 +50,18 @@ void Application::addArticles(std::vector<std::string> urls)
 {
 	//std::cout << "Sending articles to pocket" << std::endl;
 	//adder.addArticles(urls, currentUser.accessToken);
+}
+
+void Application::loadFeedsToWatch()
+{
+	std::fstream watchedFeeds("watchedFeeds.txt", std::ios::in);
+
+	while (!watchedFeeds.eof())
+	{
+		std::string feed;
+		watchedFeeds >> feed;
+		updater.watchFeed(feed);
+	}
 }
 
 Application::~Application()

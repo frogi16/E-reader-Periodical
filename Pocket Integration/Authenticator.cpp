@@ -82,13 +82,13 @@ CURLcode Authenticator::getAccessToken(std::string requestToken)
 {
 	curl_easy_setopt(handle, CURLOPT_URL, "https://getpocket.com/v3/oauth/authorize");			//where to post
 	std::string parameters = "consumer_key=" + mConsumerKey + "&code=" + requestToken;
-	curl_easy_setopt(handle, CURLOPT_POSTFIELDS, parameters.c_str());		//what to post
+	curl_easy_setopt(handle, CURLOPT_POSTFIELDS, parameters.c_str());							//what to post
 	return curl_easy_perform(handle);
 }
 
 std::string Authenticator::extractRequestToken(std::string source)
 {
-	source.erase(0, 5);				//erasing "code=" at the beginning
+	source.erase(0, 5);											//erasing "code=" at the beginning
 	return source;
 }
 
@@ -100,7 +100,7 @@ std::pair<std::string, std::string> Authenticator::extractAccessTokenAndUsername
 
 	std::string accessToken, username;
 
-	for (size_t i = 0; i < response.size(); i++)
+	for (size_t i = 0; i < response.size(); i++)				//cutting string from '=' to '&'
 	{
 		if (response[i] == '&')
 		{
@@ -138,7 +138,7 @@ void Authenticator::receivedCallback(web::uri address)
 {
 	if (address == callbackURI.to_uri())		//if addresses match
 	{
-		gotCallback = true;						//flag used by authenticate(). I had a problem determining the best approach to do it. This object need to make one request more and return
+		gotCallback = true;						//flag used by authenticate(). I had a problem determining the best approach to do it. This object needs to make one request more and return
 												//some data to main Application, so the simplest solution is to return it at the end of authenticate(). It stops execution of whole program though.
 												//If parallel execution were needed it would be recommended to use some kind of callback to notify Application about result of authentication.
 

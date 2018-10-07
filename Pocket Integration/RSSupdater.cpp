@@ -33,11 +33,6 @@ void RSSupdater::setUpdateFrequency(double seconds)
 	updateFrequency = seconds;
 }
 
-void RSSupdater::setUpdateFrequency(int minutes)
-{
-	updateFrequency = static_cast<double>(minutes) * 60.0;
-}
-
 void RSSupdater::watchFeed(std::string link)
 {
 	auto iterator = std::find(feeds.begin(), feeds.end(), link);
