@@ -71,5 +71,8 @@
     <ClInclude Include="ArticleAdder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="APIKeyHolder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

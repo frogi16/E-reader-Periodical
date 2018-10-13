@@ -147,6 +147,7 @@
     <ClCompile Include="SourceDownloader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="APIKeyHolder.h" />
     <ClInclude Include="Application.h" />
     <ClInclude Include="ArticleAdder.h" />
     <ClInclude Include="Authenticator.h" />

@@ -263,3 +263,4 @@ __pycache__/
 /Pocket Integration/database.xml
 /Pocket Integration/user.txt
 /Pocket Integration/watchedFeeds.txt
+/Pocket Integration/APIKeyHolder.h

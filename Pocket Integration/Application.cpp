@@ -3,11 +3,12 @@
 #include <fstream>
 
 Application::Application() : 
-	authenticator(consumerKey),
-	adder(consumerKey)
+	authenticator(keyHolder.consumerKey),
+	adder(keyHolder.consumerKey)
 {
 	curl_global_init(CURL_GLOBAL_ALL);
 	updater.setUpdateFrequency(5*60);							//update every 5 minutes
+	loadFeedsToWatch();
 }
 
 void Application::run()
@@ -48,8 +49,8 @@ std::vector<std::string> Application::checkRSS()
 
 void Application::addArticles(std::vector<std::string> urls)
 {
-	//std::cout << "Sending articles to pocket" << std::endl;
-	//adder.addArticles(urls, currentUser.accessToken);
+	std::cout << "Sending articles to pocket" << std::endl;
+	adder.addArticles(urls, currentUser.accessToken);
 }
 
 void Application::loadFeedsToWatch()

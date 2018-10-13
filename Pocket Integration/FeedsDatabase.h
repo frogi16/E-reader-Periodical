@@ -2,7 +2,7 @@
 
 #include <string>
 #include <vector>
-#include <list>;
+#include <list>
 #include <map>
 
 #include "pugixml.hpp"

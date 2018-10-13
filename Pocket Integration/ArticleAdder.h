@@ -11,7 +11,9 @@ public:
 	void addArticles(std::vector<std::string> links, std::string accessToken);
 	~ArticleAdder();
 private:
+	static size_t CurlWrite_CallbackFunc_StdString(void *contents, size_t size, size_t nmemb, std::string *s);		//needs to be static
 	CURL * handle;
 	std::string mConsumerKey;
+	std::string response;
 };
 
