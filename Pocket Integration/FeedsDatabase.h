@@ -63,6 +63,8 @@ public:
 	~FeedsDatabase();
 private:
 	void loadDatabase();																					//loading database into RAM
+	void loadKeywords();																					//loading groups of keywords from file
+
 	bool isFeedSaved(std::string feedLink);
 	bool isItemSaved(std::vector<Item> savedItems, std::string itemLink);
 	std::vector<pugi::xml_node> searchForKeyword(pugi::xml_node root, Keyword keyword, size_t minimalResultNumber = 1, bool checkForChild = false);			//checkForChild makes function to check whether found result have valid child. It is done to filter out nodes storing values using attributes instead of children

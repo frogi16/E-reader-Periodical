@@ -4,21 +4,7 @@
 
 FeedsDatabase::FeedsDatabase()
 {
-	pubDateKeyword.alternatives.push_back("pubDate");						//defining lists of keywords we will be searching for. Keywords will be used one by one, only when needed.
-	pubDateKeyword.alternatives.push_back("updated");
-	pubDateKeyword.alternatives.push_back("lastBuildDate");
-
-	itemKeyword.alternatives.push_back("item");
-	itemKeyword.alternatives.push_back("entry");
-
-	linkKeyword.alternatives.push_back("link");
-	linkKeyword.alternatives.push_back("id");
-
-	descriptionKeyword.alternatives.push_back("description");
-	descriptionKeyword.alternatives.push_back("content");
-
-	titleKeyword.alternatives.push_back("title");
-
+	loadKeywords();
 	loadDatabase();
 }
 
@@ -58,9 +44,9 @@ std::vector<std::string> FeedsDatabase::updateFeed(std::string feedLink, pugi::x
 
 		std::cout << "Found " << newItemLinks.size() << " new articles" << std::endl;
 	}
-	catch (const std::exception& e)
+	catch (const std::string& e)
 	{
-		std::cout << "Unexpected behavior:\n" << e.what() << "\nUpdating this feed failed.\n";
+		std::cout << "Unexpected behavior:\n" << e << "\nUpdating this feed failed.\n";
 	}
 	
 	return newItemLinks;
@@ -146,6 +132,51 @@ void FeedsDatabase::loadDatabase()
 	}
 }
 
+void FeedsDatabase::loadKeywords()
+{
+	pugi::xml_document doc;
+	doc.load_file("keywords.xml");
+	
+	for (auto& group : doc.children())
+	{
+		std::string mainKeyword = group.child("main_keyword").first_child().value();
+		Keyword * keywords;
+
+		if (mainKeyword == "pubDate")
+		{
+			keywords = &pubDateKeyword;
+		}
+		else if (mainKeyword == "item")
+		{
+			keywords = &itemKeyword;
+		}
+		else if (mainKeyword == "link")
+		{
+			keywords = &linkKeyword;
+		}
+		else if (mainKeyword == "description")
+		{
+			keywords = &descriptionKeyword;
+		}
+		else if (mainKeyword == "title")
+		{
+			keywords = &titleKeyword;
+		}
+		else
+		{
+			throw std::string("\"" + mainKeyword + "\" keywords group not found. Program continues execution, but you are adviced to check keywords database. Further stability is not guaranteed.\n");
+		}
+
+		keywords->alternatives.push_back(mainKeyword);
+
+		for (auto& alternative : group.child("alternatives").children())
+		{
+			keywords->alternatives.push_back(alternative.first_child().value());
+		}
+		
+	}
+}
+
 bool FeedsDatabase::isFeedSaved(std::string feedLink)
 {
 	return (feeds.find(feedLink) != feeds.end());
@@ -158,7 +189,7 @@ bool FeedsDatabase::isItemSaved(std::vector<Item> savedItems, std::string itemLi
 
 std::vector<pugi::xml_node> FeedsDatabase::searchForKeyword(pugi::xml_node root, Keyword keyword, size_t minimalResultNumber, bool checkForChild)
 {
-	bool noChildren = false;		//flag set when results were rejected because of lack of children. Used to determine which error should be thrown at the end of function
+	bool noChildren = false;											//flag set when results were rejected because of lack of children. Used to determine which error should be thrown at the end of function
 
 	for (auto& alternative : keyword.alternatives)
 	{
@@ -189,9 +220,9 @@ std::vector<pugi::xml_node> FeedsDatabase::searchForKeyword(pugi::xml_node root,
 	}
 
 	if(noChildren)
-		throw std::string("Filtering nodes for " + keyword.mainKeyword() + " returned results without children.");
+		throw std::string("Filtering nodes for \"" + keyword.mainKeyword() + "\" keyword returned results without children.");
 	else
-		throw std::string("Filtering nodes for " + keyword.mainKeyword() + " returned less than expected " + std::to_string(minimalResultNumber) + " results.");
+		throw std::string("Filtering nodes for \"" + keyword.mainKeyword() + "\" keyword returned less than expected " + std::to_string(minimalResultNumber) + " results.");
 }
 
 Item FeedsDatabase::createItem(std::string itemLink, pugi::xml_node itemNode)
