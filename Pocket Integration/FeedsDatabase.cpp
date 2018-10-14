@@ -160,6 +160,8 @@ bool FeedsDatabase::isItemSaved(std::vector<Item> savedItems, std::string itemLi
 
 std::vector<pugi::xml_node> FeedsDatabase::searchForKeyword(pugi::xml_node root, Keyword keyword, size_t minimalResultNumber, bool checkForChild)
 {
+	bool noChildren = false;		//flag set when results were rejected because of lack of children. Used to determine which error should be thrown at the end of function
+
 	for (auto& alternative : keyword.alternatives)
 	{
 		std::vector<pugi::xml_node> result = scraper.selectDataByName(root, alternative);
@@ -171,6 +173,10 @@ std::vector<pugi::xml_node> FeedsDatabase::searchForKeyword(pugi::xml_node root,
 				if (result[0].first_child())
 				{
 					return result;
+				}
+				else
+				{
+					noChildren = true;
 				}
 			}
 			else
@@ -184,7 +190,10 @@ std::vector<pugi::xml_node> FeedsDatabase::searchForKeyword(pugi::xml_node root,
 		}
 	}
 
-	throw std::string("Filtering nodes for " + keyword.mainKeyword() + " returned less than expected " + std::to_string(minimalResultNumber) + " results.");
+	if(noChildren)
+		throw std::string("Filtering nodes for " + keyword.mainKeyword() + " returned results without children.");
+	else
+		throw std::string("Filtering nodes for " + keyword.mainKeyword() + " returned less than expected " + std::to_string(minimalResultNumber) + " results.");
 }
 
 Item FeedsDatabase::createItem(std::string itemLink, pugi::xml_node itemNode)

@@ -23,10 +23,10 @@ public:
 private:
 	Authenticator* mOwner;
 
-	void handle_get(http_request message);
-	void handle_put(http_request message);
+	void handle_get(http_request message);			//this "server" is used only to recieve callback, so methods other than get are unnecessary. I left them commented for the future needs
+	/*void handle_put(http_request message);
 	void handle_post(http_request message);
-	void handle_delete(http_request message);
+	void handle_delete(http_request message);*/
 
 	http_listener m_listener;
 };

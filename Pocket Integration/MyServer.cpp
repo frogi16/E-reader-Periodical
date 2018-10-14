@@ -10,10 +10,9 @@ using namespace web::http::experimental::listener;
 MyServer::MyServer(utility::string_t url, Authenticator* owner) : m_listener(url), mOwner(owner)
 {
 	m_listener.support(methods::GET, std::bind(&MyServer::handle_get, this, std::placeholders::_1));
-	m_listener.support(methods::PUT, std::bind(&MyServer::handle_put, this, std::placeholders::_1));
+	/*m_listener.support(methods::PUT, std::bind(&MyServer::handle_put, this, std::placeholders::_1));
 	m_listener.support(methods::POST, std::bind(&MyServer::handle_post, this, std::placeholders::_1));
-	m_listener.support(methods::DEL, std::bind(&MyServer::handle_delete, this, std::placeholders::_1));
-
+	m_listener.support(methods::DEL, std::bind(&MyServer::handle_delete, this, std::placeholders::_1));*/
 }
 
 void MyServer::handle_get(http_request message)
@@ -22,7 +21,7 @@ void MyServer::handle_get(http_request message)
 	mOwner->receivedCallback(m_listener.uri());
 };
 
-void MyServer::handle_post(http_request message)
+/*void MyServer::handle_post(http_request message)
 {
 	message.reply(status_codes::OK);
 	mOwner->receivedCallback(m_listener.uri());
@@ -47,7 +46,7 @@ void MyServer::handle_put(http_request message)
 
 	if (request == U("leave"))
 	{
-		/*Data data;
+		Data data;
 		data.job = U("Devs");
 		People p1;
 		p1.age = 10;
@@ -61,9 +60,9 @@ void MyServer::handle_put(http_request message)
 		utility::string_t response = data.AsJSON().serialize();
 		ucout << response << endl;
 
-		message.reply(status_codes::OK, data.AsJSON());*/
+		message.reply(status_codes::OK, data.AsJSON());
 		return;
 	}
 
 	message.reply(status_codes::OK);
-};
+};*/

@@ -28,16 +28,21 @@ std::vector<std::string> RSSupdater::forceUpdates()
 	return downloadFeeds();
 }
 
-void RSSupdater::setUpdateFrequency(double seconds)
+void RSSupdater::setUpdateFrequencyInSeconds(double seconds)
 {
 	updateFrequency = seconds;
+}
+
+void RSSupdater::setUpdateFrequencyInMinutes(double minutes)
+{
+	updateFrequency = minutes * 60;
 }
 
 void RSSupdater::watchFeed(std::string link)
 {
 	auto iterator = std::find(feeds.begin(), feeds.end(), link);
 
-	if (iterator == feeds.end())	//haven't found link in feeds
+	if (iterator == feeds.end())	//if haven't found link in feeds
 	{
 		feeds.push_back(link);
 	}

@@ -13,7 +13,7 @@ struct Item
 {
 	std::string title, link, description, pubDate;
 
-	bool operator==(const std::string& rhs)
+	bool operator==(const std::string& rhs)																	//comparing items based on their links (titles can be changed, links almost never)
 	{
 		return this->link == rhs;
 	}
@@ -35,7 +35,7 @@ struct Keyword
 	std::list<std::string> alternatives;
 	std::string mainKeyword()
 	{
-		return (alternatives.size() ? alternatives.front() : std::string());
+		return (alternatives.size() ? alternatives.front() : std::string());								//if possible, return first keyword. Otherwise return empty string
 	}
 
 	bool operator==(const std::string& rhs)
@@ -59,7 +59,7 @@ class FeedsDatabase
 public:
 	FeedsDatabase();
 	std::vector<std::string> updateFeed(std::string feedLink, pugi::xml_node root);							//function returns vector of links to the new items
-	void saveDatabase();
+	void saveDatabase();																					//write to file
 	~FeedsDatabase();
 private:
 	void loadDatabase();																					//loading database into RAM
@@ -68,8 +68,8 @@ private:
 	std::vector<pugi::xml_node> searchForKeyword(pugi::xml_node root, Keyword keyword, size_t minimalResultNumber = 1, bool checkForChild = false);			//checkForChild makes function to check whether found result have valid child. It is done to filter out nodes storing values using attributes instead of children
 	Item createItem(std::string itemLink, pugi::xml_node itemNode);
 	
-	std::map<std::string, FeedData> feeds;																	//link to feed and feed
-	Scraper scraper;
+	std::map<std::string, FeedData> feeds;																	//link to feed and feed itself
+	Scraper scraper;																						//object containing functions facilitating scraping and filtering xml nodes
 	Keyword lastBuildDateKeyword, pubDateKeyword, itemKeyword, linkKeyword, descriptionKeyword, titleKeyword;
 };
 

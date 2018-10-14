@@ -7,7 +7,7 @@ Application::Application() :
 	adder(keyHolder.consumerKey)
 {
 	curl_global_init(CURL_GLOBAL_ALL);
-	updater.setUpdateFrequency(5*60);							//update every 5 minutes
+	updater.setUpdateFrequencyInMinutes(5);
 	loadFeedsToWatch();
 }
 

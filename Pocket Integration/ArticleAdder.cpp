@@ -5,8 +5,7 @@ ArticleAdder::ArticleAdder(std::string consumerKey) : mConsumerKey(consumerKey)
 {
 	handle = curl_easy_init();
 
-	curl_easy_setopt(handle, CURLOPT_URL, "https://getpocket.com/v3/add");				//where to post	
-																					
+	curl_easy_setopt(handle, CURLOPT_URL, "https://getpocket.com/v3/add");				//where to post																	
 	curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, CurlWrite_CallbackFunc_StdString);	//set response string as responses container
 	curl_easy_setopt(handle, CURLOPT_WRITEDATA, &response);
 }
