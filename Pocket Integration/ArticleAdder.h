@@ -8,7 +8,7 @@ class ArticleAdder
 {
 public:
 	ArticleAdder(std::string consumerKey);
-	void addArticles(std::vector<std::string> links, std::string accessToken);
+	void addArticles(const std::vector<std::string> & links, std::string accessToken) const;
 	~ArticleAdder();
 private:
 	static size_t CurlWrite_CallbackFunc_StdString(void *contents, size_t size, size_t nmemb, std::string *s);		//needs to be static

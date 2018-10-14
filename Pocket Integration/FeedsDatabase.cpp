@@ -2,7 +2,7 @@
 #include <fstream>
 #include <iostream>
 
-FeedsDatabase::FeedsDatabase()
+FeedsDatabase::FeedsDatabase() noexcept
 {
 	loadKeywords();
 	loadDatabase();
@@ -182,7 +182,7 @@ bool FeedsDatabase::isFeedSaved(std::string feedLink)
 	return (feeds.find(feedLink) != feeds.end());
 }
 
-bool FeedsDatabase::isItemSaved(std::vector<Item> savedItems, std::string itemLink)
+bool FeedsDatabase::isItemSaved(const std::vector<Item> & savedItems, std::string itemLink)
 {
 	return (std::find(savedItems.begin(), savedItems.end(), itemLink) != savedItems.end());
 }

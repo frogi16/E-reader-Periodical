@@ -13,11 +13,11 @@ struct Item
 {
 	std::string title, link, description, pubDate;
 
-	bool operator==(const std::string& rhs)																	//comparing items based on their links (titles can be changed, links almost never)
+	const bool operator==(const std::string& rhs) const														//comparing items based on their links (titles can be changed, links almost never)
 	{
 		return this->link == rhs;
 	}
-	bool operator!=( const std::string& rhs)
+	const bool operator!=( const std::string& rhs) const
 	{
 		return !( (*this) == rhs);
 	}
@@ -38,7 +38,7 @@ struct Keyword
 		return (alternatives.size() ? alternatives.front() : std::string());								//if possible, return first keyword. Otherwise return empty string
 	}
 
-	bool operator==(const std::string& rhs)
+	const bool operator==(const std::string& rhs) const
 	{
 		for (auto& alternative : alternatives)
 		{
@@ -48,7 +48,8 @@ struct Keyword
 
 		return false;
 	}
-	bool operator!=(const std::string& rhs)
+
+	const bool operator!=(const std::string& rhs) const
 	{
 		return !((*this) == rhs);
 	}
@@ -57,7 +58,7 @@ struct Keyword
 class FeedsDatabase
 {
 public:
-	FeedsDatabase();
+	FeedsDatabase() noexcept;
 	std::vector<std::string> updateFeed(std::string feedLink, pugi::xml_node root);							//function returns vector of links to the new items
 	void saveDatabase();																					//write to file
 	~FeedsDatabase();
@@ -66,7 +67,7 @@ private:
 	void loadKeywords();																					//loading groups of keywords from file
 
 	bool isFeedSaved(std::string feedLink);
-	bool isItemSaved(std::vector<Item> savedItems, std::string itemLink);
+	bool isItemSaved(const std::vector<Item> & savedItems, std::string itemLink);
 	std::vector<pugi::xml_node> searchForKeyword(pugi::xml_node root, Keyword keyword, size_t minimalResultNumber = 1, bool checkForChild = false);			//checkForChild makes function to check whether found result have valid child. It is done to filter out nodes storing values using attributes instead of children
 	Item createItem(std::string itemLink, pugi::xml_node itemNode);
 	

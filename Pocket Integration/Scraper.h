@@ -6,7 +6,7 @@
 class Scraper
 {
 public:
-	Scraper();
+	Scraper() noexcept;
 	~Scraper();
 	std::vector<pugi::xml_node> selectDataByAttribute(pugi::xml_node source, std::string attributeName = 0, std::string attributeValue = 0);
 	std::vector<pugi::xml_node> selectDataByName(pugi::xml_node source, std::string name);

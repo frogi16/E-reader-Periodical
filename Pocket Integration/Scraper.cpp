@@ -2,7 +2,7 @@
 
 #include <queue>
 
-Scraper::Scraper()
+Scraper::Scraper() noexcept
 {
 }
 

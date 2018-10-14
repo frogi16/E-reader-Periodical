@@ -27,7 +27,7 @@
 class SourceDownloader
 {
 public:
-	SourceDownloader();
+	SourceDownloader() noexcept;
 	void downloadSource(std::string url);
 	pugi::xml_node getData();
 	std::vector<pugi::xml_node> selectData(std::string attributeName=0, std::string attributeValue=0);

@@ -12,13 +12,13 @@
 class Application
 {
 public:
-	Application();
+	Application() noexcept;
 	void run();
 	~Application();
 private:
 	void authenticateConnection();
 	std::vector<std::string> checkRSS();
-	void addArticles(std::vector<std::string> urls);
+	void addArticles(const std::vector<std::string> & urls);
 	void loadFeedsToWatch();
 
 	APIKeyHolder keyHolder;

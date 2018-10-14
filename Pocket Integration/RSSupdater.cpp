@@ -2,7 +2,9 @@
 
 #include <algorithm>
 
-RSSupdater::RSSupdater() : lastUpdate(NULL), updateFrequency(60*5)
+RSSupdater::RSSupdater() noexcept :
+	lastUpdate(NULL),
+	updateFrequency(60*5)
 {
 }
 
@@ -28,12 +30,12 @@ std::vector<std::string> RSSupdater::forceUpdates()
 	return downloadFeeds();
 }
 
-void RSSupdater::setUpdateFrequencyInSeconds(double seconds)
+void RSSupdater::setUpdateFrequencyInSeconds(size_t seconds)
 {
 	updateFrequency = seconds;
 }
 
-void RSSupdater::setUpdateFrequencyInMinutes(double minutes)
+void RSSupdater::setUpdateFrequencyInMinutes(size_t minutes)
 {
 	updateFrequency = minutes * 60;
 }

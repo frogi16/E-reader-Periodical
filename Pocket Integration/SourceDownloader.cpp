@@ -2,7 +2,7 @@
 #include <ostream>
 
 
-SourceDownloader::SourceDownloader()
+SourceDownloader::SourceDownloader() noexcept
 {
 }
 

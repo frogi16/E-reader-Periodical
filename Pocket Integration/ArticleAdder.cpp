@@ -10,15 +10,13 @@ ArticleAdder::ArticleAdder(std::string consumerKey) : mConsumerKey(consumerKey)
 	curl_easy_setopt(handle, CURLOPT_WRITEDATA, &response);
 }
 
-void ArticleAdder::addArticles(std::vector<std::string> links, std::string accessToken)
+void ArticleAdder::addArticles(const std::vector<std::string> & links, std::string accessToken) const
 {
 	for (auto& link : links)
 	{
 		std::string parameters = "url=" + link + "&consumer_key=" + mConsumerKey + "&access_token=" + accessToken;
 		curl_easy_setopt(handle, CURLOPT_POSTFIELDS, parameters.c_str());				//what to post
 		auto result = curl_easy_perform(handle);
-		response;
-		bool test = true;
 	}	
 }
 
