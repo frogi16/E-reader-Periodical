@@ -1,14 +1,12 @@
 #include "FeedsDatabase.h"
 #include <fstream>
 #include <iostream>
-//lastBuildDate, item, link, description;
+
 FeedsDatabase::FeedsDatabase()
 {
-	lastBuildDateKeyword.alternatives.push_back("lastBuildDate");			//defining lists of keywords we will be searching for. Keywords will be used one by one, only when needed.
-	lastBuildDateKeyword.alternatives.push_back("updated");
-
-	pubDateKeyword.alternatives.push_back("pubDate");
+	pubDateKeyword.alternatives.push_back("pubDate");						//defining lists of keywords we will be searching for. Keywords will be used one by one, only when needed.
 	pubDateKeyword.alternatives.push_back("updated");
+	pubDateKeyword.alternatives.push_back("lastBuildDate");
 
 	itemKeyword.alternatives.push_back("item");
 	itemKeyword.alternatives.push_back("entry");
@@ -30,7 +28,7 @@ std::vector<std::string> FeedsDatabase::updateFeed(std::string feedLink, pugi::x
 
 	try
 	{
-		auto search = searchForKeyword(root, lastBuildDateKeyword, 1);		//selectDataByName returns vector of all matching nodes, but often we search for unique node (or specified number of them),
+		auto search = searchForKeyword(root, pubDateKeyword, 1);			//selectDataByName returns vector of all matching nodes, but often we search for unique node (or specified number of them),
 																			//therefore use of searchForKeyword function. It allows to use defined lists of alternative keywords, which are used in order
 																			//of pushing to container, only if previous search doesn't return expected number of results.
 		std::string lastBuild = search[0].first_child().value();

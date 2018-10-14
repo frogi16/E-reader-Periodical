@@ -70,6 +70,6 @@ private:
 	
 	std::map<std::string, FeedData> feeds;																	//link to feed and feed itself
 	Scraper scraper;																						//object containing functions facilitating scraping and filtering xml nodes
-	Keyword lastBuildDateKeyword, pubDateKeyword, itemKeyword, linkKeyword, descriptionKeyword, titleKeyword;
+	Keyword pubDateKeyword, itemKeyword, linkKeyword, descriptionKeyword, titleKeyword;
 };
 
