@@ -61,6 +61,7 @@ RSSupdater::~RSSupdater()
 
 std::vector<std::string> RSSupdater::downloadFeeds()
 {
+	std::cout << "Checking for new articles" << std::endl;
 	std::vector<std::string> newItemLinks;
 
 	for (auto& feed : feeds)

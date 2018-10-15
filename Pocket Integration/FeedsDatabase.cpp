@@ -34,6 +34,15 @@ std::vector<std::string> FeedsDatabase::updateFeed(std::string feedLink, pugi::x
 				auto search = searchForKeyword(itemNode, linkKeyword, 1, true);
 				std::string itemLink = search[0].first_child().value();
 
+				if (itemLink.find("http") == std::string::npos)		
+																			//if there is no "http" (or "https") in link site probably uses some weird structure - for example blogspot.com shows something
+																			//like this: "<id>tag:blogger.com,1999:blog-2442024767695998453.post-2644038318746445557</id>" and valid link is hidden in here:
+																			//"<link rel='alternate' type='text/html' href='https://czajniczek-pana-russella.blogspot.com/2018/10/gdzie-sie-podziali-kanibale.html' title='Gdzie siê podziali kanibale?'/>"
+																			//right now I encountered only one problematic RSS generator, if I find more, more general approach should be developed
+				{
+					itemLink = getLinkFromAlternateHref(itemNode);
+				}
+
 				if (!isItemSaved(feed.items, itemLink))						//if this item was already saved there is no need to do anything and we can just go to the next one
 				{
 					newItemLinks.push_back(itemLink);
@@ -240,4 +249,21 @@ Item FeedsDatabase::createItem(std::string itemLink, pugi::xml_node itemNode)
 	newItem.pubDate = pubDateNode[0].first_child().value();
 
 	return newItem;
+}
+
+std::string FeedsDatabase::getLinkFromAlternateHref(pugi::xml_node root)
+{
+	auto links = scraper.selectDataByAttribute(root, "rel", "alternate");
+
+	if (links.size())
+	{
+		std::string link = links[0].attribute("href").value();
+		return link;
+	}
+	else
+	{
+		throw std::string("Haven't found link in node with rel=\'alternate\' attribute!\n");
+	}
+
+	return std::string();
 }

@@ -68,9 +68,12 @@ private:
 
 	bool isFeedSaved(std::string feedLink);
 	bool isItemSaved(const std::vector<Item> & savedItems, std::string itemLink);
+
 	std::vector<pugi::xml_node> searchForKeyword(pugi::xml_node root, Keyword keyword, size_t minimalResultNumber = 1, bool checkForChild = false);			//checkForChild makes function to check whether found result have valid child. It is done to filter out nodes storing values using attributes instead of children
 	Item createItem(std::string itemLink, pugi::xml_node itemNode);
 	
+	std::string getLinkFromAlternateHref(pugi::xml_node root);												//for example: "<link rel='alternate' type='text/html' href='https://czajniczek-pana-russella.blogspot.com/2018/10/gdzie-sie-podziali-kanibale.html' title='Gdzie siê podziali kanibale?'/>"
+
 	std::map<std::string, FeedData> feeds;																	//link to feed and feed itself
 	Scraper scraper;																						//object containing functions facilitating scraping and filtering xml nodes
 	Keyword pubDateKeyword, itemKeyword, linkKeyword, descriptionKeyword, titleKeyword;

@@ -43,13 +43,14 @@ void Application::authenticateConnection()
 
 std::vector<std::string> Application::checkRSS()
 {
-	std::cout << "Checking for new articles" << std::endl;
 	return updater.checkUpdates();
 }
 
 void Application::addArticles(const std::vector<std::string> & urls)
 {
-	std::cout << "Sending " << urls.size() << " articles to pocket" << std::endl;
+	if(urls.size())
+		std::cout << "Sending " << urls.size() << " articles to pocket" << std::endl;
+
 	adder.addArticles(urls, currentUser.accessToken);
 }
 
