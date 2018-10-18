@@ -1,15 +1,24 @@
 #include "Authenticator.h"
+#include "json.h"
 
 #include <fstream>
 
+using njson = nlohmann::json;
+
 Authenticator::Authenticator(std::string consumerKey) : mConsumerKey(consumerKey)
-{	
+{
 	//initialize curl
 	handle = curl_easy_init();
 
 	//set response string as responses container
 	curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, CurlWrite_CallbackFunc_StdString);
 	curl_easy_setopt(handle, CURLOPT_WRITEDATA, &response);
+	
+	//set headers: parameters will be transmitted in form of JSON in UTF8 and site is expected to respond in JSON as well
+	struct curl_slist *chunk = NULL;
+	chunk = curl_slist_append(chunk, "Content-Type: application/json; charset=UTF8");
+	chunk = curl_slist_append(chunk, "X-Accept: application/json");
+	curl_easy_setopt(handle, CURLOPT_HTTPHEADER, chunk);
 
 	callbackString_t = utility::string_t(L"http://localhost:21568/callback/");
 	callbackString = utility::conversions::to_utf8string(callbackString_t);
@@ -59,66 +68,47 @@ UserData Authenticator::authenticate()
 
 CURLcode Authenticator::getRequestToken()
 {
-	curl_easy_setopt(handle, CURLOPT_URL, "https://getpocket.com/v3/oauth/request");				//where to post
-	std::string parameters = "consumer_key=" + mConsumerKey + "&redirect_uri=" + callbackString;
-	curl_easy_setopt(handle, CURLOPT_POSTFIELDS, parameters.c_str());								//what to post
-	return curl_easy_perform(handle);
+	njson jsonParameters;
+	jsonParameters["consumer_key"] = mConsumerKey;
+	jsonParameters["redirect_uri"] = callbackString;
+
+	std::string parameters = jsonParameters.dump();
+	return makePOST("https://getpocket.com/v3/oauth/request", parameters);
 }
 
 CURLcode Authenticator::getAccessToken(std::string requestToken)
 {
-	curl_easy_setopt(handle, CURLOPT_URL, "https://getpocket.com/v3/oauth/authorize");
-	std::string parameters = "consumer_key=" + mConsumerKey + "&code=" + requestToken;
+	njson jsonParameters;
+	jsonParameters["consumer_key"] = mConsumerKey;
+	jsonParameters["code"] = requestToken;
+
+	std::string parameters = jsonParameters.dump();
+	return makePOST("https://getpocket.com/v3/oauth/authorize", parameters);
+}
+
+CURLcode Authenticator::makePOST(std::string url, std::string parameters)
+{
+	response.clear();
+	curl_easy_setopt(handle, CURLOPT_URL, url.c_str());
 	curl_easy_setopt(handle, CURLOPT_POSTFIELDS, parameters.c_str());
 	return curl_easy_perform(handle);
 }
 
 std::string Authenticator::extractRequestToken(std::string source)
 {
-	source.erase(0, 5);											//erasing "code=" at the beginning
-	return source;
+	auto json = njson::parse(response);
+	return json["code"].get<std::string>();
 }
 
 UserData Authenticator::extractAccessTokenAndUsername(std::string source)
 {
-	int equalSign = 0;
-	bool saveAccessToken = false;
-	bool saveUsername = false;
+	UserData data;
 
-	std::string accessToken, username;
-
-	for (size_t i = 0; i < response.size(); i++)				//cutting string from '=' to '&'
-	{
-		if (response[i] == '&')
-		{
-			saveAccessToken = false;
-		}
-
-		if (saveAccessToken)
-		{
-			accessToken.push_back(response[i]);
-		}
-
-		if (saveUsername)
-		{
-			username.push_back(response[i]);
-		}
-
-		if (response[i] == '=')
-		{
-			equalSign++;
-
-			if (equalSign == 2)
-			{
-				saveAccessToken = true;
-			}
-			else if (equalSign == 3)
-			{
-				saveUsername = true;
-			}
-		}
-	}
-	return UserData{ accessToken, username };
+	auto json = njson::parse(response);
+	data.accessToken = json["access_token"].get<std::string>();
+	data.username = json["username"].get<std::string>();
+	
+	return data;
 }
 
 void Authenticator::receivedCallback(web::uri address)
@@ -153,7 +143,7 @@ void Authenticator::saveUserToFile(std::string filepath, const UserData& userDat
 {
 	std::fstream loginFile;
 	loginFile.open(filepath, std::ios::out);
-	loginFile << userData.accessToken<< " " << userData.username;
+	loginFile << userData.accessToken << " " << userData.username;
 	loginFile.close();
 }
 

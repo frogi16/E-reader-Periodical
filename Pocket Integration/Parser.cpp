@@ -9,6 +9,11 @@ Parser::Parser(std::string mercuryKey) : mMercuryKey(mercuryKey)
 
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlWrite_CallbackFunc_StdString);	//set response string as responses container
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+
+	struct curl_slist *chunk = NULL;
+	chunk = curl_slist_append(chunk, (std::string("x-api-key: ") + mMercuryKey).c_str());		//set header with api key
+	chunk = curl_slist_append(chunk, "Content-Type: application/json");
+	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, chunk);
 }
 
 std::vector<ParsedArticle> Parser::getParsedArticles(const std::vector<std::string>& links)
@@ -27,10 +32,6 @@ std::vector<ParsedArticle> Parser::getParsedArticles(const std::vector<std::stri
 
 void Parser::callMercury(std::string link)
 {
-	struct curl_slist *chunk = NULL;
-	chunk = curl_slist_append(chunk, (std::string("x-api-key: ") + mMercuryKey).c_str());		//set header with api key
-	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, chunk);
-
 	std::string url = std::string("https://mercury.postlight.com/parser") + "?url=" + link;
 
 	curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);

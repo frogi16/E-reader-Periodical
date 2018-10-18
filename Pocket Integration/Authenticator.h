@@ -22,8 +22,10 @@ public:
 private:
 	UserData loadUserFromFile(std::string filepath);
 	void saveUserToFile(std::string filepath, const UserData& userData);
+
 	CURLcode getRequestToken();
 	CURLcode getAccessToken(std::string requestToken);
+	CURLcode makePOST(std::string url, std::string parameters);														//function makes POST to sent site with sent parameters using previously set settings - headers, write function etc.
 
 	std::string extractRequestToken(std::string source);
 	UserData extractAccessTokenAndUsername(std::string source);
