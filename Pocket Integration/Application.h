@@ -3,6 +3,7 @@
 #include "Authenticator.h"
 #include "RSSupdater.h"
 #include "ArticleAdder.h"
+#include "Parser.h"
 
 #include <string>
 #include <map>
@@ -25,6 +26,7 @@ private:
 	Authenticator authenticator;
 	RSSupdater updater;
 	ArticleAdder adder;
+	Parser parser;
 
 	std::map<std::string, std::string> users;
 	UserData currentUser;

@@ -1,10 +1,9 @@
 #include "Application.h"
 
-#include <fstream>
-
 Application::Application() noexcept :
-	authenticator(keyHolder.consumerKey),
-	adder(keyHolder.consumerKey)
+	authenticator(keyHolder.pocketKey),
+	adder(keyHolder.pocketKey),
+	parser(keyHolder.mercuryKey)
 {
 	curl_global_init(CURL_GLOBAL_ALL);
 	updater.setUpdateFrequencyInMinutes(5);

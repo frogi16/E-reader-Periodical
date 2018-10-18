@@ -142,6 +142,7 @@
     <ClCompile Include="FeedsDatabase.cpp" />
     <ClCompile Include="maincpp.cpp" />
     <ClCompile Include="MyServer.cpp" />
+    <ClCompile Include="Parser.cpp" />
     <ClCompile Include="RSSupdater.cpp" />
     <ClCompile Include="Scraper.cpp" />
     <ClCompile Include="SourceDownloader.cpp" />
@@ -152,7 +153,9 @@
     <ClInclude Include="ArticleAdder.h" />
     <ClInclude Include="Authenticator.h" />
     <ClInclude Include="FeedsDatabase.h" />
+    <ClInclude Include="json.h" />
     <ClInclude Include="MyServer.h" />
+    <ClInclude Include="Parser.h" />
     <ClInclude Include="RSSupdater.h" />
     <ClInclude Include="Scraper.h" />
     <ClInclude Include="SourceDownloader.h" />
