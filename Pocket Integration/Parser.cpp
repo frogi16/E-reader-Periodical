@@ -7,7 +7,7 @@ Parser::Parser(std::string mercuryKey) : mMercuryKey(mercuryKey)
 {
 	curl = curl_easy_init();
 
-	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlWrite_CallbackFunc_StdString);	//set response string as responses container
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlWrite_CallbackFunc_StdString);			//set response string as responses container
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
 
 	struct curl_slist *chunk = NULL;
@@ -44,9 +44,14 @@ ParsedArticle Parser::parseArticle(std::string & article)
 	ParsedArticle parsedArticle;
 
 	auto json = json::parse(response);
-	parsedArticle.author = json["author"].get<std::string>();
-	parsedArticle.title = json["title"].get<std::string>();
-	parsedArticle.content = json["content"].get<std::string>();
+	if(!json["author"].is_null())
+		parsedArticle.author = json["author"].get<std::string>();
+	if (!json["title"].is_null())
+		parsedArticle.title = json["title"].get<std::string>();
+	if (!json["content"].is_null())
+		parsedArticle.content = json["content"].get<std::string>();
+	if (!json["domain"].is_null())
+		parsedArticle.domain = json["domain"].get<std::string>();
 
 	return parsedArticle;
 }

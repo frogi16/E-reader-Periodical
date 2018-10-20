@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package unique-identifier="BookID" version="1.0">
+    <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
+        <dc:title>Your own RSS Periodical</dc:title>
+	<dc:language>en</dc:language>
+        <dc:creator opf:role="aut">Pocket Integration</dc:creator>
+        <meta name="Sigil version" content="0.2.4"/>
+    </metadata>
+    <manifest>
+        <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
+		<item id="page-template.xpgt" href="Styles/page-template.xpgt" media-type="application/vnd.adobe-page-template+xml"/>
+        <item id="stylesheet.css" href="Styles/stylesheet.css" media-type="text/css"/>
+		
+		<item id="title_page.xhtml" href="Text/title_page.xhtml" media-type="application/xhtml+xml"/>

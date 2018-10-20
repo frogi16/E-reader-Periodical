@@ -90,7 +90,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>F:\Programowanie\pugixml-1.6\src;F:\Programowanie\Tidy\include;F:\Programowanie\Casablanca\cpprestsdk\Release\include;C:\libcurl\builds\libcurl-vc15-x64-release-static-ipv6-sspi-winssl\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\make\zlib-1.2.11;F:\Programowanie\pugixml-1.6\src;F:\Programowanie\Tidy\include;F:\Programowanie\Casablanca\cpprestsdk\Release\include;C:\libcurl\builds\libcurl-vc15-x64-release-static-ipv6-sspi-winssl\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>CURL_STATICLIB;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -124,7 +124,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>F:\Programowanie\pugixml-1.6\src;F:\Programowanie\Tidy\include;F:\Programowanie\Casablanca\cpprestsdk\Release\include;C:\libcurl\builds\libcurl-vc15-x64-release-static-ipv6-sspi-winssl\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\make\zlib-1.2.11;F:\Programowanie\pugixml-1.6\src;F:\Programowanie\Tidy\include;F:\Programowanie\Casablanca\cpprestsdk\Release\include;C:\libcurl\builds\libcurl-vc15-x64-release-static-ipv6-sspi-winssl\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>CURL_STATICLIB;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -139,7 +139,9 @@
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="ArticleAdder.cpp" />
     <ClCompile Include="Authenticator.cpp" />
+    <ClCompile Include="EbookCreator.cpp" />
     <ClCompile Include="FeedsDatabase.cpp" />
+    <ClCompile Include="ImageSaver.cpp" />
     <ClCompile Include="maincpp.cpp" />
     <ClCompile Include="MyServer.cpp" />
     <ClCompile Include="Parser.cpp" />
@@ -152,9 +154,12 @@
     <ClInclude Include="Application.h" />
     <ClInclude Include="ArticleAdder.h" />
     <ClInclude Include="Authenticator.h" />
+    <ClInclude Include="EbookCreator.h" />
     <ClInclude Include="FeedsDatabase.h" />
+    <ClInclude Include="ImageSaver.h" />
     <ClInclude Include="json.h" />
     <ClInclude Include="MyServer.h" />
+    <ClInclude Include="ParsedArticle.h" />
     <ClInclude Include="Parser.h" />
     <ClInclude Include="RSSupdater.h" />
     <ClInclude Include="Scraper.h" />

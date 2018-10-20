@@ -16,8 +16,11 @@ void Application::run()
 
 	while (true)
 	{
+		//std::vector<std::string> newArticleLinks;
 		auto newArticleLinks = checkRSS();
-		addArticles(newArticleLinks);
+
+		createMobi(newArticleLinks);
+		//addArticles(newArticleLinks);
 
 		Sleep(1000 * 60);
 	}
@@ -51,6 +54,24 @@ void Application::addArticles(const std::vector<std::string> & urls)
 		std::cout << "Sending " << urls.size() << " articles to pocket" << std::endl;
 
 	adder.addArticles(urls, currentUser.accessToken);
+}
+
+void Application::createMobi(const std::vector<std::string>& urls)
+{
+	if (urls.size())
+		std::cout << "Parsing " << urls.size() << " articles" << std::endl;
+
+	auto articles = parser.getParsedArticles(urls);
+
+	if (urls.size())
+		std::cout << "Creating epub from  " << urls.size() << " articles" << std::endl;
+
+	ebookCreator.createEpub(articles);
+	
+	std::cout << "Converting to mobi" << std::endl;
+
+	ebookCreator.convertToMobi();
+	//ebookCreator.removeEpub();
 }
 
 void Application::loadFeedsToWatch()

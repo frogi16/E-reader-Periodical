@@ -4,6 +4,7 @@
 #include "RSSupdater.h"
 #include "ArticleAdder.h"
 #include "Parser.h"
+#include "EbookCreator.h"
 
 #include <string>
 #include <map>
@@ -20,6 +21,7 @@ private:
 	void authenticateConnection();
 	std::vector<std::string> checkRSS();
 	void addArticles(const std::vector<std::string> & urls);
+	void createMobi(const std::vector<std::string> & urls);
 	void loadFeedsToWatch();
 
 	APIKeyHolder keyHolder;
@@ -27,6 +29,7 @@ private:
 	RSSupdater updater;
 	ArticleAdder adder;
 	Parser parser;
+	EbookCreator ebookCreator;
 
 	std::map<std::string, std::string> users;
 	UserData currentUser;

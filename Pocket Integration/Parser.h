@@ -4,12 +4,7 @@
 #include <string>
 #include <vector>
 
-struct ParsedArticle
-{
-	std::string title;
-	std::string author;
-	std::string content;
-};
+#include "ParsedArticle.h"
 
 class Parser
 {
