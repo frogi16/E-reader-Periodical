@@ -12,6 +12,8 @@
 		<item id="page-template.xpgt" href="Styles/page-template.xpgt" media-type="application/vnd.adobe-page-template+xml"/>
         <item id="stylesheet.css" href="Styles/stylesheet.css" media-type="text/css"/>
 		<item id="cover-image" href="images/cover.png" media-type="image/png"/>
+		<item id="feed-icon" href="images/feed-icon.png" media-type="image/png"/>
+		<item id="toc-file" href="Text/toc.xhtml" media-type="application/xhtml+xml"/>
 		
 		<item id="cover" href="Text/cover.xhtml" media-type="application/xhtml+xml"/>
 		<item id="title_page.xhtml" href="Text/title_page.xhtml" media-type="application/xhtml+xml"/>

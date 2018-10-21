@@ -164,6 +164,7 @@
     <ClInclude Include="RSSupdater.h" />
     <ClInclude Include="Scraper.h" />
     <ClInclude Include="SourceDownloader.h" />
+    <ClInclude Include="SrcSet.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

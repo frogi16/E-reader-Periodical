@@ -29,3 +29,26 @@ h6 { text-align: center; }
 
 .domain
 {font-style: italic;}
+
+.sgc-toc-title {
+	font-family : Alegreya, serif;
+    font-size: 2em;
+    font-weight: bold;
+    margin-bottom: 1em;
+    text-align: center;
+}
+
+.sgc-toc-level-1 {
+	margin-top:0.5em;
+	margin-bottom: 0.25em;
+	margin-left: 2em;
+}
+
+div.centered_image {
+  width: 15%;
+  margin: 1em 42.5%;
+}
+
+div.centered_image img {
+  width: 100%;
+}

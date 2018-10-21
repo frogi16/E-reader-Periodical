@@ -24,8 +24,17 @@ void ImageSaver::saveImage(std::string link, std::experimental::filesystem::path
 
 
 		// Grab image 
-		imgresult = curl_easy_perform(image);
-		if (imgresult) {
+		try
+		{
+			imgresult = curl_easy_perform(image);
+		}
+		catch (const std::exception& e)
+		{
+			std::cout << "Error while downloading image. " << e.what() << std::endl;
+		}
+		
+		if (imgresult)
+		{
 			std::cout << "Cannot grab the image!\n";
 		}
 	}

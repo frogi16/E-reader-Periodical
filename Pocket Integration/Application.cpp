@@ -50,7 +50,7 @@ std::vector<std::string> Application::checkRSS()
 
 void Application::addArticles(const std::vector<std::string> & urls)
 {
-	if(urls.size())
+	if (urls.size())
 		std::cout << "Sending " << urls.size() << " articles to pocket" << std::endl;
 
 	adder.addArticles(urls, currentUser.accessToken);
@@ -59,19 +59,20 @@ void Application::addArticles(const std::vector<std::string> & urls)
 void Application::createMobi(const std::vector<std::string>& urls)
 {
 	if (urls.size())
+	{
 		std::cout << "Parsing " << urls.size() << " articles" << std::endl;
 
-	auto articles = parser.getParsedArticles(urls);
+		auto articles = parser.getParsedArticles(urls);
 
-	if (urls.size())
 		std::cout << "Creating epub from  " << urls.size() << " articles" << std::endl;
 
-	ebookCreator.createEpub(articles);
-	
-	std::cout << "Converting to mobi" << std::endl;
+		ebookCreator.createEpub(articles);
 
-	ebookCreator.convertToMobi();
-	//ebookCreator.removeEpub();
+		std::cout << "Converting to mobi" << std::endl;
+
+		ebookCreator.convertToMobi();
+		//ebookCreator.removeEpub();
+	}
 }
 
 void Application::loadFeedsToWatch()

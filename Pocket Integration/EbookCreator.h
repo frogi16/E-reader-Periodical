@@ -19,6 +19,7 @@ private:
 	void appendData(std::vector<ParsedArticle> & articles);				//whole process of saving articles to files, constructing table of content, manifest etc.
 	void saveArticle(ParsedArticle & article);							//save article to .xhtml file
 	void addToManifest(ParsedArticle & article);						//add metadata about article to content.opf manifest
+	void saveImages(std::vector<pugi::xml_node> images);				//takes vector of <img> nodes, finds images, download them and list in manifest file
 	void addSeparationBetweenManifestAndSpine();						//add markups ending manifest and beginning spine
 	void addToSpine(std::vector<ParsedArticle> & articles);				//add metadata about article to content.opf spine
 	void buildTableOfContent(std::vector<ParsedArticle> & articles);

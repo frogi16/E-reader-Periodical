@@ -1,6 +1,8 @@
 #include "Parser.h"
 #include "json.h"
 
+#include <iostream>
+
 using json = nlohmann::json;
 
 Parser::Parser(std::string mercuryKey) : mMercuryKey(mercuryKey)
@@ -27,15 +29,18 @@ std::vector<ParsedArticle> Parser::getParsedArticles(const std::vector<std::stri
 		parsedArticles.push_back(parsedArticle);
 		response.clear();
 	}
+	std::cout << std::endl;
+
 	return parsedArticles;
 }
 
 void Parser::callMercury(std::string link)
 {
 	std::string url = std::string("https://mercury.postlight.com/parser") + "?url=" + link;
-
+	
 	curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 	auto result = curl_easy_perform(curl);
+	std::cout << ".";
 }
 
 ParsedArticle Parser::parseArticle(std::string & article)

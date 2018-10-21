@@ -3,11 +3,13 @@
 #include <fstream>
 #include <string>
 #include <filesystem>
+#include <iostream>
 
 #include "pugixml.hpp"
 #include "tidy.h"
 #include "tidybuffio.h"
 #include "EbookCreator.h"
+#include "SrcSet.h"
 
 namespace fs = std::experimental::filesystem;
 
@@ -28,10 +30,19 @@ void EbookCreator::createEpub(std::vector<ParsedArticle>& articles)
 
 void EbookCreator::prepareDirectory()
 {
-	fs::remove_all(fs::path("book"));
-	fs::remove(fs::path("book.mobi"));
-	fs::create_directory(fs::path("book"));
-	fs::copy(fs::path("template"), fs::path("book"), fs::copy_options::recursive);
+	try
+	{
+		fs::remove_all(fs::path("book"));											//encountered problems with remove_all - sometimes it removes everything except two files or except book directory.
+		fs::remove_all(fs::path("book"));											//The weirdest thing is that after repeating this process some more files are removed. Three times are enough for now.
+		fs::remove_all(fs::path("book"));
+		fs::remove(fs::path("book.mobi"));
+		fs::create_directory(fs::path("book"));
+		fs::copy(fs::path("template"), fs::path("book"), fs::copy_options::recursive);
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << "Unexpected error: " << e.what() << std::endl;
+	}
 }
 
 void EbookCreator::appendData(std::vector<ParsedArticle>& articles)
@@ -46,7 +57,10 @@ void EbookCreator::appendData(std::vector<ParsedArticle>& articles)
 		addToManifest(article);
 		saveArticle(article);														//save each article as "article[number].xhtml" - article0.xhtml, article1.xhtml etc.
 		++articleIndex;
+		std::cout << ".";
 	}
+
+	std::cout << std::endl;
 
 	addSeparationBetweenManifestAndSpine();
 	addToSpine(articles);
@@ -79,43 +93,48 @@ void EbookCreator::addToManifest(ParsedArticle & article)
 
 	tidyAndConvertToXhtml(article);													//most sites has multiple errors and markups don't match, so tidying is necessary. It also loads tidied string to pugi xml object
 	auto images = scraper.selectDataByName(currentDocument, std::string("img"));	//find all images the article links to, because they also have to be listed in manifest
+	saveImages(images);
+
+	file.close();
+}
+
+void EbookCreator::saveImages(std::vector<pugi::xml_node> images)
+{
+	std::ofstream file("book/OEBPS/content.opf", std::ios::app);
 
 	for (auto& image : images)
 	{
-		std::string link = image.attribute("src").as_string();						//extract link to image
-		std::string extension = ".jpg";												//extension of image, by default is set to ".jpg"
+		std::string srcSetString = image.attribute("srcset").as_string();			//extract links to images with different sizes
+		std::string linkToImg;
 
-		size_t positionOfDot = link.find_last_of('.');								//position of last dot in link. After this the only thing is an extension
-		if (positionOfDot != std::string::npos)										//if something was found
+		if (srcSetString.size() > 0)												//if these links were found
 		{
-			extension = link.substr(positionOfDot, 4);								//copy characters from dot to the end of string
+			SrcSet set(srcSetString);												//SrcSet automatically parse sent string - splits links and inserts them into map, where key is their width
+			linkToImg = set.links.rbegin()->second;									//keys are sorted from the least to the biggest, so last one means the biggest image
+		}
+		else
+		{
+			linkToImg = image.attribute("src").as_string();							//extract link to image
 		}
 
-		auto httpPosition = link.rfind("http");
-		std::string linkToImage = link.substr(httpPosition, positionOfDot + 4 - httpPosition);	//quick, dirty HACK! Found out that nodes like this:
-																								//<img class="alignnone size-large wp-image-35164" src="https://zaufanatrzeciastrona.pl/wp-content/uploads/2018/10/indonesia_0-580x384.jpg"
-																								//alt="" width="580" height="384" srcset="https://zaufanatrzeciastrona.pl/wp-content/uploads/2018/10/indonesia_0-580x384.jpg 580w, 
-																								//https://zaufanatrzeciastrona.pl/wp-content/uploads/2018/10/indonesia_0-300x199.jpg 300w,
-																								//https://zaufanatrzeciastrona.pl/wp-content/uploads/2018/10/indonesia_0-768x509.jpg 768w,
-																								//https://zaufanatrzeciastrona.pl/wp-content/uploads/2018/10/indonesia_0.jpg 1260w"
-																								//sizes="(max-width: 580px) 100vw, 580px">
-																								//
-																								//are interpreted as if attribute src had all this links as a value.
-																								//I have no idea why this is the case, but for now I just detect last link and use it
-																								//unfortunately sometimes this is the best, sometimes the worst resolution, so it has to be changed
-																								//TODO: come up with better way to separate links and choose the best image
+		std::string extension = ".jpg";												//extension of image, by default is set to ".jpg"
+
+		size_t positionOfDot = linkToImg.find_last_of('.');							//position of last dot in link. After this the only thing should be an extension
+
+		if (positionOfDot != std::string::npos)
+		{
+			extension = linkToImg.substr(positionOfDot, 4);							//copy characters from dot to the end of string
+		}
 
 		fs::path path("book/OEBPS/Images/Image" + std::to_string(imageIndex++) + extension);	//path where image will be downloaded
-		imageSaver.saveImage(linkToImage, path);
+		imageSaver.saveImage(linkToImg, path);
 
 		std::string relativePath = "../Images/" + path.filename().string();			//path used in img src="PATH"
 		image.attribute("src").set_value(relativePath.c_str());						//replacing link to web by path to file
 
-		//<item id="sample.png" href="Images/sample.png" media-type="image/png"/>
+																					//<item id="sample.png" href="Images/sample.png" media-type="image/png"/>
 		file << "<item id=" << '"' << path.filename() << '"' << " href=" << '"' << "Images/" << path.filename() << '"' << " media-type=" << '"' << "image/png" << '"' << "/>";	//adding image to manifest
 	}
-
-	file.close();
 }
 
 void EbookCreator::addSeparationBetweenManifestAndSpine()
@@ -131,6 +150,8 @@ void EbookCreator::addToSpine(std::vector<ParsedArticle> & articles)
 {
 	std::ofstream file("book/OEBPS/content.opf", std::ios::app);
 
+	file << "<itemref idref=" << '"' << "toc-file" << '"' << "/>";					//reference to table of contents in file
+
 	articleIndex = 0;
 	for (auto& article : articles)
 	{
@@ -144,6 +165,7 @@ void EbookCreator::addToSpine(std::vector<ParsedArticle> & articles)
 
 void EbookCreator::buildTableOfContent(std::vector<ParsedArticle>& articles)
 {
+	//table of content built here is a metadata object which can be used to navigate between pages from anywhere in the ebook
 	std::ofstream file("book/OEBPS/toc.ncx", std::ios::app);
 
 	articleIndex = 0;
@@ -158,6 +180,22 @@ void EbookCreator::buildTableOfContent(std::vector<ParsedArticle>& articles)
 	}
 
 	file << "</navPoint></navMap></ncx>";																														//end whole table of content
+	file.close();
+
+	//now we will create real table of content embedded as visible page. It is very useful to quickly estimate what today's periodical consists of and if there is something interesting
+	file.open("book/OEBPS/Text/toc.xhtml", std::ios::app);
+	articleIndex = 0;
+	for (auto& article : articles)
+	{
+		std::string articleName = "article" + std::to_string(articleIndex) + ".xhtml";
+		
+		//entry for every article
+		file << "<div class=" << '"' << "sgc-toc-level-1" << '"' << "><a href =" << '"' << "../Text/" << articleName << '"' << ">" << articleIndex << "." << article.title << "</a></div>" << std::endl;
+		++articleIndex;
+	}
+	
+	file << "<div style='padding:0;border:0;text-indent:0;line-height:normal;margin:0 1cm 0.5cm 1cm;font-size:0pt;color:#FFFFFF;text-decoration:none;text-align:left;background:none;display:none;'>1c300054508041890ea8ce85</div></body></html>";
+
 	file.close();
 }
 
