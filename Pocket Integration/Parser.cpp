@@ -34,7 +34,6 @@ void Parser::callMercury(std::string link)
 {
 	std::string url = std::string("https://mercury.postlight.com/parser") + "?url=" + link;
 
-	curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 	curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 	auto result = curl_easy_perform(curl);
 }

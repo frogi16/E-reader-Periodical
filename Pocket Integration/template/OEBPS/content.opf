@@ -5,10 +5,13 @@
 	<dc:language>en</dc:language>
         <dc:creator opf:role="aut">Pocket Integration</dc:creator>
         <meta name="Sigil version" content="0.2.4"/>
+		<meta name="cover" content="cover-image" />
     </metadata>
     <manifest>
         <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
 		<item id="page-template.xpgt" href="Styles/page-template.xpgt" media-type="application/vnd.adobe-page-template+xml"/>
         <item id="stylesheet.css" href="Styles/stylesheet.css" media-type="text/css"/>
+		<item id="cover-image" href="images/cover.png" media-type="image/png"/>
 		
+		<item id="cover" href="Text/cover.xhtml" media-type="application/xhtml+xml"/>
 		<item id="title_page.xhtml" href="Text/title_page.xhtml" media-type="application/xhtml+xml"/>

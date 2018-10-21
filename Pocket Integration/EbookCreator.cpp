@@ -123,6 +123,7 @@ void EbookCreator::addSeparationBetweenManifestAndSpine()
 	std::ofstream file("book/OEBPS/content.opf", std::ios::app);
 	file << "</manifest>";															//end manifest
 	file << "<spine toc=" << '"' << "ncx" << '"' << ">";							//begin spine
+	file << "<itemref idref=" << '"' << "cover" << '"' << "/>";						//list cover
 	file << "<itemref idref=" << '"' << "title_page.xhtml" << '"' << "/>";			//list title_page
 }
 
@@ -202,10 +203,10 @@ void EbookCreator::tidyAndConvertToXhtml(ParsedArticle article)
 void EbookCreator::convertToMobi()
 {
 	int retCode = system("kindlegen.exe book/OEBPS/content.opf -o book.mobi");		//-o is the output file name
+	fs::copy(fs::path("book/OEBPS/book.mobi"), fs::path("book.mobi"));
 }
 
 void EbookCreator::removeEpub()
 {
-	fs::copy(fs::path("book/OEBPS/book.mobi"), fs::path("book.mobi"));
 	fs::remove_all(fs::path("book"));
 }

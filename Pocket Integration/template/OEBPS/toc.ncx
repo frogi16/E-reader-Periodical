@@ -13,13 +13,19 @@
         <text>RSS Periodical</text>
     </docTitle>
     <navMap>
-        <navPoint id="navPoint-1" playOrder="1">
+		<navPoint id="navPoint-1" playOrder="1">
+            <navLabel>
+                <text>Cover</text>
+            </navLabel>
+            <content src="Text/cover.xhtml"/>
+        </navPoint>
+        <navPoint id="navPoint-2" playOrder="2">
             <navLabel>
                 <text>Title page</text>
             </navLabel>
             <content src="Text/title_page.xhtml"/>
         </navPoint>
-        <navPoint id="navPoint-2" playOrder="2">
+        <navPoint id="navPoint-3" playOrder="3">
             <navLabel>
                 <text>RSS Periodical</text>
             </navLabel>
