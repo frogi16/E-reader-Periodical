@@ -4,6 +4,8 @@
 #include <string>
 #include <filesystem>
 #include <iostream>
+#include <chrono>
+#include <iomanip>
 
 #include "pugixml.hpp"
 #include "tidy.h"
@@ -13,7 +15,7 @@
 
 namespace fs = std::experimental::filesystem;
 
-EbookCreator::EbookCreator()
+EbookCreator::EbookCreator() : ebookPath("")
 {
 }
 
@@ -240,8 +242,16 @@ void EbookCreator::tidyAndConvertToXhtml(ParsedArticle article)
 
 void EbookCreator::convertToMobi()
 {
+	auto currentTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+	auto localTime = *std::localtime(&currentTime);
+
+	std::ostringstream stringStream;
+	stringStream << "RSS Periodical " << std::put_time(&localTime, "%d-%m-%Y");
+	auto filename = stringStream.str() + ".mobi";
+	ebookPath = filename;
+
 	int retCode = system("kindlegen.exe book/OEBPS/content.opf -o book.mobi");		//-o is the output file name
-	fs::copy(fs::path("book/OEBPS/book.mobi"), fs::path("book.mobi"));
+	fs::copy(fs::path("book/OEBPS/book.mobi"), ebookPath);
 }
 
 void EbookCreator::removeEpub()

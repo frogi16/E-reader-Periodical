@@ -267,3 +267,4 @@ __pycache__/
 *.html
 /Pocket Integration/book
 /Pocket Integration/book.mobi
+*.mobi
