@@ -153,6 +153,7 @@
     <ClInclude Include="APIKeyHolder.h" />
     <ClInclude Include="Application.h" />
     <ClInclude Include="ArticleAdder.h" />
+    <ClInclude Include="ArticleRSS.h" />
     <ClInclude Include="Authenticator.h" />
     <ClInclude Include="EbookCreator.h" />
     <ClInclude Include="FeedsDatabase.h" />

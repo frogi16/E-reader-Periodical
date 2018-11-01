@@ -8,7 +8,7 @@ RSSupdater::RSSupdater() noexcept :
 {
 }
 
-std::vector<std::string> RSSupdater::checkUpdates()
+std::vector<ArticleRSS> RSSupdater::checkUpdates()
 {
 	time_t now;
 	now = time(NULL);
@@ -21,10 +21,10 @@ std::vector<std::string> RSSupdater::checkUpdates()
 		return downloadFeeds();
 	}
 
-	return std::vector<std::string> ();
+	return std::vector<ArticleRSS> ();
 }
 
-std::vector<std::string> RSSupdater::forceUpdates()
+std::vector<ArticleRSS> RSSupdater::forceUpdates()
 {
 	lastUpdate = time(NULL);
 	return downloadFeeds();
@@ -59,21 +59,21 @@ RSSupdater::~RSSupdater()
 {
 }
 
-std::vector<std::string> RSSupdater::downloadFeeds()
+std::vector<ArticleRSS> RSSupdater::downloadFeeds()
 {
 	std::cout << "Checking for new articles" << std::endl;
-	std::vector<std::string> newItemLinks;
+	std::vector<ArticleRSS> newItems;
 
 	for (auto& feed : feeds)
 	{
 		downloader.downloadSource(feed);
-		std::vector<std::string> links = feedsDatabase.updateFeed(feed, downloader.getData());
-		newItemLinks.insert(newItemLinks.end(), links.begin(), links.end());					//inefficient if size of links vector is big. TODO: prevent copying elements of links. Maybe deque?
+		std::vector<ArticleRSS> items = feedsDatabase.updateFeed(feed, downloader.getData());
+		newItems.insert(newItems.end(), items.begin(), items.end());					//inefficient if size of links vector is big. TODO: prevent copying elements of links. Maybe deque?
 	}
 
 	feedsDatabase.saveDatabase();
 
-	return newItemLinks;
+	return newItems;
 }
 
 size_t RSSupdater::CurlWrite_CallbackFunc_StdString(void * contents, size_t size, size_t nmemb, std::string * s)

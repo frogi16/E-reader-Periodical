@@ -8,9 +8,9 @@ FeedsDatabase::FeedsDatabase() noexcept
 	loadDatabase();
 }
 
-std::vector<std::string> FeedsDatabase::updateFeed(std::string feedLink, pugi::xml_node root)
+std::vector<ArticleRSS> FeedsDatabase::updateFeed(std::string feedLink, pugi::xml_node root)
 {
-	std::vector<std::string> newItemLinks;
+	std::vector<ArticleRSS> newItems;
 
 	try
 	{
@@ -45,20 +45,21 @@ std::vector<std::string> FeedsDatabase::updateFeed(std::string feedLink, pugi::x
 
 				if (!isItemSaved(feed.items, itemLink))						//if this item was already saved there is no need to do anything and we can just go to the next one
 				{
-					newItemLinks.push_back(itemLink);
-					feed.items.push_back(createItem(itemLink, itemNode));
+					auto item = createItem(itemLink, itemNode);
+					newItems.push_back(item);
+					feed.items.push_back(item);
 				}
 			}
 		}
 
-		std::cout << "Found " << newItemLinks.size() << " new articles" << std::endl;
+		std::cout << "Found " << newItems.size() << " new articles" << std::endl;
 	}
 	catch (const std::string& e)
 	{
 		std::cout << "Unexpected behavior:\n" << e << "\nUpdating this feed failed.\n";
 	}
 	
-	return newItemLinks;
+	return newItems;
 }
 
 void FeedsDatabase::saveDatabase()
@@ -131,7 +132,7 @@ void FeedsDatabase::loadDatabase()
 		for (auto i = std::next(feed.children().begin()); i != feed.children().end(); i++)		//TODO: have to use next because first node is a link to a feed. Can be improved.
 		{
 			pugi::xml_node item = (*i);
-			Item target;
+			ArticleRSS target;
 			target.link = item.child("link").first_child().value();
 			target.title = item.child("title").first_child().value();
 			target.description = item.child("description").first_child().value();
@@ -191,7 +192,7 @@ bool FeedsDatabase::isFeedSaved(std::string feedLink)
 	return (feeds.find(feedLink) != feeds.end());
 }
 
-bool FeedsDatabase::isItemSaved(const std::vector<Item> & savedItems, std::string itemLink)
+bool FeedsDatabase::isItemSaved(const std::vector<ArticleRSS> & savedItems, std::string itemLink)
 {
 	return (std::find(savedItems.begin(), savedItems.end(), itemLink) != savedItems.end());
 }
@@ -234,9 +235,9 @@ std::vector<pugi::xml_node> FeedsDatabase::searchForKeyword(pugi::xml_node root,
 		throw std::string("Filtering nodes for \"" + keyword.mainKeyword() + "\" keyword returned less than expected " + std::to_string(minimalResultNumber) + " results.");
 }
 
-Item FeedsDatabase::createItem(std::string itemLink, pugi::xml_node itemNode)
+ArticleRSS FeedsDatabase::createItem(std::string itemLink, pugi::xml_node itemNode)
 {
-	Item newItem;
+	ArticleRSS newItem;
 	newItem.link = itemLink;
 
 	auto titleNode = searchForKeyword(itemNode, titleKeyword, 1);

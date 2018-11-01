@@ -19,9 +19,9 @@ public:
 	~Application();
 private:
 	void authenticateConnection();
-	std::vector<std::string> checkRSS();
+	std::vector<ArticleRSS> checkRSS();
 	void addArticles(const std::vector<std::string> & urls);
-	void createMobi(const std::vector<std::string> & urls);
+	void createMobi(const std::vector<ArticleRSS> & items);
 	void loadFeedsToWatch();
 
 	APIKeyHolder keyHolder;

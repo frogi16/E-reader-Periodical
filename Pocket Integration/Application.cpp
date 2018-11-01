@@ -16,10 +16,10 @@ void Application::run()
 
 	while (true)
 	{
-		auto newArticleLinks = checkRSS();
+		auto newArticles = checkRSS();
 
-		createMobi(newArticleLinks);
-		//addArticles(newArticleLinks);
+		createMobi(newArticles);
+		//addArticles(newArticles);
 
 		Sleep(1000 * 60);
 	}
@@ -42,7 +42,7 @@ void Application::authenticateConnection()
 	}
 }
 
-std::vector<std::string> Application::checkRSS()
+std::vector<ArticleRSS> Application::checkRSS()
 {
 	return updater.checkUpdates();
 }
@@ -55,15 +55,15 @@ void Application::addArticles(const std::vector<std::string> & urls)
 	adder.addArticles(urls, currentUser.accessToken);
 }
 
-void Application::createMobi(const std::vector<std::string>& urls)
+void Application::createMobi(const std::vector<ArticleRSS>& items)
 {
-	if (urls.size())
+	if (items.size())
 	{
-		std::cout << "Parsing " << urls.size() << " articles" << std::endl;
+		std::cout << "Parsing " << items.size() << " articles" << std::endl;
 
-		auto articles = parser.getParsedArticles(urls);
+		auto articles = parser.getParsedArticles(items);
 
-		std::cout << "Creating epub from  " << urls.size() << " articles" << std::endl;
+		std::cout << "Creating epub from  " << items.size() << " articles" << std::endl;
 
 		ebookCreator.createEpub(articles);
 

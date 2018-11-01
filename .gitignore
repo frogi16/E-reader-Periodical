@@ -268,3 +268,4 @@ __pycache__/
 /Pocket Integration/book
 /Pocket Integration/book.mobi
 *.mobi
+/database.xml

@@ -101,5 +101,8 @@
     <ClInclude Include="SrcSet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ArticleRSS.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

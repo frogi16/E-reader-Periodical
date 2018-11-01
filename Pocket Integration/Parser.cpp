@@ -1,6 +1,7 @@
 #include "Parser.h"
-#include "json.h"
+#include "ArticleRSS.h"
 
+#include "json.h"
 #include <iostream>
 
 using json = nlohmann::json;
@@ -18,14 +19,16 @@ Parser::Parser(std::string mercuryKey) : mMercuryKey(mercuryKey)
 	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, chunk);
 }
 
-std::vector<ParsedArticle> Parser::getParsedArticles(const std::vector<std::string>& links)
+std::vector<ParsedArticle> Parser::getParsedArticles(const std::vector<ArticleRSS>& items)
 {
 	std::vector<ParsedArticle> parsedArticles;
-	for (auto& link : links)
+
+	for (auto& item : items)
 	{
-		callMercury(link);
+		callMercury(item.link);
 
 		auto parsedArticle = parseArticle(response);
+		resolveConflicts(parsedArticle, item);
 		parsedArticles.push_back(parsedArticle);
 		response.clear();
 	}
@@ -58,6 +61,12 @@ ParsedArticle Parser::parseArticle(std::string & article)
 		parsedArticle.domain = json["domain"].get<std::string>();
 
 	return parsedArticle;
+}
+
+void Parser::resolveConflicts(ParsedArticle & mercuryArticle, const ArticleRSS & rssArticle)
+{
+	if (rssArticle.title.size())							//Mercury sometimes uses site name as an article title, RSS data is much more reliable
+		mercuryArticle.title = rssArticle.title;	
 }
 
 Parser::~Parser()

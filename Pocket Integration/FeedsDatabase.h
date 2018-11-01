@@ -8,26 +8,13 @@
 #include "pugixml.hpp"
 
 #include "Scraper.h"
-
-struct Item
-{
-	std::string title, link, description, pubDate;
-
-	const bool operator==(const std::string& rhs) const														//comparing items based on their links (titles can be changed, links almost never)
-	{
-		return this->link == rhs;
-	}
-	const bool operator!=( const std::string& rhs) const
-	{
-		return !( (*this) == rhs);
-	}
-};
+#include "ArticleRSS.h"
 
 struct FeedData
 {
 	std::string link;
 	std::string lastBuildTime;
-	std::vector<Item> items;
+	std::vector<ArticleRSS> items;
 };
 
 struct Keyword
@@ -59,7 +46,7 @@ class FeedsDatabase
 {
 public:
 	FeedsDatabase() noexcept;
-	std::vector<std::string> updateFeed(std::string feedLink, pugi::xml_node root);							//function returns vector of links to the new items
+	std::vector<ArticleRSS> updateFeed(std::string feedLink, pugi::xml_node root);							//function returns vector of links to the new items
 	void saveDatabase();																					//write to file
 	~FeedsDatabase();
 private:
@@ -67,10 +54,10 @@ private:
 	void loadKeywords();																					//loading groups of keywords from file
 
 	bool isFeedSaved(std::string feedLink);
-	bool isItemSaved(const std::vector<Item> & savedItems, std::string itemLink);
+	bool isItemSaved(const std::vector<ArticleRSS> & savedItems, std::string itemLink);
 
 	std::vector<pugi::xml_node> searchForKeyword(pugi::xml_node root, Keyword keyword, size_t minimalResultNumber = 1, bool checkForChild = false);			//checkForChild makes function to check whether found result have valid child. It is done to filter out nodes storing values using attributes instead of children
-	Item createItem(std::string itemLink, pugi::xml_node itemNode);
+	ArticleRSS createItem(std::string itemLink, pugi::xml_node itemNode);
 	
 	std::string getLinkFromAlternateHref(pugi::xml_node root);												//for example: "<link rel='alternate' type='text/html' href='https://czajniczek-pana-russella.blogspot.com/2018/10/gdzie-sie-podziali-kanibale.html' title='Gdzie siê podziali kanibale?'/>"
 
