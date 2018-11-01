@@ -17,6 +17,7 @@ namespace fs = std::experimental::filesystem;
 
 EbookCreator::EbookCreator() : ebookPath("")
 {
+	
 }
 
 
@@ -119,17 +120,8 @@ void EbookCreator::saveImages(std::vector<pugi::xml_node> images)
 			linkToImg = image.attribute("src").as_string();							//extract link to image
 		}
 
-		std::string extension = ".jpg";												//extension of image, by default is set to ".jpg"
-
-		size_t positionOfDot = linkToImg.find_last_of('.');							//position of last dot in link. After this the only thing should be an extension
-
-		if (positionOfDot != std::string::npos)
-		{
-			extension = linkToImg.substr(positionOfDot, 4);							//copy characters from dot to the end of string
-		}
-
-		fs::path path("book/OEBPS/Images/Image" + std::to_string(imageIndex++) + extension);	//path where image will be downloaded
-		imageSaver.saveImage(linkToImg, path);
+		fs::path path("book/OEBPS/Images/Image" + std::to_string(imageIndex++));	//path where image will be downloaded
+		imageSaver.saveImage(linkToImg, path);										//WARNING! Image downloader detects extension of file and changes path sent to it
 
 		std::string relativePath = "../Images/" + path.filename().string();			//path used in img src="PATH"
 		image.attribute("src").set_value(relativePath.c_str());						//replacing link to web by path to file
