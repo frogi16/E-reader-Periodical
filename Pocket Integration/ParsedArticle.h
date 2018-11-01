@@ -6,4 +6,6 @@ struct ParsedArticle
 	std::string author;
 	std::string content;
 	std::string domain;
+	std::string pubDate;
+	size_t wordCount;
 };

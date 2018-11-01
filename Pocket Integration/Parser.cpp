@@ -59,6 +59,10 @@ ParsedArticle Parser::parseArticle(std::string & article)
 		parsedArticle.content = json["content"].get<std::string>();
 	if (!json["domain"].is_null())
 		parsedArticle.domain = json["domain"].get<std::string>();
+	if (!json["date_published"].is_null())
+		parsedArticle.pubDate = json["date_published"].get<std::string>();
+	if (!json["word_count"].is_null())
+		parsedArticle.wordCount = json["word_count"].get<size_t>();
 
 	return parsedArticle;
 }
