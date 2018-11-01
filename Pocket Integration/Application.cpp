@@ -16,7 +16,6 @@ void Application::run()
 
 	while (true)
 	{
-		//std::vector<std::string> newArticleLinks;
 		auto newArticleLinks = checkRSS();
 
 		createMobi(newArticleLinks);

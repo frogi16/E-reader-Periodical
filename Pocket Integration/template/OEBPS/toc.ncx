@@ -27,6 +27,7 @@
         </navPoint>
         <navPoint id="navPoint-3" playOrder="3">
             <navLabel>
-                <text>RSS Periodical</text>
+                <text>Table of content</text>
             </navLabel>
-            <content src="Text/title_page.xhtml#heading_id_2"/>
+            <content src="Text/toc.xhtml"/>
+		</navPoint>

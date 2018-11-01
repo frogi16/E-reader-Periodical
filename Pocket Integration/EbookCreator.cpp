@@ -175,7 +175,7 @@ void EbookCreator::buildTableOfContent(std::vector<ParsedArticle>& articles)
 	{
 		std::string articleName = "article" + std::to_string(articleIndex) + ".xhtml";
 
-		file << "<navPoint id=" << '"' << "navPoint-" << articleIndex + 2 << '"' << " playOrder=" << '"' << articleIndex + 2 << '"' << "><navLabel><text>";		//begin each article's navPoint
+		file << "<navPoint id=" << '"' << "navPoint-" << articleIndex + 4 << '"' << " playOrder=" << '"' << articleIndex + 4 << '"' << "><navLabel><text>";		//begin each article's navPoint
 		file << article.title << "</text></navLabel><content src=" << '"' << "Text/";																			//add title of each article
 		file << articleName << '"' << "/></navPoint>";																											//close navPoint
 		++articleIndex;
@@ -192,8 +192,7 @@ void EbookCreator::buildTableOfContent(std::vector<ParsedArticle>& articles)
 		std::string articleName = "article" + std::to_string(articleIndex) + ".xhtml";
 		
 		//entry for every article
-		file << "<div class=" << '"' << "sgc-toc-level-1" << '"' << "><a href =" << '"' << "../Text/" << articleName << '"' << ">" << articleIndex << "." << article.title << "</a></div>" << std::endl;
-		++articleIndex;
+		file << "<div class=" << '"' << "sgc-toc-level-1" << '"' << "><a href =" << '"' << "../Text/" << articleName << '"' << ">" << ++articleIndex << "." << article.title << "</a></div>" << std::endl;
 	}
 	
 	file << "<div style='padding:0;border:0;text-indent:0;line-height:normal;margin:0 1cm 0.5cm 1cm;font-size:0pt;color:#FFFFFF;text-decoration:none;text-align:left;background:none;display:none;'>1c300054508041890ea8ce85</div></body></html>";
