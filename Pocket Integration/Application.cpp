@@ -63,14 +63,21 @@ void Application::createMobi(const std::vector<ArticleRSS>& items)
 
 		auto articles = parser.getParsedArticles(items);
 
-		std::cout << "Creating epub from  " << items.size() << " articles" << std::endl;
+		std::cout << "Filtering articles" << std::endl;
 
-		ebookCreator.createEpub(articles);
+		filter.filterArticles(articles);
 
-		std::cout << "Converting to mobi" << std::endl;
+		if (articles.size())
+		{
+			std::cout << "Creating epub from  " << articles.size() << " articles" << std::endl;
 
-		ebookCreator.convertToMobi();
-		//ebookCreator.removeEpub();
+			ebookCreator.createEpub(articles);
+
+			std::cout << "Converting to mobi" << std::endl;
+
+			ebookCreator.convertToMobi();
+			//ebookCreator.removeEpub();
+		}
 	}
 }
 

@@ -60,7 +60,7 @@ void EbookCreator::appendData(std::vector<ParsedArticle>& articles)
 		addToManifest(article);
 		saveArticle(article);														//save each article as "article[number].xhtml" - article0.xhtml, article1.xhtml etc.
 		++articleIndex;
-		std::cout << ".";
+		std::cout << "*";
 	}
 
 	std::cout << std::endl;
@@ -94,7 +94,7 @@ void EbookCreator::addToManifest(ParsedArticle & article)
 	std::string articleName = "article" + std::to_string(articleIndex) + ".xhtml";
 	file << "<item id=" << '"' << articleName << '"' << " href=" << '"' << "Text/" << articleName << '"' << " media-type=" << '"' << "application/xhtml+xml" << '"' << "/>";	//adding the article itself
 
-	tidyAndConvertToXhtml(article);													//most sites has multiple errors and markups don't match, so tidying is necessary. It also loads tidied string to pugi xml object
+	tidyAndConvertToXhtml(article);													//most sites have multiple syntax errors and markups don't match, so tidying is necessary. It also loads tidied string to pugi xml object
 	auto images = scraper.selectDataByName(currentDocument, std::string("img"));	//find all images the article links to, because they also have to be listed in manifest
 	saveImages(images);
 
