@@ -26,6 +26,7 @@ std::vector<ParsedArticle> Parser::getParsedArticles(const std::vector<ArticleRS
 	for (auto& item : items)
 	{
 		callMercury(item.link);
+		std::cout << "*";
 
 		auto parsedArticle = parseArticle(response);
 		resolveConflicts(parsedArticle, item);
@@ -43,7 +44,6 @@ void Parser::callMercury(std::string link)
 	
 	curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 	auto result = curl_easy_perform(curl);
-	std::cout << ".";
 }
 
 ParsedArticle Parser::parseArticle(std::string & article)
@@ -59,6 +59,19 @@ ParsedArticle Parser::parseArticle(std::string & article)
 		parsedArticle.content = json["content"].get<std::string>();
 	if (!json["domain"].is_null())
 		parsedArticle.domain = json["domain"].get<std::string>();
+	if (!json["date_published"].is_null())
+		parsedArticle.pubDate = json["date_published"].get<std::string>();
+
+	if (!json["word_count"].is_null())										//detected problem word_count returned by Mercury. Sometimes it returns 1 with no apparent reason,
+																			//so if it happens this variable will be set to 0 and word_count testing will be skip while filtering articles
+	{
+		size_t temp = json["word_count"].get<size_t>();
+
+		if (temp > 1)
+			parsedArticle.wordCount = temp;
+		else
+			parsedArticle.wordCount = 0;
+	}
 
 	return parsedArticle;
 }

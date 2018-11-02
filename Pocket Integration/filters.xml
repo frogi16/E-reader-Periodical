@@ -1,0 +1,29 @@
+<rules>
+
+	<rule>
+		<domain>global</domain>
+		<minWords>100</minWords>
+		<maxWords>0</maxWords>
+		<XMLFilteringRules>
+		</XMLFilteringRules>
+	</rule>
+	
+	<rule>
+		<domain>www.imperiumromanum.edu.pl</domain>
+		<minWords>200</minWords>
+		<maxWords></maxWords>
+		<XMLFilteringRules>
+			<XMLRule>
+				<type>attribute-value</type>
+				<attribute>id</attribute>
+				<value>wbounce-config</value>
+			</XMLRule>
+			<XMLRule>
+				<type>attribute-value</type>
+				<attribute>class</attribute>
+				<value>inner</value>
+			</XMLRule>
+		</XMLFilteringRules>
+	</rule>
+	
+</rules>

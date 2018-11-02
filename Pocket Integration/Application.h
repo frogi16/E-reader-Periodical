@@ -4,6 +4,7 @@
 #include "RSSupdater.h"
 #include "ArticleAdder.h"
 #include "Parser.h"
+#include "ArticleFilter.h"
 #include "EbookCreator.h"
 
 #include <string>
@@ -29,6 +30,7 @@ private:
 	RSSupdater updater;
 	ArticleAdder adder;
 	Parser parser;
+	ArticleFilter filter;
 	EbookCreator ebookCreator;
 
 	std::map<std::string, std::string> users;
