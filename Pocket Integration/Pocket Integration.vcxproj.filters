@@ -110,5 +110,8 @@
     <ClInclude Include="ArticleFilter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CountWordsTreeWalker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

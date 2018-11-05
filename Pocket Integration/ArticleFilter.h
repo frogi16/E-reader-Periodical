@@ -60,7 +60,7 @@ private:
 	Rule getCombinedRule(std::string domain);							//returns rule obtained by merging global rule and specific for the domain. Specific one is prioritized
 	void applyAttributeValueRule(const XMLFilteringRule & rule, ParsedArticle & article);
 	void applyNodeNameRule(const XMLFilteringRule & rule, ParsedArticle & article);
-	void removeNodes(std::vector<pugi::xml_node>& nodes);
+	void removeNodes(std::vector<pugi::xml_node>& nodes, ParsedArticle & article);
 	std::string documentToString(pugi::xml_document & doc);
 
 	std::map<std::string, Rule> rules;									//domain is the key. Global returns global rule

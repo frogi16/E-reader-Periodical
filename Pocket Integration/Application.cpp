@@ -16,9 +16,9 @@ void Application::run()
 
 	while (true)
 	{
-		auto newArticles = checkRSS();
+		auto newArticlesRSS = checkRSS();						//info about articles recieved from RSS. Title, link, description etc. No actual article
 
-		createMobi(newArticles);
+		createMobi(newArticlesRSS);
 		//addArticles(newArticles);
 
 		Sleep(1000 * 60);
@@ -61,11 +61,11 @@ void Application::createMobi(const std::vector<ArticleRSS>& items)
 	{
 		std::cout << "Parsing " << items.size() << " articles" << std::endl;
 
-		auto articles = parser.getParsedArticles(items);
+		auto articles = parser.getParsedArticles(items);						//after parsing ParsedArticle contains all informations about article - title, description, full content in string and xml tree simultaneously etc.
 
 		std::cout << "Filtering articles" << std::endl;
 
-		filter.filterArticles(articles);
+		filter.filterArticles(articles);										//filtering out fragments of articles, removing too short and too long ones
 
 		if (articles.size())
 		{

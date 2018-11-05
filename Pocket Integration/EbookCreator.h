@@ -24,14 +24,12 @@ private:
 	void addSeparationBetweenManifestAndSpine();						//add markups ending manifest and beginning spine
 	void addToSpine(std::vector<ParsedArticle> & articles);				//add metadata about article to content.opf spine
 	void buildTableOfContent(std::vector<ParsedArticle> & articles);
-	void tidyAndConvertToXhtml(ParsedArticle article);
 
 	ImageSaver imageSaver;
 	Scraper scraper;
 
 	std::experimental::filesystem::path ebookPath;
-	pugi::xml_document currentDocument;
-	size_t articleIndex = 0;											//index of avtually processed article
-	size_t imageIndex = 0;												//index of avtually processed image
+	size_t articleIndex = 0;											//index of actually processed article
+	size_t imageIndex = 0;												//index of actually processed image
 };
 

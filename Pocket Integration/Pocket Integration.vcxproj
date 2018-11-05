@@ -157,6 +157,7 @@
     <ClInclude Include="ArticleFilter.h" />
     <ClInclude Include="ArticleRSS.h" />
     <ClInclude Include="Authenticator.h" />
+    <ClInclude Include="CountWordsTreeWalker.h" />
     <ClInclude Include="EbookCreator.h" />
     <ClInclude Include="FeedsDatabase.h" />
     <ClInclude Include="ImageSaver.h" />
