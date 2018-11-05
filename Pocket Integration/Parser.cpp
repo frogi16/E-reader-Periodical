@@ -1,5 +1,6 @@
 #include "Parser.h"
 #include "ArticleRSS.h"
+#include "CountWordsTreeWalker.h"
 
 #include "json.h"
 #include <iostream>
@@ -30,6 +31,8 @@ std::vector<ParsedArticle> Parser::getParsedArticles(const std::vector<ArticleRS
 
 		auto parsedArticle = parseArticle(response);
 		resolveConflicts(parsedArticle, item);
+		loadToXML(parsedArticle);
+		countWords(parsedArticle);
 		parsedArticles.push_back(parsedArticle);
 		response.clear();
 	}
@@ -62,17 +65,6 @@ ParsedArticle Parser::parseArticle(std::string & article)
 	if (!json["date_published"].is_null())
 		parsedArticle.pubDate = json["date_published"].get<std::string>();
 
-	if (!json["word_count"].is_null())										//detected problem word_count returned by Mercury. Sometimes it returns 1 with no apparent reason,
-																			//so if it happens this variable will be set to 0 and word_count testing will be skip while filtering articles
-	{
-		size_t temp = json["word_count"].get<size_t>();
-
-		if (temp > 1)
-			parsedArticle.wordCount = temp;
-		else
-			parsedArticle.wordCount = 0;
-	}
-
 	return parsedArticle;
 }
 
@@ -80,6 +72,57 @@ void Parser::resolveConflicts(ParsedArticle & mercuryArticle, const ArticleRSS &
 {
 	if (rssArticle.title.size())							//Mercury sometimes uses site name as an article title, RSS data is much more reliable
 		mercuryArticle.title = rssArticle.title;	
+}
+#include <tidy.h>
+#include <tidybuffio.h>
+void Parser::loadToXML(ParsedArticle & article)
+{
+	std::shared_ptr<pugi::xml_document> document(std::make_shared<pugi::xml_document>());
+	
+	TidyBuffer XMLdata = { 0 };
+	TidyBuffer errbuf = { 0 };
+	int rc = -1;				//return code
+	Bool ok;
+
+	TidyDoc tidyDoc = tidyCreate();													//initialize "document"
+
+	ok = tidyOptSetBool(tidyDoc, TidyXhtmlOut, yes);								//convert to XHTML
+	ok = tidyOptSetBool(tidyDoc, TidyPreserveEntities, yes);						//leaving it on false causes text to show many &nbsp strings
+
+	if (ok)
+		rc = tidySetErrorBuffer(tidyDoc, &errbuf);									//link tidy document to error buffer
+	if (rc >= 0)
+		rc = tidyParseString(tidyDoc, article.content.c_str());						//load source code and parse it
+	if (rc >= 0)
+		rc = tidyCleanAndRepair(tidyDoc);											//tidy it up!
+	if (rc >= 0)
+		rc = tidyRunDiagnostics(tidyDoc);											//reports the document type and diagnostic statistics on parsed and repaired markup. 
+
+	if (rc > 1)																		//if error, force output.
+		rc = (tidyOptSetBool(tidyDoc, TidyForceOutput, yes) ? rc : -1);
+	if (rc >= 0)
+		rc = tidySaveBuffer(tidyDoc, &XMLdata);										//save output into XMLdata variable
+
+	if (rc >= 0)
+	{
+	}
+	else
+		printf("A severe error (%d) occurred.\n", rc);
+
+	tidyBufFree(&errbuf);
+	tidyRelease(tidyDoc);
+	
+	document->load_buffer(XMLdata.bp, XMLdata.size);								//loading data into pugi document
+	tidyBufFree(&XMLdata);															//removing xml data from tidy buffer
+
+	article.xmlDocument = std::move(document);
+}
+
+void Parser::countWords(ParsedArticle & article)
+{
+	CountWordsTreeWalker walker;
+	article.xmlDocument->traverse(walker);
+	article.wordCount = walker.words;
 }
 
 Parser::~Parser()

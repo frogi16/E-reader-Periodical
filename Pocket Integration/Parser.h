@@ -19,6 +19,8 @@ private:
 	void callMercury(std::string link);
 	ParsedArticle parseArticle(std::string & article);
 	void resolveConflicts(ParsedArticle& mercuryArticle, const ArticleRSS & rssArticle);							//determines which data is more reliable: parsed by Mercury or downloaded from RSS feed
+	void loadToXML(ParsedArticle & article);																		//loads ParsedArticle.content into xml tree and places pointer to it in ParsedArticle.xmlDocument
+	void countWords(ParsedArticle & article);																		//traverses xml tree, counts visible words (no markups etc.) and writes it into article.wordCount
 
 	std::string mMercuryKey;
 	std::string response;

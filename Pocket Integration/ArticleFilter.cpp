@@ -1,5 +1,7 @@
 #include "ArticleFilter.h"
 
+#include "CountWordsTreeWalker.h"
+
 #include <sstream>
 #include <iostream>
 
@@ -32,6 +34,21 @@ void ArticleFilter::filterArticles(std::vector<ParsedArticle>& articles)
 bool ArticleFilter::filter(ParsedArticle & article)
 {
 	auto combinedRule = getCombinedRule(article.domain);
+	bool isContentChanged = false;
+
+	for (auto& XMLRule : (*combinedRule.XMLFilteringRules))
+	{
+		if (XMLRule.type == XMLFilteringRuleType::AttributeValue)			//if else was used instead of switch because of variable initialization inside (possible error:"transfer of control bypasses initialization of")
+		{
+			isContentChanged = true;
+			applyAttributeValueRule(XMLRule, article);
+		}
+		else if (XMLRule.type == XMLFilteringRuleType::NodeName)
+		{
+			isContentChanged = true;
+			applyNodeNameRule(XMLRule, article);
+		}
+	}
 
 	if (article.wordCount)													//wordCount equals zero almost always means incorrect data returned by parser and articles shouldn't be filtered using corrupted data
 	{
@@ -42,17 +59,8 @@ bool ArticleFilter::filter(ParsedArticle & article)
 			return true;
 	}
 
-	for (auto& XMLRule : (*combinedRule.XMLFilteringRules))
-	{
-		if (XMLRule.type == XMLFilteringRuleType::AttributeValue)			//if else was used instead of switch because of variable initialization inside (possible error:"transfer of control bypasses initialization of")
-		{
-			applyAttributeValueRule(XMLRule, article);
-		}
-		else if (XMLRule.type == XMLFilteringRuleType::NodeName)			//if else was used instead of switch because of variable initialization inside (possible error:"transfer of control bypasses initialization of")
-		{
-			applyNodeNameRule(XMLRule, article);
-		}
-	}
+	if(isContentChanged)
+		article.content = documentToString((*article.xmlDocument));			//actualize content if necessary
 
 	return false;
 }
@@ -83,28 +91,29 @@ Rule ArticleFilter::getCombinedRule(std::string domain)
 
 void ArticleFilter::applyAttributeValueRule(const XMLFilteringRule & rule, ParsedArticle & article)
 {
-	pugi::xml_document doc;
-	doc.load_string(article.content.c_str());
-	auto dataToFilter = scraper.selectDataByAttribute(doc, rule.attributeName, rule.attributeValue);
-	removeNodes(dataToFilter);
-	article.content = documentToString(doc);
+	auto dataToFilter = scraper.selectDataByAttribute((*article.xmlDocument), rule.attributeName, rule.attributeValue);
+	removeNodes(dataToFilter, article);
 }
 
 void ArticleFilter::applyNodeNameRule(const XMLFilteringRule & rule, ParsedArticle & article)
 {
-	pugi::xml_document doc;
-	doc.load_string(article.content.c_str());
-	auto dataToFilter = scraper.selectDataByName(doc, rule.nodeName);
-	removeNodes(dataToFilter);
-	article.content = documentToString(doc);
+	auto dataToFilter = scraper.selectDataByName((*article.xmlDocument), rule.nodeName);
+	removeNodes(dataToFilter, article);
 }
 
-void ArticleFilter::removeNodes(std::vector<pugi::xml_node>& nodes)
+void ArticleFilter::removeNodes(std::vector<pugi::xml_node>& nodes, ParsedArticle & article)
 {
+	size_t removedWords = 0;
+	CountWordsTreeWalker walker;
+
 	for (auto& data : nodes)
 	{
+		data.traverse(walker);
+		removedWords += walker.words;
 		data.parent().remove_child(data);
 	}
+
+	article.wordCount -= removedWords;
 }
 
 std::string ArticleFilter::documentToString(pugi::xml_document & doc)
