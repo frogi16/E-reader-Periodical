@@ -8,7 +8,7 @@
 #include "pugixml.hpp"
 
 #include "ParsedArticle.h"
-#include "Scraper.h"
+#include "DataSelecter.h"
 
 enum class XMLFilteringRuleType
 {
@@ -64,6 +64,6 @@ private:
 	std::string documentToString(pugi::xml_document & doc);
 
 	std::map<std::string, Rule> rules;									//domain is the key. Global returns global rule
-	Scraper scraper;
+	DataSelecter dataSelecter;
 };
 

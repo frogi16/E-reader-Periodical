@@ -1,7 +1,7 @@
 #pragma once
 
 /*	
-	Reused from my previous project - Scraper. This project was already using libcurl, so I just added pugixml. Tidy is not needed because RSS uses XML and no plain HTML has to be tidyied.
+	Reused from my previous project - Scraper. This project was already using libcurl, so I only had to include pugixml. Tidy is not needed because RSS uses XML and no plain HTML has to be tidyied.
 	That's why I removed convertToXML() and changed few things. Full source code can be found in Scraper repo.
 */
 

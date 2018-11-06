@@ -7,7 +7,7 @@
 
 #include "pugixml.hpp"
 
-#include "Scraper.h"
+#include "DataSelecter.h"
 #include "ArticleRSS.h"
 
 struct FeedData
@@ -62,7 +62,7 @@ private:
 	std::string getLinkFromAlternateHref(pugi::xml_node root);												//for example: "<link rel='alternate' type='text/html' href='https://czajniczek-pana-russella.blogspot.com/2018/10/gdzie-sie-podziali-kanibale.html' title='Gdzie siê podziali kanibale?'/>"
 
 	std::map<std::string, FeedData> feeds;																	//link to feed and feed itself
-	Scraper scraper;																						//object containing functions facilitating scraping and filtering xml nodes
+	DataSelecter dataSelecter;																				//object containing functions facilitating scraping and filtering xml nodes
 	Keyword pubDateKeyword, itemKeyword, linkKeyword, descriptionKeyword, titleKeyword;
 };
 

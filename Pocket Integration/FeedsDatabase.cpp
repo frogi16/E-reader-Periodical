@@ -17,7 +17,7 @@ std::vector<ArticleRSS> FeedsDatabase::updateFeed(std::string feedLink, pugi::xm
 		auto search = searchForKeyword(root, pubDateKeyword, 1);			//selectDataByName returns vector of all matching nodes, but often we search for unique node (or specified number of them),
 																			//therefore use of searchForKeyword function. It allows to use defined lists of alternative keywords, which are used in order
 																			//of pushing to container, only if previous search doesn't return expected number of results.
-		std::string lastBuild = search[0].first_child().value();
+		std::string lastBuild = search[0].child_value();
 
 		if (lastBuild > feeds[feedLink].lastBuildTime)						//if feed has been updated since last check (if feed can't be found in map result is always true)
 		{
@@ -32,7 +32,7 @@ std::vector<ArticleRSS> FeedsDatabase::updateFeed(std::string feedLink, pugi::xm
 			for (auto& itemNode : itemNodes)
 			{
 				auto search = searchForKeyword(itemNode, linkKeyword, 1, true);
-				std::string itemLink = search[0].first_child().value();
+				std::string itemLink = search[0].child_value();
 
 				if (itemLink.find("http") == std::string::npos)		
 																			//if there is no "http" (or "https") in link site probably uses some weird structure - for example blogspot.com shows something
@@ -125,7 +125,7 @@ void FeedsDatabase::loadDatabase()
 
 	for (auto& feed : node.children())
 	{
-		std::string feedLink = feed.child("link").first_child().value();
+		std::string feedLink = feed.child("link").child_value();
 		feeds[feedLink] = FeedData();
 		feeds[feedLink].link = feedLink;
 
@@ -133,10 +133,10 @@ void FeedsDatabase::loadDatabase()
 		{
 			pugi::xml_node item = (*i);
 			ArticleRSS target;
-			target.link = item.child("link").first_child().value();
-			target.title = item.child("title").first_child().value();
-			target.description = item.child("description").first_child().value();
-			target.pubDate = item.child("pubDate").first_child().value();
+			target.link = item.child("link").child_value();
+			target.title = item.child("title").child_value();
+			target.description = item.child("description").child_value();
+			target.pubDate = item.child("pubDate").child_value();
 			feeds[feedLink].items.push_back(target);
 		}
 	}
@@ -174,14 +174,14 @@ void FeedsDatabase::loadKeywords()
 		}
 		else
 		{
-			throw std::string("\"" + mainKeyword + "\" keywords group not found. Program continues execution, but you are adviced to check keywords database. Further stability is not guaranteed.\n");
+			throw std::string("\"" + mainKeyword + "\" keywords group not found. Program will continue execution, but you are advised to check keywords database. Further stability is not guaranteed.\n");
 		}
 
 		keywords->alternatives.push_back(mainKeyword);
 
 		for (auto& alternative : group.child("alternatives").children())
 		{
-			keywords->alternatives.push_back(alternative.first_child().value());
+			keywords->alternatives.push_back(alternative.child_value());
 		}
 		
 	}
@@ -203,7 +203,7 @@ std::vector<pugi::xml_node> FeedsDatabase::searchForKeyword(pugi::xml_node root,
 
 	for (auto& alternative : keyword.alternatives)
 	{
-		std::vector<pugi::xml_node> result = scraper.selectDataByName(root, alternative);
+		std::vector<pugi::xml_node> result = dataSelecter.selectNodesByName(root, alternative);
 
 		if (result.size() >= minimalResultNumber)
 		{
@@ -241,20 +241,20 @@ ArticleRSS FeedsDatabase::createItem(std::string itemLink, pugi::xml_node itemNo
 	newItem.link = itemLink;
 
 	auto titleNode = searchForKeyword(itemNode, titleKeyword, 1);
-	newItem.title = titleNode[0].first_child().value();
+	newItem.title = titleNode[0].child_value();
 
 	auto descriptionNode = searchForKeyword(itemNode, descriptionKeyword, 1);
-	newItem.description = descriptionNode[0].first_child().value();
+	newItem.description = descriptionNode[0].child_value();
 
 	auto pubDateNode = searchForKeyword(itemNode, pubDateKeyword, 1);
-	newItem.pubDate = pubDateNode[0].first_child().value();
+	newItem.pubDate = pubDateNode[0].child_value();
 
 	return newItem;
 }
 
 std::string FeedsDatabase::getLinkFromAlternateHref(pugi::xml_node root)
 {
-	auto links = scraper.selectDataByAttribute(root, "rel", "alternate");
+	auto links = dataSelecter.selectNodesByAttribute(root, "rel", "alternate");
 
 	if (links.size())
 	{

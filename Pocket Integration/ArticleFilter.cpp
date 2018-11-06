@@ -91,13 +91,13 @@ Rule ArticleFilter::getCombinedRule(std::string domain)
 
 void ArticleFilter::applyAttributeValueRule(const XMLFilteringRule & rule, ParsedArticle & article)
 {
-	auto dataToFilter = scraper.selectDataByAttribute((*article.xmlDocument), rule.attributeName, rule.attributeValue);
+	auto dataToFilter = dataSelecter.selectNodesByAttribute((*article.xmlDocument), rule.attributeName, rule.attributeValue);
 	removeNodes(dataToFilter, article);
 }
 
 void ArticleFilter::applyNodeNameRule(const XMLFilteringRule & rule, ParsedArticle & article)
 {
-	auto dataToFilter = scraper.selectDataByName((*article.xmlDocument), rule.nodeName);
+	auto dataToFilter = dataSelecter.selectNodesByName((*article.xmlDocument), rule.nodeName);
 	removeNodes(dataToFilter, article);
 }
 

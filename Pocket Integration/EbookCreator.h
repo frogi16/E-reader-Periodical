@@ -4,7 +4,7 @@
 
 #include "ParsedArticle.h"
 #include "ImageSaver.h"
-#include "Scraper.h"
+#include "DataSelecter.h"
 
 class EbookCreator
 {
@@ -26,7 +26,7 @@ private:
 	void buildTableOfContent(std::vector<ParsedArticle> & articles);
 
 	ImageSaver imageSaver;
-	Scraper scraper;
+	DataSelecter dataSelecter;
 
 	std::experimental::filesystem::path ebookPath;
 	size_t articleIndex = 0;											//index of actually processed article

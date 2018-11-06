@@ -20,8 +20,6 @@ public:
 private:
 	std::vector<ArticleRSS> downloadFeeds();					//returns vector of links to new items so they can be passed on to the checkUpdates (or forceUpdates)
 
-	static size_t CurlWrite_CallbackFunc_StdString(void *contents, size_t size, size_t nmemb, std::string *s);		//needs to be static
-
 	SourceDownloader downloader;
 	FeedsDatabase feedsDatabase;
 
