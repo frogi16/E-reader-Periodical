@@ -48,6 +48,11 @@ bool ArticleFilter::filter(ParsedArticle & article)
 			isContentChanged = true;
 			applyNodeNameRule(XMLRule, article);
 		}
+		else if (XMLRule.type == XMLFilteringRuleType::TextSubstring)
+		{
+			isContentChanged = true;
+			applyTextSubstringRule(XMLRule, article);
+		}
 	}
 
 	if (article.wordCount)													//wordCount equals zero almost always means incorrect data returned by parser and articles shouldn't be filtered using corrupted data
@@ -98,6 +103,12 @@ void ArticleFilter::applyAttributeValueRule(const XMLFilteringRule & rule, Parse
 void ArticleFilter::applyNodeNameRule(const XMLFilteringRule & rule, ParsedArticle & article)
 {
 	auto dataToFilter = dataSelecter.selectNodesByName((*article.xmlDocument), rule.nodeName);
+	removeNodes(dataToFilter, article);
+}
+
+void ArticleFilter::applyTextSubstringRule(const XMLFilteringRule & rule, ParsedArticle & article)
+{
+	auto dataToFilter = dataSelecter.selectNodesByTextSubstring((*article.xmlDocument), rule.substring);
 	removeNodes(dataToFilter, article);
 }
 
@@ -158,11 +169,16 @@ void ArticleFilter::loadFilterRule(std::string domain)
 					XMLRule.nodeName = loadedXMLRule.child("nodeName").child_value();
 					rule.XMLFilteringRules->emplace_back(XMLRule);
 				}
+				else if (type == "text-substring")
+				{
+					XMLFilteringRule XMLRule(XMLFilteringRuleType::TextSubstring);
+					XMLRule.substring = loadedXMLRule.child("substring").child_value();
+					rule.XMLFilteringRules->emplace_back(XMLRule);
+				}
 				
 			}
 
 			rules[domain] = rule;
-			//rules.insert(std::make_pair(domain, std::move(rule)));
 		}
 	}
 }

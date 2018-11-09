@@ -13,7 +13,8 @@
 enum class XMLFilteringRuleType
 {
 	NodeName,
-	AttributeValue
+	AttributeValue,
+	TextSubstring
 };
 
 class XMLFilteringRule
@@ -22,7 +23,7 @@ public:
 	XMLFilteringRule(XMLFilteringRuleType setType) : type(setType) {}
 
 	XMLFilteringRuleType type;
-	std::string nodeName, attributeName, attributeValue;
+	std::string nodeName, attributeName, attributeValue, substring;
 };
 
 struct Rule
@@ -60,6 +61,7 @@ private:
 	Rule getCombinedRule(std::string domain);							//returns rule obtained by merging global rule and specific for the domain. Specific one is prioritized
 	void applyAttributeValueRule(const XMLFilteringRule & rule, ParsedArticle & article);
 	void applyNodeNameRule(const XMLFilteringRule & rule, ParsedArticle & article);
+	void applyTextSubstringRule(const XMLFilteringRule & rule, ParsedArticle & article);
 	void removeNodes(std::vector<pugi::xml_node>& nodes, ParsedArticle & article);
 	std::string documentToString(pugi::xml_document & doc);
 

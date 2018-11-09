@@ -23,6 +23,7 @@
 #include <iostream>
 #include <fstream>
 #include <queue>
+#include <vector>
 
 class SourceDownloader
 {

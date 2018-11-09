@@ -269,3 +269,4 @@ __pycache__/
 /Pocket Integration/book.mobi
 *.mobi
 /database.xml
+/UnitTests

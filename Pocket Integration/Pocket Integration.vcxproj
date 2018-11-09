@@ -169,6 +169,7 @@
     <ClInclude Include="DataSelecter.h" />
     <ClInclude Include="SelectAttributeTreeWalker.h" />
     <ClInclude Include="SelectNameTreeWalker.h" />
+    <ClInclude Include="SelectSubstringTreeWalker.h" />
     <ClInclude Include="SourceDownloader.h" />
     <ClInclude Include="SrcSet.h" />
   </ItemGroup>

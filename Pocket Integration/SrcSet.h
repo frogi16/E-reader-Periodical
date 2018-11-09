@@ -24,7 +24,7 @@ struct SrcSet
 		std::string link;														//link extracted from set
 		std::string imageSize;													//size extracted from set
 
-		//first link is treated differently because function needs to determin widthUnit, later it is with less effort by just removing useless characters
+		//first link is treated differently because function needs to determin widthUnit, later it is done with less effort by just removing useless characters
 		std::getline(stream, link, ' ');
 		std::getline(stream, imageSize, ' ');
 

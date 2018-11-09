@@ -18,6 +18,7 @@ void SourceDownloader::downloadSource(std::string url)
 		if (code != CURLE_OK)														//error checks, similar are repeated below
 		{
 			fprintf(stderr, "Failed to set URL [%s]\n", errorBuffer);
+			throw std::exception((std::string("Failed to set URL ") + errorBuffer).c_str());
 		}
 
 		//CURLOPT_FOLLOWLOCATION - flag used to tell CURL whether it should follow locations. 1 means follow it everywhere
@@ -25,6 +26,7 @@ void SourceDownloader::downloadSource(std::string url)
 		if (code != CURLE_OK)
 		{
 			fprintf(stderr, "Failed to set redirect option [%s]\n", errorBuffer);
+			throw std::exception((std::string("Failed to set redirect option ") + errorBuffer).c_str());
 		}
 
 		//CURLOPT_WRITEFUNCTION - "Pass a pointer to your callback function, which gets called by libcurl as soon as there is data received that needs to be saved."
@@ -33,6 +35,7 @@ void SourceDownloader::downloadSource(std::string url)
 		if (code != CURLE_OK)
 		{
 			fprintf(stderr, "Failed to set write function [%s]\n", errorBuffer);
+			throw std::exception((std::string("Failed to set write function ") + errorBuffer).c_str());
 		}
 
 		//CURLOPT_WRITEDATA - "A data pointer to pass to the write callback. Fourth argument in write funtion (in our case std::string * s)"	All downloaded data will be saved into sourceCode variable
@@ -40,6 +43,7 @@ void SourceDownloader::downloadSource(std::string url)
 		if (code != CURLE_OK)
 		{
 			fprintf(stderr, "Failed to set write variable [%s]\n", errorBuffer);
+			throw std::exception((std::string("Failed to set write variable ") + errorBuffer).c_str());
 		}
 
 		//connect to the remote site, do the necessary commands and receive the transfer. 
@@ -47,6 +51,7 @@ void SourceDownloader::downloadSource(std::string url)
 		if (code != CURLE_OK)
 		{
 			fprintf(stderr, "Failed to easy perform [%s]\n", errorBuffer);
+			throw std::exception((std::string("Failed to easy perform ") + errorBuffer).c_str());
 		}
 
 		curl_easy_cleanup(curlHandle);

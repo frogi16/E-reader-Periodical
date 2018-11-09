@@ -23,4 +23,47 @@
 			</XMLRule>
 		</XMLFilteringRules>
 	</rule>
+	
+	<rule>
+		<domain>nowakonfederacja.pl</domain>
+		<minWords>0</minWords>
+		<maxWords></maxWords>
+		<XMLFilteringRules>
+			<XMLRule>
+				<type>text-substring</type>
+				<substring>Nowa Konfederacja istnieje dzięki naszym
+Darczyńcom</substring>
+			</XMLRule>
+			<XMLRule>
+				<type>text-substring</type>
+				<substring>Wsparcie co miesiąc</substring>
+			</XMLRule>
+		</XMLFilteringRules>
+	</rule>
+	
+	<rule>
+		<domain>www.totylkoteoria.pl</domain>
+		<minWords>0</minWords>
+		<maxWords></maxWords>
+		<XMLFilteringRules>
+			<XMLRule>
+				<type>text-substring</type>
+				<substring>Prowadzenie bloga naukowego wymaga ponoszenia kosztów.</substring>
+			</XMLRule>
+			<XMLRule>
+				<type>text-substring</type>
+				<substring>Patronite</substring>
+			</XMLRule>
+			<XMLRule>
+				<type>text-substring</type>
+				<substring>gdzie w
+prosty sposób możecie</substring>
+			</XMLRule>
+			<XMLRule>
+				<type>attribute-value</type>
+				<attribute>class</attribute>
+				<value>separator</value>
+			</XMLRule>
+		</XMLFilteringRules>
+	</rule>
 </rules>
