@@ -1,10 +1,10 @@
 #pragma once
 
-#include <curl/curl.h>
-
 #include <filesystem>
 #include <map>
 #include <string>
+
+#include "CurlWrapper.h"
 
 class ImageSaver
 {
@@ -14,10 +14,9 @@ public:
 	~ImageSaver();
 private:
 	std::string detectExtenstion(const std::string &link, const std::experimental::filesystem::path &pathToImage);
-
-	static size_t CurlWrite_CallbackFunc_StdString(void *contents, size_t size, size_t nmemb, std::string *s);		//needs to be static
-
-	std::string response;
+	std::string mimeFromJson(std::string & jsonString);
+	std::string mimeFromHTML(std::string & htmlString);
+	CurlWrapper curlWrapper;
 
 	static const std::map<std::string, std::string> extensionsFromMIME;
 };

@@ -5,7 +5,6 @@ Application::Application() noexcept :
 	adder(keyHolder.pocketKey),
 	parser(keyHolder.mercuryKey)
 {
-	curl_global_init(CURL_GLOBAL_ALL);
 	updater.setUpdateFrequencyInMinutes(5);
 	loadFeedsToWatch();
 }

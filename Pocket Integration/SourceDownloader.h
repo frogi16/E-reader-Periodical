@@ -12,6 +12,12 @@
 	2 step is converting source code into XML which is done using tidy
 */
 
+#include <string>
+#include <iostream>
+#include <fstream>
+#include <queue>
+#include <vector>
+
 #include <curl/curl.h>
 
 #include <tidy.h>
@@ -19,11 +25,7 @@
 
 #include "pugixml.hpp"
 
-#include <string>
-#include <iostream>
-#include <fstream>
-#include <queue>
-#include <vector>
+#include "CurlWrapper.h"
 
 class SourceDownloader
 {
@@ -31,11 +33,9 @@ public:
 	SourceDownloader() noexcept;
 	void downloadSource(std::string url);
 	pugi::xml_node getData();
-	std::vector<pugi::xml_node> selectData(std::string attributeName=0, std::string attributeValue=0);
 	~SourceDownloader();
 private:
-	static size_t curlWriteToString(void *contents, size_t size, size_t nmemb, std::string *s);
-	std::string sourceCode;
 	pugi::xml_document document;
+	CurlWrapper curlWrapper;
 };
 

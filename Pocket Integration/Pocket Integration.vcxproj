@@ -140,6 +140,7 @@
     <ClCompile Include="ArticleAdder.cpp" />
     <ClCompile Include="ArticleFilter.cpp" />
     <ClCompile Include="Authenticator.cpp" />
+    <ClCompile Include="CurlWrapper.cpp" />
     <ClCompile Include="EbookCreator.cpp" />
     <ClCompile Include="FeedsDatabase.cpp" />
     <ClCompile Include="ImageSaver.cpp" />
@@ -158,6 +159,7 @@
     <ClInclude Include="ArticleRSS.h" />
     <ClInclude Include="Authenticator.h" />
     <ClInclude Include="CountWordsTreeWalker.h" />
+    <ClInclude Include="CurlWrapper.h" />
     <ClInclude Include="EbookCreator.h" />
     <ClInclude Include="FeedsDatabase.h" />
     <ClInclude Include="ImageSaver.h" />

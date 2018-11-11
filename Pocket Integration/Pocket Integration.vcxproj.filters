@@ -57,6 +57,9 @@
     <ClCompile Include="DataSelecter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CurlWrapper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MyServer.h">
@@ -120,6 +123,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SelectSubstringTreeWalker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CurlWrapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
