@@ -17,13 +17,15 @@ void ArticleFilter::filterArticles(std::vector<ParsedArticle>& articles)
 	{
 		std::cout << "*";
 
-		if (!rules[iter->domain].exists)
+		if (!isRuleLoaded(iter->domain))
 		{
 			loadFilterRule(iter->domain);
 		}
 
 		if (filter(*iter))													//filter function returns true if article needs to be completely erased
+		{
 			iter = articles.erase(iter);
+		}
 		else
 			++iter;
 	}
@@ -55,7 +57,7 @@ bool ArticleFilter::filter(ParsedArticle & article)
 		}
 	}
 
-	if (article.wordCount)													//wordCount equals zero almost always means incorrect data returned by parser and articles shouldn't be filtered using corrupted data
+	if (article.wordCount)													//wordCount being equal zero almost always means incorrect data returned by parser and articles shouldn't be filtered using corrupted data
 	{
 		if (combinedRule.minWords && article.wordCount < combinedRule.minWords)
 			return true;

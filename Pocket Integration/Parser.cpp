@@ -20,14 +20,23 @@ std::vector<ParsedArticle> Parser::getParsedArticles(const std::vector<ArticleRS
 
 	for (auto& item : items)
 	{
-		callMercury(item.link);
-		std::cout << "*";
+		try
+		{
+			callMercury(item.link);
+			std::cout << "*";
 
-		auto parsedArticle = parseArticle(curlWrapper.getResponseString());
-		resolveConflicts(parsedArticle, item);
-		loadToXML(parsedArticle);
-		countWords(parsedArticle);
-		parsedArticles.push_back(parsedArticle);
+			auto parsedArticle = parseArticle(curlWrapper.getResponseString());
+			resolveConflicts(parsedArticle, item);
+			loadToXML(parsedArticle);
+			countWords(parsedArticle);
+			parsedArticles.push_back(parsedArticle);
+		}
+		catch (const std::exception& e)		//if anything went wrong it will be better not to show this article to end user in form of ebook
+											//(it probably is internal error which returnes no real content)
+		{
+			std::cout << std::endl << e.what() << std::endl;
+		}
+		
 	}
 	std::cout << std::endl;
 
@@ -46,16 +55,27 @@ ParsedArticle Parser::parseArticle(std::string & article)
 	ParsedArticle parsedArticle;
 
 	auto json = json::parse(curlWrapper.getResponseString());
-	if(!json["author"].is_null())
-		parsedArticle.author = json["author"].get<std::string>();
-	if (!json["title"].is_null())
-		parsedArticle.title = json["title"].get<std::string>();
-	if (!json["content"].is_null())
-		parsedArticle.content = json["content"].get<std::string>();
-	if (!json["domain"].is_null())
-		parsedArticle.domain = json["domain"].get<std::string>();
-	if (!json["date_published"].is_null())
-		parsedArticle.pubDate = json["date_published"].get<std::string>();
+
+	if (!json["message"].is_null())				//is something was sent via message field it means that something went wrong
+	{
+		if (json["message"].get<std::string>() == "Internal server error")
+		{
+			throw(std::exception("Parser couldn't parse one of the articles. The reason is: Internal server error"));
+		}
+	}
+	else
+	{
+		if (!json["author"].is_null())
+			parsedArticle.author = json["author"].get<std::string>();
+		if (!json["title"].is_null())
+			parsedArticle.title = json["title"].get<std::string>();
+		if (!json["content"].is_null())
+			parsedArticle.content = json["content"].get<std::string>();
+		if (!json["domain"].is_null())
+			parsedArticle.domain = json["domain"].get<std::string>();
+		if (!json["date_published"].is_null())
+			parsedArticle.pubDate = json["date_published"].get<std::string>();
+	}
 
 	return parsedArticle;
 }

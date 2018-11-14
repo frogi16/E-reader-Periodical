@@ -1,19 +1,18 @@
 #pragma once
 
-#include <curl/curl.h>
 #include <string>
 #include <vector>
+
+#include "CurlWrapper.h"
 
 class ArticleAdder
 {
 public:
 	ArticleAdder(std::string consumerKey);
-	void addArticles(const std::vector<std::string> & links, std::string accessToken) const;
+	void addArticles(const std::vector<std::string> & links, std::string accessToken);
 	~ArticleAdder();
 private:
-	static size_t CurlWrite_CallbackFunc_StdString(void *contents, size_t size, size_t nmemb, std::string *s);		//needs to be static
-	
-	CURL * handle;
+	CurlWrapper curlWrapper;
 	std::string mConsumerKey;
 	std::string response;
 };

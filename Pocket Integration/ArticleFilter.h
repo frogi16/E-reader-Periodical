@@ -64,6 +64,7 @@ private:
 	void applyTextSubstringRule(const XMLFilteringRule & rule, ParsedArticle & article);
 	void removeNodes(std::vector<pugi::xml_node>& nodes, ParsedArticle & article);
 	std::string documentToString(pugi::xml_document & doc);
+	bool isRuleLoaded(std::string domain) { return rules[domain].exists; }
 
 	std::map<std::string, Rule> rules;									//domain is the key. Global returns global rule
 	DataSelecter dataSelecter;

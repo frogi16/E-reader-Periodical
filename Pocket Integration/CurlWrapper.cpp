@@ -5,6 +5,7 @@
 CurlWrapper::CurlWrapper()
 {
 	curl = curl_easy_init();
+	curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errorBuffer);
 }
 
 void CurlWrapper::reset()
@@ -22,13 +23,26 @@ void CurlWrapper::setURL(std::string url)
 	}
 }
 
+void CurlWrapper::setPostFields(std::string& parameters)
+{
+	mParameters = parameters;					//I spent lovely time trying to figure out why I were getting bad requests. Isolating bugged place wasn't easy, but
+												//turns out that CURL doesn't copy parameters and they have to be in the same place in memory when performing connection.
+												//Kids, read documentation.
+	
+	code = curl_easy_setopt(curl, CURLOPT_POSTFIELDS, parameters.c_str());
+	if (code != CURLE_OK)
+	{
+		throw std::exception((std::string("Failed to set post fields ") + errorBuffer).c_str());
+	}
+}
+
 void CurlWrapper::setFollowLocation(bool value)
 {
 	//CURLOPT_FOLLOWLOCATION - flag used to tell CURL whether it should follow locations. 1 means follow it everywhere
 	code=curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, value);
 	if (code != CURLE_OK)
 	{
-		throw std::exception((std::string("Failed to set follow location") + errorBuffer).c_str());
+		throw std::exception((std::string("Failed to set follow location ") + errorBuffer).c_str());
 	}
 }
 

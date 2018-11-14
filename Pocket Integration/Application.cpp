@@ -3,6 +3,7 @@
 Application::Application() noexcept :
 	authenticator(keyHolder.pocketKey),
 	adder(keyHolder.pocketKey),
+	pocketRetriever(keyHolder.pocketKey),
 	parser(keyHolder.mercuryKey)
 {
 	updater.setUpdateFrequencyInMinutes(5);
@@ -15,10 +16,12 @@ void Application::run()
 
 	while (true)
 	{
+		auto links = pocketRetriever.retrieveArticles(currentUser.accessToken);
 		auto newArticlesRSS = checkRSS();						//info about articles recieved from RSS. Title, link, description etc. No actual article
+		links.insert(links.end(), newArticlesRSS.begin(), newArticlesRSS.end());
 
 		createMobi(newArticlesRSS);
-		//addArticles(newArticles);
+		//addArticlesToPocket(newArticles);
 
 		Sleep(1000 * 60);
 	}
@@ -46,7 +49,12 @@ std::vector<ArticleRSS> Application::checkRSS()
 	return updater.checkUpdates();
 }
 
-void Application::addArticles(const std::vector<std::string> & urls)
+std::vector<ArticleRSS> Application::getArticlesFromPocket()
+{
+	return std::vector<ArticleRSS>();
+}
+
+void Application::addArticlesToPocket(const std::vector<std::string> & urls)
 {
 	if (urls.size())
 		std::cout << "Sending " << urls.size() << " articles to pocket" << std::endl;

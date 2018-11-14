@@ -147,6 +147,7 @@
     <ClCompile Include="maincpp.cpp" />
     <ClCompile Include="MyServer.cpp" />
     <ClCompile Include="Parser.cpp" />
+    <ClCompile Include="PocketRetriever.cpp" />
     <ClCompile Include="RSSupdater.cpp" />
     <ClCompile Include="DataSelecter.cpp" />
     <ClCompile Include="SourceDownloader.cpp" />
@@ -167,6 +168,7 @@
     <ClInclude Include="MyServer.h" />
     <ClInclude Include="ParsedArticle.h" />
     <ClInclude Include="Parser.h" />
+    <ClInclude Include="PocketRetriever.h" />
     <ClInclude Include="RSSupdater.h" />
     <ClInclude Include="DataSelecter.h" />
     <ClInclude Include="SelectAttributeTreeWalker.h" />

@@ -16,6 +16,7 @@ public:
 	CurlWrapper();
 	void reset();
 	void setURL(std::string url);
+	void setPostFields(std::string& parameters);
 	void setFollowLocation(bool value);
 	void setWritingToString();
 	void setWritingToFile(std::experimental::filesystem::path &pathToImage);
@@ -37,6 +38,7 @@ private:
 	char errorBuffer[CURL_ERROR_SIZE];
 	struct curl_slist* slist = NULL;
 
+	std::string mParameters;
 	ResponseType responseType;
 	std::string responseString;
 	FILE *fp = NULL;

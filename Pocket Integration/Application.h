@@ -3,6 +3,7 @@
 #include "Authenticator.h"
 #include "RSSupdater.h"
 #include "ArticleAdder.h"
+#include "PocketRetriever.h"
 #include "Parser.h"
 #include "ArticleFilter.h"
 #include "EbookCreator.h"
@@ -21,7 +22,8 @@ public:
 private:
 	void authenticateConnection();
 	std::vector<ArticleRSS> checkRSS();
-	void addArticles(const std::vector<std::string> & urls);
+	std::vector<ArticleRSS> getArticlesFromPocket();
+	void addArticlesToPocket(const std::vector<std::string> & urls);
 	void createMobi(const std::vector<ArticleRSS> & items);
 	void loadFeedsToWatch();
 
@@ -29,6 +31,7 @@ private:
 	Authenticator authenticator;
 	RSSupdater updater;
 	ArticleAdder adder;
+	PocketRetriever pocketRetriever;
 	Parser parser;
 	ArticleFilter filter;
 	EbookCreator ebookCreator;
