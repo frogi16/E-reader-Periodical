@@ -1,7 +1,7 @@
 #include "ImageSaver.h"
 
 #include <cctype>
-
+#include <string>
 #include "json.h"
 
 using json = nlohmann::json;
@@ -21,9 +21,7 @@ ImageSaver::ImageSaver()
 void ImageSaver::saveImage(const std::string &link, std::experimental::filesystem::path &pathToImage)
 {
 	pathToImage.replace_extension(detectExtenstion(link, pathToImage));
-	curlWrapper.reset();
-	curlWrapper.setWritingToFile(pathToImage);
-	curlWrapper.setURL(link);
+	configureCurlToImageDownloading(link, pathToImage);
 	curlWrapper.perform();
 }
 
@@ -33,16 +31,11 @@ ImageSaver::~ImageSaver()
 
 std::string ImageSaver::detectExtenstion(const std::string & link, const std::experimental::filesystem::path & pathToImage)
 {
-	curlWrapper.reset();
-	curlWrapper.setWritingToString();
-	curlWrapper.setURL(link);
-	curlWrapper.setHeaderOnly(true);
-	curlWrapper.setNoBody(true);
-	curlWrapper.addToSlist("Content-Type: application/json");
+	configureCurlToHeaderDownloading(link);
 	curlWrapper.perform();
 
 	std::string response = curlWrapper.getResponseString();
-	std::string extension(".");
+	std::string extension(".jpg");
 	std::string MIME;
 
 	try//using JSON
@@ -54,11 +47,13 @@ std::string ImageSaver::detectExtenstion(const std::string & link, const std::ex
 		MIME = mimeFromHTML(response);
 	}
 
-	extension.append(extensionsFromMIME.at(MIME));
+	if (extensionsFromMIME.count(MIME))
+		extension.append(extensionsFromMIME.at(MIME));
+
 	return extension;
 }
 
-std::string ImageSaver::mimeFromJson(std::string & jsonString)
+std::string ImageSaver::mimeFromJson(const std::string & jsonString)
 {
 	nlohmann::json json = json::parse(jsonString);
 
@@ -66,9 +61,13 @@ std::string ImageSaver::mimeFromJson(std::string & jsonString)
 	{
 		return json["Content-Type"].get<std::string>();
 	}
+	else
+	{
+		throw std::exception("Couldn't identify content-type");
+	}
 }
 
-std::string ImageSaver::mimeFromHTML(std::string & htmlString)
+std::string ImageSaver::mimeFromHTML(const std::string & htmlString)
 {
 	std::string searched("Content-Type:");
 	std::string result;
@@ -84,4 +83,21 @@ std::string ImageSaver::mimeFromHTML(std::string & htmlString)
 	}
 
 	return result;
+}
+
+void ImageSaver::configureCurlToHeaderDownloading(const std::string & url)
+{
+	curlWrapper.reset();
+	curlWrapper.setWritingToString();
+	curlWrapper.setURL(url);
+	curlWrapper.setHeaderOnly(true);
+	curlWrapper.setNoBody(true);
+	curlWrapper.addToSlist("Content-Type: application/json");
+}
+
+void ImageSaver::configureCurlToImageDownloading(const std::string & link, std::experimental::filesystem::path & pathToImage)
+{
+	curlWrapper.reset();
+	curlWrapper.setWritingToFile(pathToImage);
+	curlWrapper.setURL(link);
 }

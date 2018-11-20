@@ -40,7 +40,7 @@ void RSSupdater::setUpdateFrequencyInMinutes(size_t minutes)
 	updateFrequency = minutes * 60;
 }
 
-void RSSupdater::watchFeed(std::string link)
+void RSSupdater::watchFeed(const std::string & link)
 {
 	auto iterator = std::find(feeds.begin(), feeds.end(), link);
 
@@ -50,7 +50,7 @@ void RSSupdater::watchFeed(std::string link)
 	}
 	else
 	{
-		throw std::string("Feed already being watched");
+		throw std::string("Feed is already being watched");
 	}
 }
 

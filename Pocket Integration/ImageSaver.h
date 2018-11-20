@@ -14,8 +14,10 @@ public:
 	~ImageSaver();
 private:
 	std::string detectExtenstion(const std::string &link, const std::experimental::filesystem::path &pathToImage);
-	std::string mimeFromJson(std::string & jsonString);
-	std::string mimeFromHTML(std::string & htmlString);
+	std::string mimeFromJson(const std::string & jsonString);
+	std::string mimeFromHTML(const std::string & htmlString);
+	void configureCurlToHeaderDownloading(const std::string & url);
+	void configureCurlToImageDownloading(const std::string &link, std::experimental::filesystem::path &pathToImage);
 	CurlWrapper curlWrapper;
 
 	static const std::map<std::string, std::string> extensionsFromMIME;

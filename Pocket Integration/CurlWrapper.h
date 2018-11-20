@@ -15,11 +15,11 @@ class CurlWrapper
 public:
 	CurlWrapper();
 	void reset();
-	void setURL(std::string url);
-	void setPostFields(std::string& parameters);
+	void setURL(const std::string & url);
+	void setPostFields(const std::string& parameters);
 	void setFollowLocation(bool value);
 	void setWritingToString();
-	void setWritingToFile(std::experimental::filesystem::path &pathToImage);
+	void setWritingToFile(std::experimental::filesystem::path & pathToImage);
 	void setNoBody(bool value);
 	void setHeaderOnly(bool value);
 	void resetSlist();

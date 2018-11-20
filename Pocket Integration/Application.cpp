@@ -6,6 +6,8 @@ Application::Application() noexcept :
 	pocketRetriever(keyHolder.pocketKey),
 	parser(keyHolder.mercuryKey)
 {
+	currentUser.username = "";
+	currentUser.accessToken = "";
 	updater.setUpdateFrequencyInMinutes(5);
 	loadFeedsToWatch();
 }
@@ -20,7 +22,7 @@ void Application::run()
 		auto newArticlesRSS = checkRSS();						//info about articles recieved from RSS. Title, link, description etc. No actual article
 		links.insert(links.end(), newArticlesRSS.begin(), newArticlesRSS.end());
 
-		createMobi(newArticlesRSS);
+		createMobi(links);
 		//addArticlesToPocket(newArticles);
 
 		Sleep(1000 * 60);
@@ -38,9 +40,16 @@ void Application::authenticateConnection()
 	}
 	else
 	{
-		UserData user = authenticator.authenticate();			//authenticate by connecting to pocket and redirecting user to their website (uses OAuth 2.0)
-		users[user.username] = user.accessToken;
-		currentUser = user;
+		try
+		{
+			UserData user = authenticator.authenticate();		//authenticate by connecting to pocket and redirecting user to their website (uses OAuth 2.0)
+			users[user.username] = user.accessToken;
+			currentUser = user;
+		}
+		catch (const std::exception &e)
+		{
+			std::cout << "Authentication failed: " << e.what() << std::endl;
+		}
 	}
 }
 

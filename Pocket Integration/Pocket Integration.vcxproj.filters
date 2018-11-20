@@ -63,6 +63,9 @@
     <ClCompile Include="PocketRetriever.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="FilteringRule.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MyServer.h">
@@ -132,6 +135,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PocketRetriever.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="XMLFilteringRuleType.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="XMLFilteringRule.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FilteringRule.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

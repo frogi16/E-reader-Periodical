@@ -3,7 +3,7 @@
 
 using json = nlohmann::json;
 
-PocketRetriever::PocketRetriever(std::string consumerKey) : mConsumerKey(consumerKey)
+PocketRetriever::PocketRetriever(const std::string & consumerKey) : mConsumerKey(consumerKey)
 {
 	curlModifier.setWritingToString();
 	curlModifier.addToSlist("Content-Type: application/json; charset=UTF8");
@@ -16,7 +16,7 @@ PocketRetriever::PocketRetriever(std::string consumerKey) : mConsumerKey(consume
 	curlRetriever.setURL("https://getpocket.com/v3/get");
 }
 
-std::vector<ArticleRSS> PocketRetriever::retrieveArticles(std::string accessToken)
+std::vector<ArticleRSS> PocketRetriever::retrieveArticles(const std::string & accessToken)
 {
 	json jsonParameters;
 	jsonParameters["consumer_key"] = mConsumerKey;
@@ -40,7 +40,7 @@ PocketRetriever::~PocketRetriever()
 {
 }
 
-std::vector<ArticleRSS> PocketRetriever::extractLinks(std::string & input)
+std::vector<ArticleRSS> PocketRetriever::extractLinks(const std::string & input)
 {
 	std::vector<ArticleRSS> articles;
 	auto json = json::parse(input);
@@ -61,7 +61,7 @@ std::vector<ArticleRSS> PocketRetriever::extractLinks(std::string & input)
 	return articles;
 }
 
-std::vector<std::string> PocketRetriever::extractItemIDs(std::string & input)
+std::vector<std::string> PocketRetriever::extractItemIDs(const std::string & input)
 {
 	std::vector<std::string> IDs;
 	auto json = json::parse(input);
@@ -80,7 +80,7 @@ std::vector<std::string> PocketRetriever::extractItemIDs(std::string & input)
 	return IDs;
 }
 
-void PocketRetriever::archiveArticles(std::string accessToken, std::vector<std::string> itemIDs)
+void PocketRetriever::archiveArticles(const std::string & accessToken, const std::vector<std::string> & itemIDs)
 {
 	json jsonParameters;
 	jsonParameters["consumer_key"] = mConsumerKey;

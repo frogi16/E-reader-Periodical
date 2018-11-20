@@ -14,7 +14,7 @@ void CurlWrapper::reset()
 	curl_easy_reset(curl);
 }
 
-void CurlWrapper::setURL(std::string url)
+void CurlWrapper::setURL(const std::string & url)
 {
 	code = curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 	if (code != CURLE_OK)
@@ -23,7 +23,7 @@ void CurlWrapper::setURL(std::string url)
 	}
 }
 
-void CurlWrapper::setPostFields(std::string& parameters)
+void CurlWrapper::setPostFields(const std::string & parameters)
 {
 	mParameters = parameters;					//I spent lovely time trying to figure out why I were getting bad requests. Isolating bugged place wasn't easy, but
 												//turns out that CURL doesn't copy parameters and they have to be in the same place in memory when performing connection.

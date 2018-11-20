@@ -7,7 +7,7 @@
 
 ArticleFilter::ArticleFilter()
 {
-	loadFilterRule("global");
+	loadFilteringRule("global");
 }
 
 void ArticleFilter::filterArticles(std::vector<ParsedArticle>& articles)
@@ -19,7 +19,7 @@ void ArticleFilter::filterArticles(std::vector<ParsedArticle>& articles)
 
 		if (!isRuleLoaded(iter->domain))
 		{
-			loadFilterRule(iter->domain);
+			loadFilteringRule(iter->domain);
 		}
 
 		if (filter(*iter))													//filter function returns true if article needs to be completely erased
@@ -36,25 +36,12 @@ void ArticleFilter::filterArticles(std::vector<ParsedArticle>& articles)
 bool ArticleFilter::filter(ParsedArticle & article)
 {
 	auto combinedRule = getCombinedRule(article.domain);
-	bool isContentChanged = false;
+	bool contentChanged = false;
 
-	for (auto& XMLRule : (*combinedRule.XMLFilteringRules))
+	for (auto& rule : (*combinedRule.XMLFilteringRules))
 	{
-		if (XMLRule.type == XMLFilteringRuleType::AttributeValue)			//if else was used instead of switch because of variable initialization inside (possible error:"transfer of control bypasses initialization of")
-		{
-			isContentChanged = true;
-			applyAttributeValueRule(XMLRule, article);
-		}
-		else if (XMLRule.type == XMLFilteringRuleType::NodeName)
-		{
-			isContentChanged = true;
-			applyNodeNameRule(XMLRule, article);
-		}
-		else if (XMLRule.type == XMLFilteringRuleType::TextSubstring)
-		{
-			isContentChanged = true;
-			applyTextSubstringRule(XMLRule, article);
-		}
+		if (applyXMLRule(rule, article))
+			contentChanged = true;
 	}
 
 	if (article.wordCount)													//wordCount being equal zero almost always means incorrect data returned by parser and articles shouldn't be filtered using corrupted data
@@ -66,17 +53,17 @@ bool ArticleFilter::filter(ParsedArticle & article)
 			return true;
 	}
 
-	if(isContentChanged)
+	if(contentChanged)
 		article.content = documentToString((*article.xmlDocument));			//actualize content if necessary
 
 	return false;
 }
 
-Rule ArticleFilter::getCombinedRule(std::string domain)
+FilteringRule ArticleFilter::getCombinedRule(const std::string & domain)
 {
-	Rule & globalRule = rules["global"];
-	Rule & specificRule = rules[domain];
-	Rule combinedRule;
+	FilteringRule & globalRule = rules["global"];
+	FilteringRule & specificRule = rules[domain];
+	FilteringRule combinedRule;
 
 	if (specificRule.exists)								//if specific rule doesn't exist, variables would be initialized with random data
 	{
@@ -96,10 +83,25 @@ Rule ArticleFilter::getCombinedRule(std::string domain)
 	return combinedRule;
 }
 
-void ArticleFilter::applyAttributeValueRule(const XMLFilteringRule & rule, ParsedArticle & article)
+bool ArticleFilter::applyXMLRule(const XMLFilteringRule & rule, ParsedArticle & article)
 {
-	auto dataToFilter = dataSelecter.selectNodesByAttribute((*article.xmlDocument), rule.attributeName, rule.attributeValue);
-	removeNodes(dataToFilter, article);
+	if (rule.type == XMLFilteringRuleType::AttributeValue)			//if else was used instead of switch because of variable initialization inside (possible error:"transfer of control bypasses initialization of")
+	{
+		applyAttributeValueRule(rule, article);
+		return true;
+	}
+	else if (rule.type == XMLFilteringRuleType::NodeName)
+	{
+		applyNodeNameRule(rule, article);
+		return true;
+	}
+	else if (rule.type == XMLFilteringRuleType::TextSubstring)
+	{
+		applyTextSubstringRule(rule, article);
+		return true;
+	}
+
+	return false;
 }
 
 void ArticleFilter::applyNodeNameRule(const XMLFilteringRule & rule, ParsedArticle & article)
@@ -111,6 +113,12 @@ void ArticleFilter::applyNodeNameRule(const XMLFilteringRule & rule, ParsedArtic
 void ArticleFilter::applyTextSubstringRule(const XMLFilteringRule & rule, ParsedArticle & article)
 {
 	auto dataToFilter = dataSelecter.selectNodesByTextSubstring((*article.xmlDocument), rule.substring);
+	removeNodes(dataToFilter, article);
+}
+
+void ArticleFilter::applyAttributeValueRule(const XMLFilteringRule & rule, ParsedArticle & article)
+{
+	auto dataToFilter = dataSelecter.selectNodesByAttribute((*article.xmlDocument), rule.attributeName, rule.attributeValue);
 	removeNodes(dataToFilter, article);
 }
 
@@ -136,7 +144,7 @@ std::string ArticleFilter::documentToString(pugi::xml_document & doc)
 	return ss.str();
 }
 
-void ArticleFilter::loadFilterRule(std::string domain)
+void ArticleFilter::loadFilteringRule(const std::string & domain)
 {
 	pugi::xml_document doc;
 	doc.load_file("filters.xml");
@@ -146,7 +154,7 @@ void ArticleFilter::loadFilterRule(std::string domain)
 	{
 		if (domain == loadedRule.child("domain").child_value())
 		{
-			Rule rule;
+			FilteringRule rule;
 			rule.domain = domain;
 			rule.exists = true;
 			rule.minWords = loadedRule.child("minWords").text().as_int();

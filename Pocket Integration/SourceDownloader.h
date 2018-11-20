@@ -31,7 +31,7 @@ class SourceDownloader
 {
 public:
 	SourceDownloader() noexcept;
-	void downloadSource(std::string url);
+	void downloadSource(const std::string & url);
 	pugi::xml_node getData();
 	~SourceDownloader();
 private:

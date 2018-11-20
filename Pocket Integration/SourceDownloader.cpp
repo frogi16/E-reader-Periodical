@@ -8,7 +8,7 @@ SourceDownloader::SourceDownloader() noexcept
 	curlWrapper.setWritingToString();
 }
 
-void SourceDownloader::downloadSource(std::string url)
+void SourceDownloader::downloadSource(const std::string & url)
 {
 	curlWrapper.setURL(url);
 	curlWrapper.perform();

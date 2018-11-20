@@ -143,6 +143,7 @@
     <ClCompile Include="CurlWrapper.cpp" />
     <ClCompile Include="EbookCreator.cpp" />
     <ClCompile Include="FeedsDatabase.cpp" />
+    <ClCompile Include="FilteringRule.cpp" />
     <ClCompile Include="ImageSaver.cpp" />
     <ClCompile Include="maincpp.cpp" />
     <ClCompile Include="MyServer.cpp" />
@@ -163,6 +164,7 @@
     <ClInclude Include="CurlWrapper.h" />
     <ClInclude Include="EbookCreator.h" />
     <ClInclude Include="FeedsDatabase.h" />
+    <ClInclude Include="FilteringRule.h" />
     <ClInclude Include="ImageSaver.h" />
     <ClInclude Include="json.h" />
     <ClInclude Include="MyServer.h" />
@@ -176,6 +178,8 @@
     <ClInclude Include="SelectSubstringTreeWalker.h" />
     <ClInclude Include="SourceDownloader.h" />
     <ClInclude Include="SrcSet.h" />
+    <ClInclude Include="XMLFilteringRule.h" />
+    <ClInclude Include="XMLFilteringRuleType.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

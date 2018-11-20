@@ -2,12 +2,12 @@
 #include "ArticleRSS.h"
 #include "CountWordsTreeWalker.h"
 
-#include "json.h"
 #include <iostream>
 
-using json = nlohmann::json;
+#include <tidy.h>
+#include <tidybuffio.h>
 
-Parser::Parser(std::string mercuryKey) : mMercuryKey(mercuryKey)
+Parser::Parser(const std::string & mercuryKey) : mMercuryKey(mercuryKey)
 {
 	curlWrapper.setWritingToString();
 	curlWrapper.addToSlist((std::string("x-api-key: ") + mMercuryKey).c_str());
@@ -32,7 +32,7 @@ std::vector<ParsedArticle> Parser::getParsedArticles(const std::vector<ArticleRS
 			parsedArticles.push_back(parsedArticle);
 		}
 		catch (const std::exception& e)		//if anything went wrong it will be better not to show this article to end user in form of ebook
-											//(it probably is internal error which returnes no real content)
+											//(it probably is internal error which returnes no real content, so only article title is visible)
 		{
 			std::cout << std::endl << e.what() << std::endl;
 		}
@@ -43,39 +43,23 @@ std::vector<ParsedArticle> Parser::getParsedArticles(const std::vector<ArticleRS
 	return parsedArticles;
 }
 
-void Parser::callMercury(std::string link)
+void Parser::callMercury(const std::string & link)
 {
 	std::string url = std::string("https://mercury.postlight.com/parser") + "?url=" + link;
 	curlWrapper.setURL(url);
 	curlWrapper.perform();
 }
 
-ParsedArticle Parser::parseArticle(std::string & article)
+ParsedArticle Parser::parseArticle(const std::string & article)
 {
+	nlohmann::json jsonResponse = nlohmann::json::parse(curlWrapper.getResponseString());
 	ParsedArticle parsedArticle;
 
-	auto json = json::parse(curlWrapper.getResponseString());
-
-	if (!json["message"].is_null())				//is something was sent via message field it means that something went wrong
-	{
-		if (json["message"].get<std::string>() == "Internal server error")
-		{
-			throw(std::exception("Parser couldn't parse one of the articles. The reason is: Internal server error"));
-		}
-	}
+	bool test = jsonResponse["message"].is_null();
+	if (isResponseValid(jsonResponse))						//if something was sent using message field it means that something went wrong
+		loadParsedData(parsedArticle, jsonResponse);
 	else
-	{
-		if (!json["author"].is_null())
-			parsedArticle.author = json["author"].get<std::string>();
-		if (!json["title"].is_null())
-			parsedArticle.title = json["title"].get<std::string>();
-		if (!json["content"].is_null())
-			parsedArticle.content = json["content"].get<std::string>();
-		if (!json["domain"].is_null())
-			parsedArticle.domain = json["domain"].get<std::string>();
-		if (!json["date_published"].is_null())
-			parsedArticle.pubDate = json["date_published"].get<std::string>();
-	}
+		detectAndThrowParserError(jsonResponse);
 
 	return parsedArticle;
 }
@@ -85,8 +69,7 @@ void Parser::resolveConflicts(ParsedArticle & mercuryArticle, const ArticleRSS &
 	if (rssArticle.title.size())							//Mercury sometimes uses site name as an article title, RSS data is much more reliable
 		mercuryArticle.title = rssArticle.title;	
 }
-#include <tidy.h>
-#include <tidybuffio.h>
+
 void Parser::loadToXML(ParsedArticle & article)
 {
 	std::shared_ptr<pugi::xml_document> document(std::make_shared<pugi::xml_document>());
@@ -135,6 +118,37 @@ void Parser::countWords(ParsedArticle & article)
 	CountWordsTreeWalker walker;
 	article.xmlDocument->traverse(walker);
 	article.wordCount = walker.words;
+}
+
+void Parser::loadParsedData(ParsedArticle & article, nlohmann::json & data)
+{
+	if (!data["author"].is_null())
+		article.author = data["author"].get<std::string>();
+	if (!data["title"].is_null())
+		article.title = data["title"].get<std::string>();
+	if (!data["content"].is_null())
+		article.content = data["content"].get<std::string>();
+	if (!data["domain"].is_null())
+		article.domain = data["domain"].get<std::string>();
+	if (!data["date_published"].is_null())
+		article.pubDate = data["date_published"].get<std::string>();
+}
+
+void Parser::detectAndThrowParserError(const nlohmann::json & response) const
+{
+	if (response["message"].get<std::string>() == "Internal server error")
+	{
+		throw(std::exception("Parser couldn't parse one of the articles. The reason is: Internal server error"));
+	}
+	else
+	{
+		throw(std::exception("Parser couldn't parse one of the articles. Reason is unknown"));
+	}
+}
+
+bool Parser::isResponseValid(const nlohmann::json & response) const
+{
+	return response["message"].is_null();
 }
 
 Parser::~Parser()

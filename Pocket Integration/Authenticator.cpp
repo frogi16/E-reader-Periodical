@@ -5,20 +5,11 @@
 
 using njson = nlohmann::json;
 
-Authenticator::Authenticator(std::string consumerKey) : mConsumerKey(consumerKey)
+Authenticator::Authenticator(const std::string & consumerKey) : mConsumerKey(consumerKey)
 {
-	//initialize curl
-	handle = curl_easy_init();
-
-	//set response string as responses container
-	curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, CurlWrite_CallbackFunc_StdString);
-	curl_easy_setopt(handle, CURLOPT_WRITEDATA, &response);
-	
-	//set headers: parameters will be transmitted in form of JSON in UTF8 and site is expected to respond in JSON as well
-	struct curl_slist *chunk = NULL;
-	chunk = curl_slist_append(chunk, "Content-Type: application/json; charset=UTF8");
-	chunk = curl_slist_append(chunk, "X-Accept: application/json");
-	curl_easy_setopt(handle, CURLOPT_HTTPHEADER, chunk);
+	curlWrapper.setWritingToString();
+	curlWrapper.addToSlist("Content-Type: application/json; charset=UTF8");
+	curlWrapper.addToSlist("X-Accept: application/json");
 
 	callbackString_t = utility::string_t(L"http://localhost:21568/callback/");
 	callbackString = utility::conversions::to_utf8string(callbackString_t);
@@ -37,11 +28,10 @@ UserData Authenticator::authenticate()
 	else
 	{
 		std::cout << "Authenticating using Pocket API" << std::endl;
-		CURLcode requestResult = getRequestToken();
-
-		if (requestResult == CURLcode::CURLE_OK)
+		try
 		{
-			std::string requestToken = extractRequestToken(response);
+			getRequestToken();
+			std::string requestToken = extractRequestToken();
 
 			//redirecting user to pocket site in order to log in to account
 			ShellExecute(0, 0, std::string("https://getpocket.com/auth/authorize?request_token=" + requestToken + "&redirect_uri=" + callbackString).c_str(), 0, 0, SW_SHOW);
@@ -54,19 +44,20 @@ UserData Authenticator::authenticate()
 				Sleep(100);
 			}
 
-			requestResult = getAccessToken(requestToken);
-
-			if (requestResult == CURLcode::CURLE_OK)
-			{
-				UserData userData = extractAccessTokenAndUsername(response);
-				saveUserToFile(pathToUserFile, userData);
-				return userData;
-			}
+			getAccessToken(requestToken);
+			UserData userData = extractAccessTokenAndUsername();
+			saveUserToFile(pathToUserFile, userData);
+			return userData;
+		}
+		catch (const std::exception& e)
+		{
+			std::cout << "Authentication failed: " << e.what() << std::endl;
+			throw;
 		}
 	}
 }
 
-CURLcode Authenticator::getRequestToken()
+void Authenticator::getRequestToken()
 {
 	njson jsonParameters;
 	jsonParameters["consumer_key"] = mConsumerKey;
@@ -76,7 +67,7 @@ CURLcode Authenticator::getRequestToken()
 	return makePOST("https://getpocket.com/v3/oauth/request", parameters);
 }
 
-CURLcode Authenticator::getAccessToken(std::string requestToken)
+void Authenticator::getAccessToken(std::string requestToken)
 {
 	njson jsonParameters;
 	jsonParameters["consumer_key"] = mConsumerKey;
@@ -86,28 +77,27 @@ CURLcode Authenticator::getAccessToken(std::string requestToken)
 	return makePOST("https://getpocket.com/v3/oauth/authorize", parameters);
 }
 
-CURLcode Authenticator::makePOST(std::string url, std::string parameters)
+void Authenticator::makePOST(std::string url, std::string parameters)
 {
-	response.clear();
-	curl_easy_setopt(handle, CURLOPT_URL, url.c_str());
-	curl_easy_setopt(handle, CURLOPT_POSTFIELDS, parameters.c_str());
-	return curl_easy_perform(handle);
+	curlWrapper.setURL(url);
+	curlWrapper.setPostFields(parameters);
+	curlWrapper.perform();
 }
 
-std::string Authenticator::extractRequestToken(std::string source)
+std::string Authenticator::extractRequestToken()
 {
-	auto json = njson::parse(response);
+	auto json = njson::parse(curlWrapper.getResponseString());
 	return json["code"].get<std::string>();
 }
 
-UserData Authenticator::extractAccessTokenAndUsername(std::string source)
+UserData Authenticator::extractAccessTokenAndUsername()
 {
 	UserData data;
 
-	auto json = njson::parse(response);
+	auto json = njson::parse(curlWrapper.getResponseString());
 	data.accessToken = json["access_token"].get<std::string>();
 	data.username = json["username"].get<std::string>();
-	
+
 	return data;
 }
 
@@ -126,7 +116,6 @@ void Authenticator::receivedCallback(web::uri address)
 
 Authenticator::~Authenticator()
 {
-	curl_easy_cleanup(handle);
 }
 
 UserData Authenticator::loadUserFromFile(std::string filepath)
@@ -145,24 +134,6 @@ void Authenticator::saveUserToFile(std::string filepath, const UserData& userDat
 	loginFile.open(filepath, std::ios::out);
 	loginFile << userData.accessToken << " " << userData.username;
 	loginFile.close();
-}
-
-size_t Authenticator::CurlWrite_CallbackFunc_StdString(void * contents, size_t size, size_t nmemb, std::string * s)
-{
-	size_t newLength = size * nmemb;
-	size_t oldLength = s->size();
-	try
-	{
-		s->resize(oldLength + newLength);
-	}
-	catch (std::bad_alloc &e)
-	{
-		//handle memory problem
-		return 0;
-	}
-
-	std::copy((char*)contents, (char*)contents + newLength, s->begin() + oldLength);
-	return size * nmemb;
 }
 
 void Authenticator::listen(utility::string_t address)
