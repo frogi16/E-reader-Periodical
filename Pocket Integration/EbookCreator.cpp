@@ -120,13 +120,23 @@ void EbookCreator::saveImages(std::vector<pugi::xml_node> images)
 		}
 
 		fs::path path("book/OEBPS/Images/Image" + std::to_string(imageIndex++));	//path where image will be downloaded
-		imageSaver.saveImage(linkToImg, path);										//WARNING! Image downloader detects extension of file and changes path sent to it
 
-		std::string relativePath = "../Images/" + path.filename().string();			//path used in img src="PATH"
-		image.attribute("src").set_value(relativePath.c_str());						//replacing link to web by path to file
+		try
+		{
+			imageSaver.saveImage(linkToImg, path);									//WARNING! Image downloader detects extension of file and changes path sent to it
+																					
+			//adding image to manifest. Template: <item id="sample.png" href="Images/sample.png" media-type="image/png"/>
+			file << "<item id=" << '"' << path.filename() << '"' << " href=" << '"' << "Images/" << path.filename() << '"' << " media-type=" << '"' << "image/png" << '"' << "/>";
+		}
+		catch (const std::exception& e)												//if image couldn't be downloaded just use default filler. There is no need to 
+		{
+			path.replace_filename("filler");
+			path.replace_extension("png");
+			//note that there is no need to add filler.jpeg to file, because each element in file must be unique and filler is already there
+		}
 
-																					//<item id="sample.png" href="Images/sample.png" media-type="image/png"/>
-		file << "<item id=" << '"' << path.filename() << '"' << " href=" << '"' << "Images/" << path.filename() << '"' << " media-type=" << '"' << "image/png" << '"' << "/>";	//adding image to manifest
+		fs::path relativePath("../Images/" + path.filename().string());				//path used in img src="PATH"
+		image.attribute("src").set_value(relativePath.string().c_str());			//replacing link to web with path to file
 	}
 }
 

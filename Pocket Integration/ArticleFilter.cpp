@@ -44,16 +44,13 @@ bool ArticleFilter::filter(ParsedArticle & article)
 			contentChanged = true;
 	}
 
-	if (article.wordCount)													//wordCount being equal zero almost always means incorrect data returned by parser and articles shouldn't be filtered using corrupted data
-	{
-		if (combinedRule.minWords && article.wordCount < combinedRule.minWords)
-			return true;
+	if (combinedRule.minWords && article.wordCount < combinedRule.minWords)
+		return true;
 
-		if (combinedRule.maxWords && article.wordCount > combinedRule.maxWords)
-			return true;
-	}
+	if (combinedRule.maxWords && article.wordCount > combinedRule.maxWords)
+		return true;
 
-	if(contentChanged)
+	if (contentChanged)
 		article.content = documentToString((*article.xmlDocument));			//actualize content if necessary
 
 	return false;
@@ -75,7 +72,7 @@ FilteringRule ArticleFilter::getCombinedRule(const std::string & domain)
 		if (!combinedRule.maxWords)
 			combinedRule.maxWords = globalRule.maxWords;
 	}
-	else if(globalRule.exists)
+	else if (globalRule.exists)
 	{
 		combinedRule = globalRule;
 	}
@@ -185,7 +182,7 @@ void ArticleFilter::loadFilteringRule(const std::string & domain)
 					XMLRule.substring = loadedXMLRule.child("substring").child_value();
 					rule.XMLFilteringRules->emplace_back(XMLRule);
 				}
-				
+
 			}
 
 			rules[domain] = rule;

@@ -1,5 +1,6 @@
 #include "ImageSaver.h"
 
+#include <iostream>
 #include <cctype>
 #include <string>
 #include "json.h"
@@ -31,24 +32,32 @@ ImageSaver::~ImageSaver()
 
 std::string ImageSaver::detectExtenstion(const std::string & link, const std::experimental::filesystem::path & pathToImage)
 {
-	configureCurlToHeaderDownloading(link);
-	curlWrapper.perform();
-
-	std::string response = curlWrapper.getResponseString();
 	std::string extension(".jpg");
 	std::string MIME;
 
-	try//using JSON
+	try
 	{
-		MIME = mimeFromJson(response);
-	}
-	catch (const std::exception& e)//else try detecting content-type by searching string
-	{
-		MIME = mimeFromHTML(response);
-	}
+		configureCurlToHeaderDownloading(link);
+		curlWrapper.perform();
 
-	if (extensionsFromMIME.count(MIME))
-		extension.append(extensionsFromMIME.at(MIME));
+		std::string response = curlWrapper.getResponseString();
+
+		try//using JSON
+		{
+			MIME = mimeFromJson(response);
+		}
+		catch (const std::exception& e)//else try detecting content-type by searching string
+		{
+			MIME = mimeFromHTML(response);
+		}
+
+		if (extensionsFromMIME.count(MIME))
+			extension = "." + extensionsFromMIME.at(MIME);
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << "Couldn't download header: " << link << std::endl << e.what() << std::endl << "Attempting to use default .jpg extension." << std::endl;
+	}
 
 	return extension;
 }

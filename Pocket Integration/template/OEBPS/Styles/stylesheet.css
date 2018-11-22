@@ -3,7 +3,10 @@
 
 body { margin-left: 5%; margin-right: 5%; margin-top: 5%; margin-bottom: 5%; text-align: justify; }
 pre { font-size: x-small; }
-h1 { text-align: center; }
+h1 {
+	text-align: center;
+	font-size: 1.5em;
+}
 h2 { text-align: center; }
 h3 { text-align: center; }
 h4 { text-align: center; }

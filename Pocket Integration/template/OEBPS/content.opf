@@ -17,3 +17,4 @@
 		
 		<item id="cover" href="Text/cover.xhtml" media-type="application/xhtml+xml"/>
 		<item id="title_page.xhtml" href="Text/title_page.xhtml" media-type="application/xhtml+xml"/>
+		<item id="filler.png" href="Images/filler.png" media-type="image/png"/>
