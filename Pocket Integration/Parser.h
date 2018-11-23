@@ -21,7 +21,8 @@ private:
 	void loadToXML(ParsedArticle & article);																		//loads ParsedArticle.content into xml tree and places pointer to it in ParsedArticle.xmlDocument
 	void countWords(ParsedArticle & article);																		//traverses xml tree, counts visible words (no markups etc.) and writes it into article.wordCount
 	void loadParsedData(ParsedArticle & article, nlohmann::json & data);											//loads data json content into ParsedArticle
-	void detectAndThrowParserError(const nlohmann::json & response) const;
+	void detectAndThrowParserError(const nlohmann::json & response) const;											//tries to detect any errors or warnings in response received from Mercury and throws corresponding error describing problem in details
+	void configureCurl();
 	bool isResponseValid(const nlohmann::json & response) const;
 	
 	std::string mMercuryKey;

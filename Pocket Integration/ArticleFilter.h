@@ -15,12 +15,12 @@ class ArticleFilter
 {
 public:
 	ArticleFilter();
-	void filterArticles(std::vector<ParsedArticle> & articles);					//removes sections of articles and returns false if whole article should be filtered out
+	void filterArticles(std::vector<ParsedArticle> & articles);					//removes fragments and whole articles if they match previously set rules
 	~ArticleFilter();
 private:
-	void loadFilteringRule(const std::string & domain);
-	bool filter(ParsedArticle & article);										//removes sections of articles and returns true if whole article should be filtered out
-	FilteringRule getCombinedRule(const std::string & domain);					//returns rule obtained by merging global rule and specific for the domain. Specific one is prioritized
+	void loadFilteringRule(const std::string & domain);							//tries to load rule reffering to given domain
+	void filter(ParsedArticle & article);										//applies rules and checks conditions reffering to given article. Sets shouldBeRemoved flag if necessary
+	FilteringRule getCombinedRule(const std::string & domain);					//returns rule obtained by merging global rule and specific for the domain. Specific one is prioritized as more precise (cascade known for example from CSS)
 	
 	bool applyXMLRule(const XMLFilteringRule &rule, ParsedArticle & article);	//detects type of rule and applies it. Returns true if something changed. Otherwise returns false.
 	void applyNodeNameRule(const XMLFilteringRule & rule, ParsedArticle & article);
@@ -29,9 +29,12 @@ private:
 
 	void removeNodes(std::vector<pugi::xml_node>& nodes, ParsedArticle & article);
 	std::string documentToString(pugi::xml_document & doc);
-	bool isRuleLoaded(const std::string & domain) { return rules[domain].exists; }
 
-	std::map<std::string, FilteringRule> rules;									//domain is the key. Global returns global rule
+	bool isRuleLoaded(const std::string & domain) { return rules[domain].exists; }
+	bool tooFewWords(const FilteringRule& rule, const ParsedArticle & article);
+	bool tooManyWords(const FilteringRule& rule, const ParsedArticle & article);
+
+	std::map<std::string, FilteringRule> rules;									//stores FilteringRules with domains as keys. Key to global rule is of course "global"
 	DataSelecter dataSelecter;
 };
 

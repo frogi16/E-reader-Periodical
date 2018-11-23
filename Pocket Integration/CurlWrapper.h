@@ -15,21 +15,21 @@ class CurlWrapper
 public:
 	CurlWrapper();
 	void reset();
-	void setURL(const std::string & url);
-	void setPostFields(const std::string& parameters);
-	void setFollowLocation(bool value);
-	void setWritingToString();
-	void setWritingToFile(std::experimental::filesystem::path & pathToImage);
-	void setNoBody(bool value);
-	void setHeaderOnly(bool value);
-	void resetSlist();
-	void addToSlist(std::string value);
-	void perform();
+	void setURL(const std::string & url);										//CURLOPT_URL
+	void setPostFields(const std::string& parameters);							//CURLOPT_POSTFIELDS
+	void setFollowLocation(bool value);											//CURLOPT_FOLLOWLOCATION
+	void setWritingToString();													//CURLOPT_WRITEFUNCTION and CURLOPT_WRITEDATA
+	void setWritingToFile(std::experimental::filesystem::path & pathToImage);	//CURLOPT_WRITEFUNCTION and CURLOPT_WRITEDATA
+	void setNoBody(bool value);													//CURLOPT_NOBODY
+	void setHeaderOnly(bool value);												//CURLOPT_HEADER
+	void resetSlist();															//curl_slist_free_all
+	void addToSlist(std::string value);											//curl_slist_append
+	void perform();																//CURLOPT_HTTPHEADER and curl_easy_perform
 	std::string& getResponseString() { return responseString; }
 	~CurlWrapper();
 private:
-	void setResponseString();
-	void setHeaderList();
+	void setResponseString();													//CURLOPT_WRITEDATA
+	void setHeaderList();														//CURLOPT_HTTPHEADER
 
 	static size_t curlWriteToString(void *contents, size_t size, size_t nmemb, std::string *s);		//needs to be static
 

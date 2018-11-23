@@ -13,19 +13,20 @@ ArticleFilter::ArticleFilter()
 void ArticleFilter::filterArticles(std::vector<ParsedArticle>& articles)
 {
 	std::vector<ParsedArticle>::iterator iter;
-	for (iter = articles.begin(); iter != articles.end();)
+	for (iter = articles.begin(); iter != articles.end();)		//loop designed to dynamically erase items from container
 	{
 		std::cout << "*";
+		ParsedArticle& article = *iter;
 
-		if (!isRuleLoaded(iter->domain))
+		if (!isRuleLoaded(article.domain))
 		{
-			loadFilteringRule(iter->domain);
+			loadFilteringRule(article.domain);
 		}
 
-		if (filter(*iter))													//filter function returns true if article needs to be completely erased
-		{
+		filter(article);										//applies all rules and checks article for all conditions. Sets shouldBeRemoved flag if necessary
+
+		if (article.shouldBeRemoved)
 			iter = articles.erase(iter);
-		}
 		else
 			++iter;
 	}
@@ -33,7 +34,7 @@ void ArticleFilter::filterArticles(std::vector<ParsedArticle>& articles)
 	std::cout << std::endl;
 }
 
-bool ArticleFilter::filter(ParsedArticle & article)
+void ArticleFilter::filter(ParsedArticle & article)
 {
 	auto combinedRule = getCombinedRule(article.domain);
 	bool contentChanged = false;
@@ -44,16 +45,14 @@ bool ArticleFilter::filter(ParsedArticle & article)
 			contentChanged = true;
 	}
 
-	if (combinedRule.minWords && article.wordCount < combinedRule.minWords)
-		return true;
+	if (tooFewWords(combinedRule, article))
+		article.shouldBeRemoved = true;
 
-	if (combinedRule.maxWords && article.wordCount > combinedRule.maxWords)
-		return true;
+	if (tooManyWords(combinedRule, article))
+		article.shouldBeRemoved = true;
 
-	if (contentChanged)
-		article.content = documentToString((*article.xmlDocument));			//actualize content if necessary
-
-	return false;
+	if (!article.shouldBeRemoved && contentChanged)			//actualize content only if necessary! Article marked to removal won't be updated
+		article.content = documentToString((*article.xmlDocument));
 }
 
 FilteringRule ArticleFilter::getCombinedRule(const std::string & domain)
@@ -66,7 +65,7 @@ FilteringRule ArticleFilter::getCombinedRule(const std::string & domain)
 	{
 		combinedRule = specificRule;
 
-		if (!combinedRule.minWords)							//zero assigned to variable allows deriving rule from global
+		if (!combinedRule.minWords)							//zero assigned to variable allows deriving from global rule
 			combinedRule.minWords = globalRule.minWords;
 
 		if (!combinedRule.maxWords)
@@ -139,6 +138,16 @@ std::string ArticleFilter::documentToString(pugi::xml_document & doc)
 	std::stringstream ss;
 	doc.save(ss, "  ");
 	return ss.str();
+}
+
+bool ArticleFilter::tooFewWords(const FilteringRule & rule, const ParsedArticle & article)
+{
+	return (rule.minWords && article.wordCount < rule.minWords);
+}
+
+bool ArticleFilter::tooManyWords(const FilteringRule & rule, const ParsedArticle & article)
+{
+	return (rule.maxWords && article.wordCount > rule.maxWords);
 }
 
 void ArticleFilter::loadFilteringRule(const std::string & domain)

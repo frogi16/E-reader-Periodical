@@ -9,9 +9,7 @@
 
 Parser::Parser(const std::string & mercuryKey) : mMercuryKey(mercuryKey)
 {
-	curlWrapper.setWritingToString();
-	curlWrapper.addToSlist((std::string("x-api-key: ") + mMercuryKey).c_str());
-	curlWrapper.addToSlist("Content-Type: application/json");
+	configureCurl();
 }
 
 std::vector<ParsedArticle> Parser::getParsedArticles(const std::vector<ArticleRSS>& items)
@@ -31,8 +29,8 @@ std::vector<ParsedArticle> Parser::getParsedArticles(const std::vector<ArticleRS
 			countWords(parsedArticle);
 			parsedArticles.push_back(parsedArticle);
 		}
-		catch (const std::exception& e)		//if anything went wrong it will be better not to show this article to end user in form of ebook
-											//(it probably is internal error which returnes no real content, so only article title is visible)
+		catch (const std::exception& e)						//if anything went wrong it will be better not to show this article to end user in form of ebook so parsedArticle WON'T be added to output
+															//(it probably is internal error which returnes no real content, so only article title is visible)
 		{
 			std::cout << std::endl << e.what() << std::endl;
 		}
@@ -55,7 +53,6 @@ ParsedArticle Parser::parseArticle(const std::string & article)
 	nlohmann::json jsonResponse = nlohmann::json::parse(curlWrapper.getResponseString());
 	ParsedArticle parsedArticle;
 
-	bool test = jsonResponse["message"].is_null();
 	if (isResponseValid(jsonResponse))						//if something was sent using message field it means that something went wrong
 		loadParsedData(parsedArticle, jsonResponse);
 	else
@@ -67,7 +64,7 @@ ParsedArticle Parser::parseArticle(const std::string & article)
 void Parser::resolveConflicts(ParsedArticle & mercuryArticle, const ArticleRSS & rssArticle)
 {
 	if (rssArticle.title.size())							//Mercury sometimes uses site name as an article title, RSS data is much more reliable
-		mercuryArticle.title = rssArticle.title;	
+		mercuryArticle.title = rssArticle.title;
 }
 
 void Parser::loadToXML(ParsedArticle & article)
@@ -136,19 +133,29 @@ void Parser::loadParsedData(ParsedArticle & article, nlohmann::json & data)
 
 void Parser::detectAndThrowParserError(const nlohmann::json & response) const
 {
-	if (response["message"].get<std::string>() == "Internal server error")
+	std::string message = response["message"].get<std::string>();
+	if (message == "Internal server error")
 	{
-		throw(std::exception("Parser couldn't parse one of the articles. The reason is: Internal server error"));
+		throw(std::exception("Parser couldn't parse one of the articles due to internal parser server error"));
 	}
 	else
 	{
-		throw(std::exception("Parser couldn't parse one of the articles. Reason is unknown"));
+		throw(std::exception(std::string("Parser couldn't parse one of the articles. Reason is: " + message).c_str()));
 	}
+
+	//TODO: Expand list. Mercury has no detailed documentation so all message types have to be discovered by experiencing it.
+}
+
+void Parser::configureCurl()
+{
+	curlWrapper.setWritingToString();
+	curlWrapper.addToSlist((std::string("x-api-key: ") + mMercuryKey).c_str());
+	curlWrapper.addToSlist("Content-Type: application/json");
 }
 
 bool Parser::isResponseValid(const nlohmann::json & response) const
 {
-	return response["message"].is_null();
+	return response.count("message") == 0;
 }
 
 Parser::~Parser()

@@ -152,6 +152,7 @@
     <ClCompile Include="RSSupdater.cpp" />
     <ClCompile Include="DataSelecter.cpp" />
     <ClCompile Include="SourceDownloader.cpp" />
+    <ClCompile Include="SrcSet.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="APIKeyHolder.h" />

@@ -95,12 +95,12 @@ void EbookCreator::addToManifest(ParsedArticle & article)
 	file << "<item id=" << '"' << articleName << '"' << " href=" << '"' << "Text/" << articleName << '"' << " media-type=" << '"' << "application/xhtml+xml" << '"' << "/>";	//adding the article itself
 
 	auto images = dataSelecter.selectNodesByName((*article.xmlDocument), std::string("img"));	//find all images the article links to, because they also have to be listed in manifest
-	saveImages(images);
+	saveImages(images, article.domain);
 
 	file.close();
 }
 
-void EbookCreator::saveImages(std::vector<pugi::xml_node> images)
+void EbookCreator::saveImages(std::vector<pugi::xml_node> images, const std::string & domain)
 {
 	std::ofstream file("book/OEBPS/content.opf", std::ios::app);
 
@@ -112,12 +112,15 @@ void EbookCreator::saveImages(std::vector<pugi::xml_node> images)
 		if (srcSetString.size() > 0)												//if these links were found
 		{
 			SrcSet set(srcSetString);												//SrcSet automatically parse sent string - splits links and inserts them into map, where key is their width
-			linkToImg = set.links.rbegin()->second;									//keys are sorted from the least to the biggest, so last one means the biggest image
+			linkToImg = set.getLargestImageLink();
 		}
 		else
 		{
 			linkToImg = image.attribute("src").as_string();							//extract link to image
 		}
+
+		if ((*linkToImg.begin()) == '/' || (*linkToImg.begin()) == '\\')			//convert relative path into the global one
+			linkToImg = domain + linkToImg;
 
 		fs::path path("book/OEBPS/Images/Image" + std::to_string(imageIndex++));	//path where image will be downloaded
 

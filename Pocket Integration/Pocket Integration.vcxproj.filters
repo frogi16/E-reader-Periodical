@@ -66,6 +66,9 @@
     <ClCompile Include="FilteringRule.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SrcSet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MyServer.h">
