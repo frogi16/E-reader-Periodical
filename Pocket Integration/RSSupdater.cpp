@@ -30,23 +30,23 @@ std::vector<ArticleRSS> RSSupdater::forceUpdates()
 	return downloadFeeds();
 }
 
-void RSSupdater::setUpdateFrequencyInSeconds(size_t seconds)
+void RSSupdater::setUpdateFrequencyInSeconds(size_t seconds) noexcept
 {
 	updateFrequency = seconds;
 }
 
-void RSSupdater::setUpdateFrequencyInMinutes(size_t minutes)
+void RSSupdater::setUpdateFrequencyInMinutes(size_t minutes) noexcept
 {
 	updateFrequency = minutes * 60;
 }
 
 void RSSupdater::watchFeed(const std::string & link)
 {
-	auto iterator = std::find(feeds.begin(), feeds.end(), link);
+	auto position = std::find(linksToFeeds.begin(), linksToFeeds.end(), link);
 
-	if (iterator == feeds.end())	//if haven't found link in feeds
+	if (position == linksToFeeds.end())	//if haven't found link in feeds
 	{
-		feeds.push_back(link);
+		linksToFeeds.push_back(link);
 	}
 	else
 	{
@@ -64,10 +64,10 @@ std::vector<ArticleRSS> RSSupdater::downloadFeeds()
 	std::cout << "Checking for new articles" << std::endl;
 	std::vector<ArticleRSS> newItems;
 
-	for (auto& feed : feeds)
+	for (auto& link : linksToFeeds)
 	{
-		downloader.downloadSource(feed);
-		std::vector<ArticleRSS> items = feedsDatabase.updateFeed(feed, downloader.getData());
+		downloader.downloadSource(link);
+		std::vector<ArticleRSS> items = feedsDatabase.updateFeed(link, downloader.getData());
 		newItems.insert(newItems.end(), items.begin(), items.end());					//inefficient if size of links vector is big. TODO: prevent copying elements of links. Maybe deque?
 	}
 

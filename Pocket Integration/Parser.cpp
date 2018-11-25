@@ -136,7 +136,7 @@ void Parser::detectAndThrowParserError(const nlohmann::json & response) const
 	std::string message = response["message"].get<std::string>();
 	if (message == "Internal server error")
 	{
-		throw(std::exception("Parser couldn't parse one of the articles due to internal parser server error"));
+		throw(std::exception("Parser couldn't parse one of the articles due to internal parser server error. Please try again later."));
 	}
 	else
 	{

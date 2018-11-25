@@ -2,7 +2,7 @@
 
 SrcSet::SrcSet(std::string source)
 {
-	source = std::regex_replace(source, std::regex("%20"), " ");			//replace all occurences of %20 with spaces
+	replaceHTMLSpaces(source);
 
 	std::istringstream stream(source);
 	std::string link;														//link extracted from set
@@ -15,11 +15,14 @@ SrcSet::SrcSet(std::string source)
 	if (imageSize.back() == ',')											//sizes except the last are separated by comma AND space, so it is easier to remove it ASAP
 		imageSize.pop_back();
 
-	char unit = imageSize.back();											//determinig unit based on last character
-	if (unit == 'w')
+	try
+	{
+		widthUnit = detectUnit(imageSize.back());							//determinig unit based on last character
+	}
+	catch (const std::exception& e)
+	{
 		widthUnit = ImageWidthUnit::Width;
-	else if (unit == 'x')
-		widthUnit = ImageWidthUnit::Density;
+	}
 
 	imageSize.pop_back();													//after determinig unit last character can be removed. There are only digits left right now
 
@@ -35,4 +38,19 @@ SrcSet::SrcSet(std::string source)
 
 		links[std::stoi(imageSize)] = link;
 	}
+}
+
+void SrcSet::replaceHTMLSpaces(std::string & str)
+{
+	std::regex_replace(str, std::regex("%20"), " ");
+}
+
+ImageWidthUnit SrcSet::detectUnit(char ch)
+{
+	if (ch == 'w')
+		return ImageWidthUnit::Width;
+	else if (ch == 'x')
+		return ImageWidthUnit::Density;
+	else
+		throw("Unit couldn't be recognised.");
 }

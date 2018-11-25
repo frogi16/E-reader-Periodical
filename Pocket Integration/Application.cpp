@@ -48,7 +48,7 @@ void Application::authenticateConnection()
 		}
 		catch (const std::exception &e)
 		{
-			std::cout << "Authentication failed: " << e.what() << std::endl;
+			std::cout << "Pocket authentication failed: " << e.what() << std::endl;
 		}
 	}
 }
