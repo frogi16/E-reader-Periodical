@@ -7,6 +7,7 @@
 #include "Parser.h"
 #include "ArticleFilter.h"
 #include "EbookCreator.h"
+#include "ArticlesDatabase.h"
 
 #include <string>
 #include <map>
@@ -35,6 +36,7 @@ private:
 	Parser parser;
 	ArticleFilter filter;
 	EbookCreator ebookCreator;
+	ArticlesDatabase articlesDatabase;
 
 	std::map<std::string, std::string> users;
 	UserData currentUser;

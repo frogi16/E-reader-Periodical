@@ -35,10 +35,15 @@ void EbookCreator::prepareDirectory()
 {
 	try
 	{
-		fs::remove_all(fs::path("book"));											//encountered problems with remove_all - sometimes it removes everything except two files or except book directory.
-		fs::remove_all(fs::path("book"));											//The weirdest thing is that after repeating this process some more files are removed. Three times are enough for now.
-		fs::remove_all(fs::path("book"));
-		fs::remove(fs::path("book.mobi"));
+		size_t counter = 0;
+		while (fs::exists(fs::path("book")))														//remove_all doesn't actually remove all things. Because of reasons. So I remove and remove, and remove...
+		{
+			fs::remove_all(fs::path("book"));
+
+			if (++counter > 10)
+				throw std::exception("After multiple tries couldn't remove /book directory. You are advised to check if application has all permissions it needs.");
+		}
+		
 		fs::create_directory(fs::path("book"));
 		fs::copy(fs::path("template"), fs::path("book"), fs::copy_options::recursive);
 	}
@@ -75,7 +80,7 @@ void EbookCreator::saveArticle(ParsedArticle & article)
 {
 	std::ofstream file;
 	std::string articleName = "article" + std::to_string(articleIndex) + ".xhtml";
-	file.open("book/OEBPS/Text/" + articleName, std::ios::app);									//create the article file
+	file.open("book/OEBPS/Text/" + articleName, std::ios::out);									//create the article file
 
 	auto body = article.xmlDocument->first_child().child("body");
 	body.prepend_child("hr");																	//add horizontal line separating header and content to xml

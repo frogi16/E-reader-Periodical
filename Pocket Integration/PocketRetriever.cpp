@@ -1,4 +1,5 @@
 #include "PocketRetriever.h"
+#include <iostream>
 #include "json.h"
 
 using json = nlohmann::json;
@@ -18,10 +19,12 @@ PocketRetriever::PocketRetriever(const std::string & consumerKey) : mConsumerKey
 
 std::vector<ArticleRSS> PocketRetriever::retrieveArticles(const std::string & accessToken)
 {
+	std::cout << "Retrieving articles from Pocket" << std::endl;
+
 	json jsonParameters;
 	jsonParameters["consumer_key"] = mConsumerKey;
 	jsonParameters["access_token"] = accessToken;
-	jsonParameters["count"] = 15;
+	jsonParameters["count"] = 15;								//download at most 15 articles. Pocket authors strongly recommend it, so we should be nice to them.
 	std::string parameters = jsonParameters.dump();
 
 	curlRetriever.setPostFields(parameters);
@@ -31,6 +34,7 @@ std::vector<ArticleRSS> PocketRetriever::retrieveArticles(const std::string & ac
 
 	auto IDs = extractItemIDs(response);
 	archiveArticles(accessToken, IDs);
+	std::cout << "Retrieved " << IDs.size() << " articles" << std::endl;
 
 	return extractLinks(response);
 }

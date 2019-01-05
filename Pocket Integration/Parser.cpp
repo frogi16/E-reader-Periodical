@@ -24,6 +24,7 @@ std::vector<ParsedArticle> Parser::getParsedArticles(const std::vector<ArticleRS
 			std::cout << "*";
 
 			auto parsedArticle = parseArticle(curlWrapper.getResponseString());
+
 			resolveConflicts(parsedArticle, item);
 			loadToXML(parsedArticle);
 			countWords(parsedArticle);
