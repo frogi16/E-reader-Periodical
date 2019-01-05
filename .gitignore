@@ -270,3 +270,5 @@ __pycache__/
 *.mobi
 /database.xml
 /UnitTests
+/Pocket Integration/articles.xml
+/Pocket Integration/filteringResult.txt

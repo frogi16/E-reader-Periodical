@@ -6,6 +6,11 @@
 
 struct ParsedArticle
 {
+	ParsedArticle()
+	{
+		filteringDescription = std::make_shared<std::string>();
+	}
+
 	std::string title;
 	std::string author;
 	std::string content;
@@ -15,4 +20,6 @@ struct ParsedArticle
 	std::shared_ptr<pugi::xml_document> xmlDocument;
 
 	bool shouldBeRemoved = false;
+	bool filteringDescriptionExists = false;
+	std::shared_ptr<std::string> filteringDescription;
 };

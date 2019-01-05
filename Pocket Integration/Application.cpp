@@ -1,4 +1,5 @@
 #include "Application.h"
+#include <iostream>
 
 Application::Application() noexcept :
 	authenticator(keyHolder.pocketKey),
@@ -15,17 +16,36 @@ Application::Application() noexcept :
 void Application::run()
 {
 	authenticateConnection();
+	std::vector<ArticleRSS> articlesRSS = articlesDatabase.loadDatabase();		//info about articles recieved from RSS. Title, link, description etc. No actual article
 
 	while (true)
 	{
-		auto links = pocketRetriever.retrieveArticles(currentUser.accessToken);
-		auto newArticlesRSS = checkRSS();						//info about articles recieved from RSS. Title, link, description etc. No actual article
-		links.insert(links.end(), newArticlesRSS.begin(), newArticlesRSS.end());
+		std::cout << std::endl << "There are " << articlesRSS.size() << " new articles!" << std::endl;
+		std::cout << "Type \"update\" to check for new articles and \"book\" to create epub and mobi files." << std::endl;
+		std::string input;
+		std::cin >> input;
 
-		createMobi(links);
+		if (input == "update")
+		{
+			auto newArticlesRSS = pocketRetriever.retrieveArticles(currentUser.accessToken);
+			articlesRSS.insert(articlesRSS.end(), newArticlesRSS.begin(), newArticlesRSS.end());
+
+			newArticlesRSS = checkRSS();
+			articlesRSS.insert(articlesRSS.end(), newArticlesRSS.begin(), newArticlesRSS.end());
+			articlesDatabase.saveDatabase(articlesRSS);
+		}
+		else if(input=="book")
+		{
+			createMobi(articlesRSS);
+			articlesRSS.clear();
+			articlesDatabase.saveDatabase(articlesRSS);
+		}
+		else
+		{
+			std::cout << "Incorrect input" << std::endl;
+		}
+
 		//addArticlesToPocket(newArticles);
-
-		Sleep(1000 * 60);
 	}
 }
 
