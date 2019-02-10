@@ -26,17 +26,24 @@ SrcSet::SrcSet(std::string source)
 
 	imageSize.pop_back();													//after determinig unit last character can be removed. There are only digits left right now
 
-	links[std::stoi(imageSize)] = link;										//adding to the map link to image, where key is its width
-
-	while (std::getline(stream, link, ' '))									//link to image and its width are paired, so lack of link indicates lack of width. Hence only one check
+	try
 	{
-		std::getline(stream, imageSize, ' ');
+		links[std::stoi(imageSize)] = link;										//adding to the map link to image, where key is its width
 
-		imageSize.erase(std::remove_if(imageSize.begin(), imageSize.end(),	//remove all characters except digits (unit and comma if it exists)
-			[](char c) { return !(c >= 48 && c <= 57); }),					//basically !isdigit(c), but I had problem with getting it work
-			imageSize.end());
+		while (std::getline(stream, link, ' '))									//link to image and its width are paired, so lack of link indicates lack of width. Hence only one check
+		{
+			std::getline(stream, imageSize, ' ');
 
-		links[std::stoi(imageSize)] = link;
+			imageSize.erase(std::remove_if(imageSize.begin(), imageSize.end(),	//remove all characters except digits (unit and comma if it exists)
+				[](char c) { return !(c >= 48 && c <= 57); }),					//basically !isdigit(c), but I had problem with getting it work
+				imageSize.end());
+
+			links[std::stoi(imageSize)] = link;
+		}
+	}
+	catch (const std::exception& e)											//badly written source set may result in (for example) using part of the link as imageSize. Stoi throws appropriate error
+	{
+		throw(std::exception("Source set couldn't extract informations properly"));
 	}
 }
 
@@ -52,5 +59,5 @@ ImageWidthUnit SrcSet::detectUnit(char ch)
 	else if (ch == 'x')
 		return ImageWidthUnit::Density;
 	else
-		throw("Unit couldn't be recognised.");
+		throw(std::exception("Unit couldn't be recognised."));
 }

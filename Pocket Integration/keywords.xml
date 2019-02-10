@@ -1,29 +1,29 @@
 <group>
 	<main_keyword>pubDate</main_keyword>
 	<alternatives>
-	<alternative>updated</alternative>
-	<alternative>lastBuildDate</alternative>
+		<alternative>updated</alternative>
+		<alternative>lastBuildDate</alternative>
 	</alternatives>
 </group>
 
 <group>
 	<main_keyword>item</main_keyword>
 	<alternatives>
-	<alternative>entry</alternative>
+		<alternative>entry</alternative>
 	</alternatives>
 </group>
 
 <group>
 	<main_keyword>link</main_keyword>
 	<alternatives>
-	<alternative>id</alternative>
+		<alternative>id</alternative>
 	</alternatives>
 </group>
 
 <group>
 	<main_keyword>description</main_keyword>
 	<alternatives>
-	<alternative>content</alternative>
+		<alternative>content</alternative>
 	</alternatives>
 </group>
 

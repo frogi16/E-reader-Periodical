@@ -72,6 +72,9 @@
     <ClCompile Include="ArticlesDatabase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DatetimeParser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MyServer.h">
@@ -153,6 +156,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ArticlesDatabase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Keyword.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DatetimeParser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DatabaseKeywords.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

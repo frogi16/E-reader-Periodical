@@ -142,6 +142,7 @@
     <ClCompile Include="ArticlesDatabase.cpp" />
     <ClCompile Include="Authenticator.cpp" />
     <ClCompile Include="CurlWrapper.cpp" />
+    <ClCompile Include="DatetimeParser.cpp" />
     <ClCompile Include="EbookCreator.cpp" />
     <ClCompile Include="FeedsDatabase.cpp" />
     <ClCompile Include="FilteringRule.cpp" />
@@ -165,11 +166,14 @@
     <ClInclude Include="Authenticator.h" />
     <ClInclude Include="CountWordsTreeWalker.h" />
     <ClInclude Include="CurlWrapper.h" />
+    <ClInclude Include="DatabaseKeywords.h" />
+    <ClInclude Include="DatetimeParser.h" />
     <ClInclude Include="EbookCreator.h" />
     <ClInclude Include="FeedsDatabase.h" />
     <ClInclude Include="FilteringRule.h" />
     <ClInclude Include="ImageSaver.h" />
     <ClInclude Include="json.h" />
+    <ClInclude Include="Keyword.h" />
     <ClInclude Include="MyServer.h" />
     <ClInclude Include="ParsedArticle.h" />
     <ClInclude Include="Parser.h" />
