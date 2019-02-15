@@ -49,18 +49,18 @@ std::vector<ArticleRSS> FeedsDatabase::updateFeed(std::string feedLink, pugi::xm
 					newItems.push_back(item);
 					feed.items.push_back(item);
 				}
-
-				std::cout << "Found " << newItems.size() << " new articles" << std::endl;
 			}
+
+			std::cout << "Found " << newItems.size() << " new articles" << std::endl;
 		}
 		else
 		{
 			std::cout << "Processing the site content was skipped because site hasn't been updated since last check." << std::endl;
 		}
 	}
-	catch (const std::string& e)
+	catch (const std::exception& e)
 	{
-		std::cout << "Unexpected behavior:\n" << e << "\nUpdating this feed failed.\n";
+		std::cout << "Unexpected behavior:\n" << e.what() << "\nUpdating this feed failed.\n";
 	}
 
 	return newItems;
@@ -210,8 +210,6 @@ bool FeedsDatabase::isFeedSaved(const std::string & feedLink) const
 
 bool FeedsDatabase::isFeedChanged(const std::string & feedLink, const std::string & buildTime) const
 {
-	std::tm oldTime;
-
 	auto searchedFeed = feeds.find(feedLink);
 	if (searchedFeed == feeds.end() || searchedFeed->second.lastBuildTime.empty())		//newly added feed isn't saved in feeds map, but of course should be updated. Similarly if because of some mystic reasons (bugs, failed parse, unexpected exceptions etc.) date string is empty
 		return true;
@@ -223,7 +221,7 @@ bool FeedsDatabase::isFeedChanged(const std::string & feedLink, const std::strin
 		if (oldTime_t == -1 || newTime_t == -1)											//last resort of error-proofing is check if time_t is equal -1. It may happen if date couldn't be parsed at all. -1 seems to be treated by difftime() as special case and it returns 0, so boolean result has to be handled manually
 			return true;
 
-		return (difftime(oldTime_t, newTime_t) > 0);									//true if newTime is greater then oldTime
+		return (difftime(newTime_t, oldTime_t) > 0);									//true if newTime is greater then oldTime
 	}
 }
 
