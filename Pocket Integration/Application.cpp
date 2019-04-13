@@ -5,8 +5,9 @@ Application::Application() noexcept :
 	authenticator(keyHolder.pocketKey),
 	adder(keyHolder.pocketKey),
 	pocketRetriever(keyHolder.pocketKey),
-	parser(keyHolder.mercuryKey)
+	parser()
 {
+	srand(time(NULL));
 	currentUser.username = "";
 	currentUser.accessToken = "";
 	updater.setUpdateFrequencyInMinutes(5);

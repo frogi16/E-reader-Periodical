@@ -1,16 +1,21 @@
 #include "Parser.h"
-#include "ArticleRSS.h"
-#include "CountWordsTreeWalker.h"
+
+#include <Windows.h>
+#include <stdlib.h>
 
 #include <iostream>
+#include <fstream>
+#include <filesystem>
+#include <iomanip>
+#include <sstream>
 
 #include <tidy.h>
 #include <tidybuffio.h>
 
-Parser::Parser(const std::string & mercuryKey) : mMercuryKey(mercuryKey)
-{
-	configureCurl();
-}
+#include "ArticleRSS.h"
+#include "CountWordsTreeWalker.h"
+
+namespace fs = std::experimental::filesystem;
 
 std::vector<ParsedArticle> Parser::getParsedArticles(const std::vector<ArticleRSS>& items)
 {
@@ -20,18 +25,16 @@ std::vector<ParsedArticle> Parser::getParsedArticles(const std::vector<ArticleRS
 	{
 		try
 		{
-			callMercury(item.link);
-			std::cout << "*";
-
-			auto parsedArticle = parseArticle(curlWrapper.getResponseString());
-
+			auto parsedArticle = parseArticle(item);
 			resolveConflicts(parsedArticle, item);
 			loadToXML(parsedArticle);
 			countWords(parsedArticle);
 			parsedArticles.push_back(parsedArticle);
+
+			std::cout << "*";
 		}
-		catch (const std::exception& e)						//if anything went wrong it will be better not to show this article to end user in form of ebook so parsedArticle WON'T be added to output
-															//(it probably is internal error which returnes no real content, so only article title is visible)
+		catch (const std::exception& e)						//if anything went wrong it would be better not to show this article to end user inside an ebook, so parsedArticle won't be added to the output
+															//(it is probably an internal error which returns no real content, only short message and article title)
 		{
 			std::cout << std::endl << e.what() << std::endl;
 		}
@@ -42,29 +45,66 @@ std::vector<ParsedArticle> Parser::getParsedArticles(const std::vector<ArticleRS
 	return parsedArticles;
 }
 
-void Parser::callMercury(const std::string & link)
+ParsedArticle Parser::parseArticle(const ArticleRSS & articleRSS)
 {
-	std::string url = std::string("https://mercury.postlight.com/parser") + "?url=" + link;
-	curlWrapper.setURL(url);
-	curlWrapper.perform();
-}
+	static std::string verb{ "open" };
+	static std::string file{ "cmd.exe" };
+	static std::string tempDirectory{ "temp/" };
+	static std::string jsonExtension{ ".json" };
 
-ParsedArticle Parser::parseArticle(const std::string & article)
-{
-	nlohmann::json jsonResponse = nlohmann::json::parse(curlWrapper.getResponseString());
-	ParsedArticle parsedArticle;
+	std::string filename = getRandomFilename(tempDirectory, jsonExtension);
 
-	if (isResponseValid(jsonResponse))						//if something was sent using message field it means that something went wrong
+	//command consists of "/C" (carry out the command and terminate), "mercury-parser" (CLI run by npm), article link (parameter for parser), " > filename" (redirecting output stream to file)
+	std::string command = "/C mercury-parser " + articleRSS.link + " > " + filename;
+	
+	shellExecuteAndWait(verb, file, command);
+
+	std::ifstream fileParseResult(filename, std::ios::in);
+	nlohmann::json jsonResponse = nlohmann::json::parse(fileParseResult);			//load json from file to nlohmann representation
+	fileParseResult.close();
+	fs::remove(fs::path(filename));													//temporary files should be removed
+
+	if (isResponseValid(jsonResponse))												//if something was sent using message field it means that something went wrong
+	{
+		ParsedArticle parsedArticle;
 		loadParsedData(parsedArticle, jsonResponse);
+		return parsedArticle;
+	}
 	else
 		detectAndThrowParserError(jsonResponse);
+}
 
-	return parsedArticle;
+std::string Parser::getRandomFilename(std::string& path, std::string& extension) const
+{
+	int numberFilename = rand();
+	std::stringstream stream;
+	stream << std::hex << numberFilename;											//converting integer number to its hex string representation (53 453 456 -> "32fa290")
+	std::string filename(stream.str());
+	filename.insert(0, path);
+	filename.append(extension);
+	
+	return filename;
+}
+
+void Parser::shellExecuteAndWait(std::string & verb, std::string & file, std::string & parameters) const
+{
+	SHELLEXECUTEINFO ShExecInfo = { 0 };
+	ShExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
+	ShExecInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
+	ShExecInfo.hwnd = NULL;
+	ShExecInfo.lpVerb = verb.c_str();
+	ShExecInfo.lpFile = file.c_str(); ;
+	ShExecInfo.lpParameters = parameters.c_str();
+	ShExecInfo.lpDirectory = NULL;
+	ShExecInfo.nShow = SW_HIDE;
+	ShExecInfo.hInstApp = NULL;
+	ShellExecuteEx(&ShExecInfo);
+	WaitForSingleObject(ShExecInfo.hProcess, INFINITE);
 }
 
 void Parser::resolveConflicts(ParsedArticle & mercuryArticle, const ArticleRSS & rssArticle)
 {
-	if (rssArticle.title.size())							//Mercury sometimes uses site name as an article title, RSS data is much more reliable
+	if (rssArticle.title.size())													//Mercury sometimes uses site name as an article title, RSS data is much more reliable
 		mercuryArticle.title = rssArticle.title;
 }
 
@@ -137,7 +177,7 @@ void Parser::detectAndThrowParserError(const nlohmann::json & response) const
 	std::string message = response["message"].get<std::string>();
 	if (message == "Internal server error")
 	{
-		throw(std::exception("Parser couldn't parse one of the articles due to internal parser server error. Please try again later."));
+		throw(std::exception("Parser couldn't parse one of the articles due to internal parser error. Please try again later."));
 	}
 	else
 	{
@@ -145,13 +185,6 @@ void Parser::detectAndThrowParserError(const nlohmann::json & response) const
 	}
 
 	//TODO: Expand list. Mercury has no detailed documentation so all message types have to be discovered by experiencing it.
-}
-
-void Parser::configureCurl()
-{
-	curlWrapper.setWritingToString();
-	curlWrapper.addToSlist((std::string("x-api-key: ") + mMercuryKey).c_str());
-	curlWrapper.addToSlist("Content-Type: application/json");
 }
 
 bool Parser::isResponseValid(const nlohmann::json & response) const
