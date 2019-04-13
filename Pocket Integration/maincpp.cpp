@@ -9,7 +9,7 @@ int main()
 	}
 	catch (const std::exception& e)
 	{
-		std::cout << std::endl << "CRITICAL ERROR. APPLICATION WILL BE CLOSED!" << std::endl << e.what();
+		std::cout << std::endl << "Encountered critical error, application will be closed." << std::endl << e.what();
 	}
 
 	return 0;

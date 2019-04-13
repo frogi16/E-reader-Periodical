@@ -6,7 +6,7 @@
 
 struct ParsedArticle
 {
-	ParsedArticle()
+	ParsedArticle() : wordCount(0)
 	{
 		filteringDescription = std::make_shared<std::string>();
 	}

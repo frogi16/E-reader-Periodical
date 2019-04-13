@@ -5,9 +5,9 @@
 
 struct SelectSubstringTreeWalker : public pugi::xml_tree_walker
 {
-	SelectSubstringTreeWalker() {}
+	SelectSubstringTreeWalker() : updated(false) {}
 
-	SelectSubstringTreeWalker(std::string searchedSubstring)
+	SelectSubstringTreeWalker(std::string searchedSubstring) : updated(false)
 	{
 		setSelectArguments(searchedSubstring);
 	}

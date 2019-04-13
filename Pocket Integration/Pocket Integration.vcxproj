@@ -139,13 +139,16 @@
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="ArticleAdder.cpp" />
     <ClCompile Include="ArticleFilter.cpp" />
+    <ClCompile Include="ArticleRSS.cpp" />
     <ClCompile Include="ArticlesDatabase.cpp" />
     <ClCompile Include="Authenticator.cpp" />
     <ClCompile Include="CurlWrapper.cpp" />
     <ClCompile Include="DatetimeParser.cpp" />
     <ClCompile Include="EbookCreator.cpp" />
+    <ClCompile Include="FeedData.cpp" />
     <ClCompile Include="FeedsDatabase.cpp" />
     <ClCompile Include="FilteringRule.cpp" />
+    <ClCompile Include="URLExtensionDetector.cpp" />
     <ClCompile Include="ImageSaver.cpp" />
     <ClCompile Include="maincpp.cpp" />
     <ClCompile Include="MyServer.cpp" />
@@ -166,11 +169,12 @@
     <ClInclude Include="Authenticator.h" />
     <ClInclude Include="CountWordsTreeWalker.h" />
     <ClInclude Include="CurlWrapper.h" />
-    <ClInclude Include="DatabaseKeywords.h" />
     <ClInclude Include="DatetimeParser.h" />
     <ClInclude Include="EbookCreator.h" />
+    <ClInclude Include="FeedData.h" />
     <ClInclude Include="FeedsDatabase.h" />
     <ClInclude Include="FilteringRule.h" />
+    <ClInclude Include="URLExtensionDetector.h" />
     <ClInclude Include="ImageSaver.h" />
     <ClInclude Include="json.h" />
     <ClInclude Include="Keyword.h" />
@@ -187,6 +191,7 @@
     <ClInclude Include="SrcSet.h" />
     <ClInclude Include="XMLFilteringRule.h" />
     <ClInclude Include="XMLFilteringRuleType.h" />
+    <ClInclude Include="XMLSerializerInterface.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

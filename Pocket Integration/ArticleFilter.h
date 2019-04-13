@@ -30,7 +30,7 @@ private:
 	size_t removeNodes(std::vector<pugi::xml_node>& nodes, ParsedArticle & article);	//returns number of removed words
 	std::string documentToString(pugi::xml_document & doc);
 
-	bool isRuleLoaded(const std::string & domain) { return rules[domain].exists; }
+	bool isRuleLoaded(const std::string & domain) { return rules.count(domain) > 0; }
 	bool tooFewWords(const FilteringRule& rule, const ParsedArticle & article);
 	bool tooManyWords(const FilteringRule& rule, const ParsedArticle & article);
 

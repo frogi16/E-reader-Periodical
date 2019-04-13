@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <map>
 #include <string>
 
 #include "pugixml.hpp"
@@ -8,44 +9,40 @@
 #include "DataSelecter.h"
 #include "ArticleRSS.h"
 #include "Keyword.h"
-#include "DatabaseKeywords.h"
 #include "DatetimeParser.h"
-
-struct FeedData
-{
-	std::string link;
-	std::string lastBuildTime;
-	std::vector<ArticleRSS> items;
-};
+#include "FeedData.h"
 
 class FeedsDatabase
 {
 public:
 	FeedsDatabase() noexcept;
-	std::vector<ArticleRSS> updateFeed(std::string feedLink, pugi::xml_node root);							//function returns vector of links to the new items
-	void saveDatabase();																					//write to file
+	std::vector<ArticleRSS> updateFeed(const std::string &feedLink, const pugi::xml_node &root);			//checks if update is needed, performs it and returns vector of links to new items
+	void saveDatabase();																					//saves database to database.xml file
 	~FeedsDatabase();
 private:
-	void loadDatabase();																					//loading database into RAM
-	void loadKeywords();																					//loading groups of keywords from file
+	void loadDatabase();																					//loads database into memory
+	void loadKeywords();																					//loads keywords into memory
 
-	bool isFeedSaved(const std::string & feedLink) const;
+	bool isFeedSaved(const std::string & feedLink) inline const;
 	bool isFeedChanged(const std::string & feedLink, const std::string & buildTime) const;
-	bool isItemSaved(const std::vector<ArticleRSS> & savedItems, const std::string & itemLink) const;
+	bool isItemSaved(const std::vector<ArticleRSS> & savedItems, const std::string & itemLink) inline const;
 
-	std::time_t parseDatetime(const std::string & datetime) const;
-
-	std::vector<pugi::xml_node> searchForKeyword(const pugi::xml_node & root, const Keyword & keyword, size_t minimalResultNumber = 1, bool checkForChild = false);			//checkForChild makes function to check whether found result have valid child. It is done to filter out nodes storing values using attributes instead of children
-	ArticleRSS createItem(std::string itemLink, pugi::xml_node itemNode);
+	//search in given xml data for keywords in predictible order. When first keyword finds aprropriate results, they are returned without using any other keywords
+	//checkForChild parameter forces function to check whether the first found result has valid child
+	//this somewhat unusual approach is useful to filter out nodes storing values in attributes instead of PCDATA
+	std::vector<pugi::xml_node> searchForKeyword(const pugi::xml_node & root, const Keyword & keyword, size_t minimalResultNumber = 1, bool checkForChild = false);
 	
-	std::string getLinkFromAlternateHref(pugi::xml_node root);												//for example: "<link rel='alternate' type='text/html' href='https://czajniczek-pana-russella.blogspot.com/2018/10/gdzie-sie-podziali-kanibale.html' title='Gdzie siê podziali kanibale?'/>"
+	ArticleRSS createItem(const std::string &itemLink, const pugi::xml_node &itemNode);						//extracts ArticleRSS data from given xml node and item link and returns it
+	
+	std::string getLinkToItem(const pugi::xml_node &itemNode);												//extracts link to item from xml data
+	std::string getLinkFromStandardHref(const pugi::xml_node &root);										//standard method to extract link to item from xml data, used only be getLinkToItem() function!
+	std::string getLinkFromAlternateHref(const pugi::xml_node &root);										//alternative method to extract link to item from xml data, used only be getLinkToItem() function!
 
-	std::map<std::string, FeedData> feeds;																	//link to feed and feed itself
-	DataSelecter dataSelecter;																				//object containing functions facilitating scraping and filtering xml nodes
+	std::map<std::string, FeedData> feeds;																	//map storing feeds indexed by links
+	DataSelecter dataSelecter;																				//set of functions facilitating scraping and filtering xml nodes
 
-	Keyword pubDateKeyword, itemKeyword, linkKeyword, descriptionKeyword, titleKeyword;
-	DatabaseKeywords keywords;
+	std::map<std::string, Keyword> keywords;
 
-	DatetimeParser datetimeParser;
+	DatetimeParser datetimeParser;																			//parser matching datetime string representation to different templates and converting it to std::tm object if possible
 };
 

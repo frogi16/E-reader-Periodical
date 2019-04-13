@@ -26,8 +26,8 @@ void ArticleFilter::filterArticles(std::vector<ParsedArticle>& articles)
 			loadFilteringRule(article.domain);
 
 		filter(article);										//applies all rules and tests article for all conditions. Sets shouldBeRemoved and filteringDescription flags if necessary
-		
-		if(article.filteringDescriptionExists)
+
+		if (article.filteringDescriptionExists)
 			filteringResultFile << (*article.filteringDescription) << std::endl;
 
 		if (article.shouldBeRemoved)
@@ -70,30 +70,28 @@ void ArticleFilter::filter(ParsedArticle & article)
 		addDescriptionTooManyWords(combinedRule, article);
 	}
 
-	if (!article.shouldBeRemoved && contentChanged)			//actualize content only if necessary! Article marked to removal won't be updated
+	if (!article.shouldBeRemoved && contentChanged)				//actualize content only if necessary! Article marked to removal won't be updated
 		article.content = documentToString((*article.xmlDocument));
 }
 
 FilteringRule ArticleFilter::getCombinedRule(const std::string & domain)
 {
-	FilteringRule & globalRule = rules["global"];
-	FilteringRule & specificRule = rules[domain];
+	FilteringRule & globalRule = rules["global"];				//we can assume that global rule is always there
 	FilteringRule combinedRule;
 
-	if (specificRule.exists)								//if specific rule doesn't exist, variables would be initialized with random data
+	auto findSpecificRule = rules.find(domain);
+	if (findSpecificRule != rules.end())						//specific rule does exist and will be prefered over global one
 	{
-		combinedRule = specificRule;
+		combinedRule = findSpecificRule->second;
 
-		if (!combinedRule.minWords)							//zero assigned to variable allows deriving from global rule
+		if (!combinedRule.minWords)								//zero assigned to variable allows deriving from global rule
 			combinedRule.minWords = globalRule.minWords;
 
 		if (!combinedRule.maxWords)
 			combinedRule.maxWords = globalRule.maxWords;
 	}
-	else if (globalRule.exists)
-	{
+	else
 		combinedRule = globalRule;
-	}
 
 	return combinedRule;
 }
@@ -190,12 +188,12 @@ bool ArticleFilter::tooManyWords(const FilteringRule & rule, const ParsedArticle
 
 void ArticleFilter::addDescriptionTooFewWords(const FilteringRule & rule, ParsedArticle & article)
 {
-	article.filteringDescription->append("Removed because had " + std::to_string(article.wordCount) + " instead of at least " + std::to_string(rule.minWords) + " words.\n");
+	article.filteringDescription->append("Article was removed because had only " + std::to_string(article.wordCount) + " words instead of at least " + std::to_string(rule.minWords) + ".\n");
 }
 
 void ArticleFilter::addDescriptionTooManyWords(const FilteringRule & rule, ParsedArticle & article)
 {
-	article.filteringDescription->append("Removed because had " + std::to_string(article.wordCount) + " instead of maximum " + std::to_string(rule.maxWords) + " words.\n");
+	article.filteringDescription->append("Article was removed because had only " + std::to_string(article.wordCount) + " words instead of maximum " + std::to_string(rule.maxWords) + " .\n");
 }
 
 void ArticleFilter::loadFilteringRule(const std::string & domain)
@@ -210,7 +208,6 @@ void ArticleFilter::loadFilteringRule(const std::string & domain)
 		{
 			FilteringRule rule;
 			rule.domain = domain;
-			rule.exists = true;
 			rule.minWords = loadedRule.child("minWords").text().as_int();
 			rule.maxWords = loadedRule.child("maxWords").text().as_int();
 

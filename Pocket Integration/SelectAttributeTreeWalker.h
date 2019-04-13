@@ -5,9 +5,9 @@
 
 struct SelectAttributeTreeWalker : public pugi::xml_tree_walker
 {
-	SelectAttributeTreeWalker() {}
+	SelectAttributeTreeWalker() : updated(false) {}
 
-	SelectAttributeTreeWalker(std::string searchedAttributeName, std::string searchedAttributeValue)
+	SelectAttributeTreeWalker(std::string searchedAttributeName, std::string searchedAttributeValue) : updated(false)
 	{
 		setSelectArguments(searchedAttributeName, searchedAttributeValue);
 	}

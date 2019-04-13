@@ -7,7 +7,6 @@ FilteringRule::FilteringRule()
 
 FilteringRule::FilteringRule(const FilteringRule & rule)
 {
-	exists = true;
 	domain = rule.domain;
 	minWords = rule.minWords;
 	maxWords = rule.maxWords;

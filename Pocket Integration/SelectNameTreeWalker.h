@@ -7,9 +7,9 @@
 
 struct SelectNameTreeWalker : public pugi::xml_tree_walker
 {
-	SelectNameTreeWalker() {}
+	SelectNameTreeWalker() : updated(false) {}
 
-	SelectNameTreeWalker(std::string searchedNodeName)
+	SelectNameTreeWalker(std::string searchedNodeName) : updated(false)
 	{
 		setSelectArguments(searchedNodeName);
 	}

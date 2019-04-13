@@ -7,7 +7,7 @@
 
 struct CountWordsTreeWalker : public pugi::xml_tree_walker
 {
-	size_t words;
+	size_t words = 0;
 
 	virtual bool begin(pugi::xml_node& node)
 	{

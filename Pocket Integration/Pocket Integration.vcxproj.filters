@@ -75,6 +75,15 @@
     <ClCompile Include="DatetimeParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="URLExtensionDetector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArticleRSS.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FeedData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MyServer.h">
@@ -164,7 +173,13 @@
     <ClInclude Include="DatetimeParser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DatabaseKeywords.h">
+    <ClInclude Include="URLExtensionDetector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="XMLSerializerInterface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FeedData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

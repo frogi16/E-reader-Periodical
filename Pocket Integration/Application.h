@@ -22,10 +22,10 @@ public:
 	~Application();
 private:
 	void authenticateConnection();
-	std::vector<ArticleRSS> checkRSS();
-	std::vector<ArticleRSS> getArticlesFromPocket();
-	void addArticlesToPocket(const std::vector<std::string> & urls);
-	void createMobi(const std::vector<ArticleRSS> & items);
+	std::vector<ArticleRSS> checkRSS();									//checks all RSS feeds and returns vector of new articles
+	std::vector<ArticleRSS> getArticlesFromPocket();					//requests Pocket and returns vector of new articles
+	void addArticlesToPocket(const std::vector<std::string> & urls);	//saves given urls to Pocket
+	void createMobi(const std::vector<ArticleRSS> & items);				//creates ebook in .mobi format and leaves it in program directory with current date in name
 	void loadFeedsToWatch();
 
 	APIKeyHolder keyHolder;
@@ -36,7 +36,7 @@ private:
 	Parser parser;
 	ArticleFilter filter;
 	EbookCreator ebookCreator;
-	ArticlesDatabase articlesDatabase;
+	ArticlesDatabase articlesDatabase;		//database holding info about new articles which weren't parsed and converted into an ebook yet.
 
 	std::map<std::string, std::string> users;
 	UserData currentUser;

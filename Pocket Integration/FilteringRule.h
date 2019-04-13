@@ -12,7 +12,6 @@ public:
 	FilteringRule(const FilteringRule& rule);
 	~FilteringRule();
 
-	bool exists = false;
 	std::string domain;
 	size_t minWords;
 	size_t maxWords;

@@ -1,24 +1,19 @@
 #pragma once
 
-#include <string>
-#include <iostream>
-#include <sstream>
-#include <locale>
 #include <iomanip>
 #include <vector>
-#include <map>
 
 class DatetimeParser
 {
 public:
 	DatetimeParser();
-	std::tm parse(const std::string & datetime) const;
+	std::tm parseToTM(const std::string & datetime) const;								//parses timezone form given string and returns std::tm object
+	time_t parseToTime_t(const std::string & datetime) const;							//calls mktime on parseToTM and returns result (time_t object)
 	~DatetimeParser();
-private:
-	std::vector<std::string> datetimeFormats =
-	{
-		"%a, %d %b %Y %H:%M:%S",		//RFC822, eq. Sun, 10 Feb 2019 09:21:29 +0000
-		"%Y-%m-%dT%H:%M:%S"				//ISO8601 extended, eq. 2019-02-08T09:54:48Z
-	};
+protected:
+	void modifyTimeForTimezone(std::istringstream &ss, std::tm &time) const noexcept;	//parses timezone in +0300-like format and changes given time object accordingly
+	int extractTwoDigitsAsInt(std::string &timezone) const;								//extracts two first digits from string and returns their interpretation as int
+
+	static std::vector<std::string> datetimeFormats;									//vector of predetermined detatime format templates. TODO: consider allowing user of this class to set their own set of templates
 };
 

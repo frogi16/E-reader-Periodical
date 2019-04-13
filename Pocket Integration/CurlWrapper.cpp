@@ -28,8 +28,8 @@ void CurlWrapper::setPostFields(const std::string & parameters)
 	mParameters = parameters;					//I spent lovely time trying to figure out why I were getting bad requests. Isolating bugged place wasn't easy, but
 												//turns out that CURL doesn't copy parameters and they have to be in the same place in memory when performing connection.
 												//Kids, read documentation.
-	
-	code = curl_easy_setopt(curl, CURLOPT_POSTFIELDS, parameters.c_str());
+
+	code = curl_easy_setopt(curl, CURLOPT_POSTFIELDS, mParameters.c_str());
 	if (code != CURLE_OK)
 	{
 		throw std::exception((std::string("Failed to set post fields ") + errorBuffer).c_str());
@@ -39,7 +39,7 @@ void CurlWrapper::setPostFields(const std::string & parameters)
 void CurlWrapper::setFollowLocation(bool value)
 {
 	//CURLOPT_FOLLOWLOCATION - flag used to tell CURL whether it should follow locations. 1 means follow it everywhere
-	code=curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, value);
+	code = curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, value);
 	if (code != CURLE_OK)
 	{
 		throw std::exception((std::string("Failed to set follow location ") + errorBuffer).c_str());
@@ -50,7 +50,7 @@ void CurlWrapper::setWritingToString()
 {
 	//CURLOPT_WRITEFUNCTION - "Pass a pointer to your callback function, which gets called by libcurl as soon as there is data received that needs to be saved."
 	//as callback I assigned special curlWriteToString function, which matches strictly specified prototype.
-	code=curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curlWriteToString);
+	code = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curlWriteToString);
 	if (code != CURLE_OK)
 	{
 		throw std::exception((std::string("Failed to set write function ") + errorBuffer).c_str());
@@ -119,7 +119,7 @@ void CurlWrapper::perform()
 	if (slist != NULL)
 		setHeaderList();
 
-	if(responseType==ResponseType::String)
+	if (responseType == ResponseType::String)
 		responseString.clear();
 
 	//connect to the remote site, do the necessary commands and receive the transfer. 
@@ -129,28 +129,37 @@ void CurlWrapper::perform()
 		throw std::exception((std::string("Failed to easy perform ") + errorBuffer).c_str());
 	}
 
-	if(responseType==ResponseType::File)
+	if (responseType == ResponseType::File)
 		fclose(fp);
 }
 
 size_t CurlWrapper::curlWriteToString
 (void * contents,								//pointer to place where recieved data is located
 	size_t size,								//size of one data element
-	size_t nmemb,								//number of elements which was recieved from site and passed to write function
+	size_t nmemb,								//number of elements which were recieved from site and passed to write function
 	std::string * s)							//destination where recieved data will be stored
 {
 	size_t newLength = size * nmemb;			//space necessary to write new data
 	size_t oldLength = s->size();				//currently used space
 
-	try
+
+	//so, here should be code responsible for resizing string and handling all errors, but there is really nothing we can do with memory
+	//allocation errors beside repeating resize few more times.
+
+	int count = 0;
+	int maxTries = 3;							//max number of tries to resize buffer string. TODO: consider exposing maxTries variable via interface.
+
+	while (true)
 	{
-		//try resizing
-		s->resize(oldLength + newLength);
-	}
-	catch (std::bad_alloc &e)
-	{
-		//TODO: handle memory problem
-		return 0;
+		try
+		{
+			s->resize(oldLength + newLength);
+			break;
+		}
+		catch (std::bad_alloc &e)
+		{
+			if (++count >= maxTries) throw e;	//if repeating doesn't help, just rethrow the error
+		}
 	}
 
 	std::copy((char*)contents, (char*)contents + newLength, s->begin() + oldLength);		//arguments: 
@@ -158,15 +167,7 @@ size_t CurlWrapper::curlWriteToString
 																							//2) source end
 																							//3) destination beginning
 
-	return size * nmemb;							//return number of bytes which function could save (everything it recieved if try block succeed, less if something went wrong. In that case further transfer will be stopped)
-}
-
-CurlWrapper::~CurlWrapper()
-{
-	if(fp!=NULL)
-		fclose(fp);
-
-	curl_easy_cleanup(curl);
+	return size * nmemb;						//return number of bytes which function could save (everything it recieved if try block succeed, less if something went wrong. In that case further transfer will be stopped)
 }
 
 void CurlWrapper::setResponseString()
@@ -187,4 +188,12 @@ void CurlWrapper::setHeaderList()
 	{
 		throw std::exception((std::string("Failed to set http header list ") + errorBuffer).c_str());
 	}
+}
+
+CurlWrapper::~CurlWrapper()
+{
+	if (fp != NULL)
+		fclose(fp);
+
+	curl_easy_cleanup(curl);
 }

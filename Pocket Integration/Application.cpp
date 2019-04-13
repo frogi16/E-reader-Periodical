@@ -16,29 +16,29 @@ Application::Application() noexcept :
 void Application::run()
 {
 	authenticateConnection();
-	std::vector<ArticleRSS> articlesRSS = articlesDatabase.loadDatabase();		//info about articles recieved from RSS. Title, link, description etc. No actual article
+	std::vector<ArticleRSS> articles = articlesDatabase.loadDatabase();		//info about articles. Title, link, description etc. No actual content
 
 	while (true)
 	{
-		std::cout << std::endl << "There are " << articlesRSS.size() << " new articles!" << std::endl;
+		std::cout << std::endl << "There are " << articles.size() << " new articles!" << std::endl;
 		std::cout << "Type \"update\" to check for new articles and \"book\" to create epub and mobi files." << std::endl;
 		std::string input;
 		std::cin >> input;
 
 		if (input == "update")
 		{
-			auto newArticlesRSS = pocketRetriever.retrieveArticles(currentUser.accessToken);
-			articlesRSS.insert(articlesRSS.end(), newArticlesRSS.begin(), newArticlesRSS.end());
+			auto newArticles = pocketRetriever.retrieveArticles(currentUser.accessToken);
+			articles.insert(articles.end(), newArticles.begin(), newArticles.end());
 
-			newArticlesRSS = checkRSS();
-			articlesRSS.insert(articlesRSS.end(), newArticlesRSS.begin(), newArticlesRSS.end());
-			articlesDatabase.saveDatabase(articlesRSS);
+			newArticles = checkRSS();
+			articles.insert(articles.end(), newArticles.begin(), newArticles.end());
+			articlesDatabase.saveDatabase(articles);
 		}
 		else if(input=="book")
 		{
-			createMobi(articlesRSS);
-			articlesRSS.clear();
-			articlesDatabase.saveDatabase(articlesRSS);
+			createMobi(articles);
+			articles.clear();
+			articlesDatabase.saveDatabase(articles);
 		}
 		else
 		{
