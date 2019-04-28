@@ -1,6 +1,8 @@
 #include "FeedsDatabase.h"
+
 #include <fstream>
 #include <iostream>
+#include <algorithm>
 
 FeedsDatabase::FeedsDatabase() noexcept
 {
@@ -20,7 +22,7 @@ std::vector<ArticleRSS> FeedsDatabase::updateFeed(const std::string &feedLink, c
 		//predictable order, only if previous one doesn't return expected number of results.
 		//.front().child_value() is necessary and will be repeatedly used all across this object
 
-		if (isFeedChanged(feedLink, lastBuild))									//if feed has been updated since last check (if feed can't be found in map result is always true)
+		if (isFeedChanged(feedLink, lastBuild))								//if feed has been updated since last check (if feed can't be found in map result is always true)
 		{
 			std::cout << "Updating " << feedLink << std::endl;
 
@@ -46,7 +48,7 @@ std::vector<ArticleRSS> FeedsDatabase::updateFeed(const std::string &feedLink, c
 		}
 		else
 		{
-			std::cout << "Processing" << feedLink << " content was skipped because site hasn't been updated since last check." << std::endl;
+			std::cout << "Processing " << feedLink << " content was skipped because site hasn't been updated since last check." << std::endl;
 		}
 	}
 	catch (const std::exception& e)
@@ -54,6 +56,7 @@ std::vector<ArticleRSS> FeedsDatabase::updateFeed(const std::string &feedLink, c
 		std::cout << "Unexpected behavior:\n" << e.what() << "\nUpdating this feed failed.\n";
 	}
 
+	std::reverse(newItems.begin(), newItems.end());
 	return newItems;
 }
 

@@ -80,13 +80,29 @@ void EbookCreator::saveArticle(ParsedArticle & article)
 {
 	std::ofstream file;
 	std::string articleName = "article" + std::to_string(articleIndex) + ".xhtml";
-	file.open("book/OEBPS/Text/" + articleName, std::ios::out);									//create the article file
+	file.open("book/OEBPS/Text/" + articleName, std::ios::out);											//create the article file
+
+	auto head = article.xmlDocument->first_child().child("head");
+	auto link = head.append_child("link");
+	link.append_attribute("href").set_value("../Styles/stylesheet.css");
+	link.append_attribute("rel").set_value("stylesheet");
+	link.append_attribute("type").set_value("text/css");
 
 	auto body = article.xmlDocument->first_child().child("body");
-	body.prepend_child("hr");																	//add horizontal line separating header and content to xml
-	body.prepend_child("i").append_child(pugi::node_pcdata).set_value(article.domain.c_str());	//add domain to xml
-	body.prepend_child("h1").append_child(pugi::node_pcdata).set_value(article.title.c_str());	//add title	to xml		
-	article.xmlDocument->save(file);															//save xml content to file
+
+	body.prepend_child("hr");																			//horizontal line separating header and content
+
+	auto a = body.prepend_child("i").append_child("a");
+	a.append_child(pugi::node_pcdata).set_value("Skip");
+	a.append_attribute("epub:type").set_value("noteref");
+	a.append_attribute("href").set_value(std::string("article" + std::to_string(articleIndex + 1) + ".xhtml#head").c_str());
+	a.append_attribute("class").set_value("reference");
+	a.append_attribute("id").set_value("reference1");
+
+	body.prepend_child("i").append_child(pugi::node_pcdata).set_value(article.domain.c_str());			//domain
+	body.prepend_child("h1").prepend_child(pugi::node_pcdata).set_value(article.title.c_str());			//add title	to xml		
+	
+	article.xmlDocument->save(file);																	//save xml content to file
 	file.close();
 }
 

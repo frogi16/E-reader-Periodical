@@ -3,15 +3,7 @@
 
 body { margin-left: 5%; margin-right: 5%; margin-top: 5%; margin-bottom: 5%; text-align: justify; }
 pre { font-size: x-small; }
-h1 {
-	text-align: center;
-	font-size: 1.5em;
-}
-h2 { text-align: center; }
-h3 { text-align: center; }
-h4 { text-align: center; }
-h5 { text-align: center; }
-h6 { text-align: center; }
+
 .CI {
     text-align:center;
     margin-top:0px;
@@ -45,6 +37,35 @@ h6 { text-align: center; }
 	margin-top:0.5em;
 	margin-bottom: 0.25em;
 	margin-left: 2em;
+}
+
+#heading_id_1 {
+	text-align: center;
+}
+
+#heading_id_2 {
+	text-align: center;
+}
+
+#heading_id_3 {
+	text-align: center;
+	font-style: italic;
+	color: rgb(100, 100, 100);
+	font-size: 0.8em;
+}
+
+p:first-of-type:first-letter {
+  float: left;
+  font-family: Georgia;
+  font-size: 300%;
+  line-height: 50%;
+  padding-top: 4px;
+  padding-right: 4px;
+  padding-left: 3px;
+}
+
+.reference {
+	float: right;
 }
 
 div.centered_image {
