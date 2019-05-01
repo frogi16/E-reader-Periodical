@@ -21,6 +21,21 @@
 				<attribute>class</attribute>
 				<value>inner</value>
 			</XMLRule>
+			<XMLRule>
+				<type>attribute-value</type>
+				<attribute>class</attribute>
+				<value>amphtml-content</value>
+			</XMLRule>
+			<XMLRule>
+				<type>attribute-value</type>
+				<attribute>class</attribute>
+				<value>dol-strony</value>
+			</XMLRule>
+			<XMLRule>
+				<type>attribute-value</type>
+				<attribute>class</attribute>
+				<value>okruszki</value>
+			</XMLRule>
 		</XMLFilteringRules>
 	</rule>
 	
@@ -37,6 +52,37 @@ Darczyńcom</substring>
 			<XMLRule>
 				<type>text-substring</type>
 				<substring>Wsparcie co miesiąc</substring>
+			</XMLRule>
+		</XMLFilteringRules>
+	</rule>
+	
+	<rule>
+		<domain>niebezpiecznik.pl</domain>
+		<minWords>0</minWords>
+		<maxWords></maxWords>
+		<XMLFilteringRules>
+			<XMLRule>
+				<type>attribute-value</type>
+				<attribute>class</attribute>
+				<value>date</value>
+			</XMLRule>
+		</XMLFilteringRules>
+	</rule>
+	
+	<rule>
+		<domain>www.kwantowo.pl</domain>
+		<minWords>0</minWords>
+		<maxWords></maxWords>
+		<XMLFilteringRules>
+			<XMLRule>
+				<type>attribute-value</type>
+				<attribute>class</attribute>
+				<value>top-bar top-bar-overlay top-bar-sticky</value>
+			</XMLRule>
+			<XMLRule>
+				<type>attribute-value</type>
+				<attribute>class</attribute>
+				<value>page-sidebar</value>
 			</XMLRule>
 		</XMLFilteringRules>
 	</rule>

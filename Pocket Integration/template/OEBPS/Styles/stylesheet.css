@@ -54,7 +54,7 @@ pre { font-size: x-small; }
 	font-size: 0.8em;
 }
 
-p:first-of-type:first-letter {
+/*p:first-of-type:first-letter {
   float: left;
   font-family: Georgia;
   font-size: 300%;
@@ -62,7 +62,7 @@ p:first-of-type:first-letter {
   padding-top: 4px;
   padding-right: 4px;
   padding-left: 3px;
-}
+}*/
 
 .reference {
 	float: right;

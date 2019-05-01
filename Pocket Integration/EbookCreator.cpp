@@ -63,7 +63,13 @@ void EbookCreator::appendData(std::vector<ParsedArticle>& articles)
 	for (auto& article : articles)
 	{
 		addToManifest(article);
-		saveArticle(article);																	//save each article as "article[number].xhtml" - article0.xhtml, article1.xhtml etc.
+
+		//last article can't have skip button linking to the next article and has to be handled separately
+		if (&article == &articles.back())
+			saveArticle(article, false);
+		else
+			saveArticle(article);									//saves each article as "article[number].xhtml" - article0.xhtml, article1.xhtml etc.
+
 		++articleIndex;
 		std::cout << "*";
 	}
@@ -76,32 +82,43 @@ void EbookCreator::appendData(std::vector<ParsedArticle>& articles)
 	buildTableOfContent(articles);
 }
 
-void EbookCreator::saveArticle(ParsedArticle & article)
+void EbookCreator::saveArticle(ParsedArticle & article, bool addSkipButton)
 {
 	std::ofstream file;
 	std::string articleName = "article" + std::to_string(articleIndex) + ".xhtml";
 	file.open("book/OEBPS/Text/" + articleName, std::ios::out);											//create the article file
 
 	auto head = article.xmlDocument->first_child().child("head");
-	auto link = head.append_child("link");
-	link.append_attribute("href").set_value("../Styles/stylesheet.css");
-	link.append_attribute("rel").set_value("stylesheet");
-	link.append_attribute("type").set_value("text/css");
+	auto cssLink = head.append_child("link");
+	cssLink.append_attribute("href").set_value("../Styles/stylesheet.css");
+	cssLink.append_attribute("rel").set_value("stylesheet");
+	cssLink.append_attribute("type").set_value("text/css");
 
 	auto body = article.xmlDocument->first_child().child("body");
 
-	body.prepend_child("hr");																			//horizontal line separating header and content
+	auto header = body.prepend_child("div");
+	header.append_attribute("class").set_value("article-header");
 
-	auto a = body.prepend_child("i").append_child("a");
-	a.append_child(pugi::node_pcdata).set_value("Skip");
-	a.append_attribute("epub:type").set_value("noteref");
-	a.append_attribute("href").set_value(std::string("article" + std::to_string(articleIndex + 1) + ".xhtml#head").c_str());
-	a.append_attribute("class").set_value("reference");
-	a.append_attribute("id").set_value("reference1");
+	//<p id="anchor"></p>	anchor to which "Skip" button can be tied
+	auto link = header.append_child("p");
+	link.append_child(pugi::node_pcdata).set_value("");
+	link.append_attribute("id").set_value("anchor");
 
-	body.prepend_child("i").append_child(pugi::node_pcdata).set_value(article.domain.c_str());			//domain
-	body.prepend_child("h1").prepend_child(pugi::node_pcdata).set_value(article.title.c_str());			//add title	to xml		
-	
+	header.append_child("h1").append_child(pugi::node_pcdata).set_value(article.title.c_str());			//article title
+
+	header.append_child("i").append_child(pugi::node_pcdata).set_value(article.domain.c_str());			//domain
+
+	if (addSkipButton)
+	{
+		auto skip = header.append_child("i").append_child("a");											//"Skip" button is a reference to an anchor within the next article
+		skip.append_child(pugi::node_pcdata).set_value("Skip");
+		skip.append_attribute("href").set_value(std::string("article" + std::to_string(articleIndex + 1) + ".xhtml#anchor").c_str());
+		skip.append_attribute("class").set_value("reference");
+		skip.append_attribute("id").set_value("reference1");
+	}
+
+	header.append_child("hr");																			//horizontal line separating header and content
+
 	article.xmlDocument->save(file);																	//save xml content to file
 	file.close();
 }
