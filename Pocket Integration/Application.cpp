@@ -1,6 +1,7 @@
 #include "Application.h"
 #include <iostream>
 
+
 Application::Application() noexcept :
 	authenticator(keyHolder.pocketKey),
 	adder(keyHolder.pocketKey),
@@ -17,29 +18,66 @@ Application::Application() noexcept :
 void Application::run()
 {
 	authenticateConnection();
-	std::vector<ArticleRSS> articles = articlesDatabase.loadDatabase();		//info about articles. Title, link, description etc. No actual content
+	std::vector<ArticleRSS> articlesRSS = articlesDatabase.loadDatabase();		//info about articles. Title, link, description etc. No actual content
+	std::vector<ParsedArticle> articles;
 
 	while (true)
 	{
-		std::cout << std::endl << "There are " << articles.size() << " new articles!" << std::endl;
-		std::cout << "Type \"update\" to check for new articles and \"book\" to create epub and mobi files." << std::endl;
+		std::cout << std::endl << "There are " << articlesRSS.size() << " new articles!" << std::endl;
+		std::cout << "Type \"update\" to check for new articles, \"parse\" to process and filter articles, \"select [NUMBER]\" to take specififc number of articles and \"book\" to create epub and mobi files." << std::endl;
+		
 		std::string input;
-		std::cin >> input;
+
+		while (true)
+		{			
+			std::cin >> input;
+		}
+		
 
 		if (input == "update")
 		{
 			auto newArticles = pocketRetriever.retrieveArticles(currentUser.accessToken);
-			articles.insert(articles.end(), newArticles.begin(), newArticles.end());
+			articlesRSS.insert(articlesRSS.end(), newArticles.begin(), newArticles.end());
 
 			newArticles = checkRSS();
-			articles.insert(articles.end(), newArticles.begin(), newArticles.end());
-			articlesDatabase.saveDatabase(articles);
+			articlesRSS.insert(articlesRSS.end(), newArticles.begin(), newArticles.end());
+			articlesDatabase.saveDatabase(articlesRSS);
 		}
-		else if(input=="book")
+		else if (input == "parse")
+		{
+			articles = parseArticles(articlesRSS);
+		}
+		else if (input == "select")
+		{
+			std::cin >> input;
+
+			try
+			{
+				int quantity = std::atoi(input.c_str());
+
+				if (quantity >= 0 && quantity < articlesRSS.size())
+				{
+					articlesRSS.erase(articlesRSS.begin(), articlesRSS.begin() + quantity);
+					articles.erase(articles.begin() + quantity, articles.end());
+
+					articlesDatabase.saveDatabase(articlesRSS);
+				}
+				else
+				{
+					std::cout << "Invalid quantity!" << std::endl;
+				}
+			}
+			catch (const std::exception& e)
+			{
+				std::cout << "Command invalid, selection unsuccessful." << std::endl;
+			}
+		}
+		else if (input == "book")
 		{
 			createMobi(articles);
 			articles.clear();
-			articlesDatabase.saveDatabase(articles);
+			articlesRSS.clear();
+			articlesDatabase.saveDatabase(articlesRSS);
 		}
 		else
 		{
@@ -92,29 +130,32 @@ void Application::addArticlesToPocket(const std::vector<std::string> & urls)
 	adder.addArticles(urls, currentUser.accessToken);
 }
 
-void Application::createMobi(const std::vector<ArticleRSS>& items)
+std::vector<ParsedArticle> Application::parseArticles(const std::vector<ArticleRSS>& items)
 {
 	if (items.size())
 	{
 		std::cout << "Parsing " << items.size() << " articles" << std::endl;
-
 		auto articles = parser.getParsedArticles(items);						//after parsing ParsedArticle contains all informations about article - title, description, full content in string and xml tree simultaneously etc.
 
 		std::cout << "Filtering articles" << std::endl;
-
 		filter.filterArticles(articles);										//filtering out fragments of articles, removing too short and too long ones
 
-		if (articles.size())
-		{
-			std::cout << "Creating epub from  " << articles.size() << " articles" << std::endl;
+		return articles;
+	}
 
-			ebookCreator.createEpub(articles);
+	return std::vector<ParsedArticle>();
+}
 
-			std::cout << "Converting to mobi" << std::endl;
+void Application::createMobi(std::vector<ParsedArticle>& articles)
+{
+	if (articles.size())
+	{
+		std::cout << "Creating epub from  " << articles.size() << " articles" << std::endl;
+		ebookCreator.createEpub(articles);
 
-			ebookCreator.convertToMobi();
-			//ebookCreator.removeEpub();
-		}
+		std::cout << "Converting to mobi" << std::endl;
+		ebookCreator.convertToMobi();
+		//ebookCreator.removeEpub();
 	}
 }
 

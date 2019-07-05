@@ -142,6 +142,8 @@
     <ClCompile Include="ArticleRSS.cpp" />
     <ClCompile Include="ArticlesDatabase.cpp" />
     <ClCompile Include="Authenticator.cpp" />
+    <ClCompile Include="Command.cpp" />
+    <ClCompile Include="CommandInterpreter.cpp" />
     <ClCompile Include="CurlWrapper.cpp" />
     <ClCompile Include="DatetimeParser.cpp" />
     <ClCompile Include="EbookCreator.cpp" />
@@ -167,6 +169,9 @@
     <ClInclude Include="ArticleRSS.h" />
     <ClInclude Include="ArticlesDatabase.h" />
     <ClInclude Include="Authenticator.h" />
+    <ClInclude Include="Command.h" />
+    <ClInclude Include="CommandInterpreter.h" />
+    <ClInclude Include="CommandType.h" />
     <ClInclude Include="CountWordsTreeWalker.h" />
     <ClInclude Include="CurlWrapper.h" />
     <ClInclude Include="DatetimeParser.h" />
@@ -174,6 +179,8 @@
     <ClInclude Include="FeedData.h" />
     <ClInclude Include="FeedsDatabase.h" />
     <ClInclude Include="FilteringRule.h" />
+    <ClInclude Include="InterpretationStatus.h" />
+    <ClInclude Include="TokenType.h" />
     <ClInclude Include="URLExtensionDetector.h" />
     <ClInclude Include="ImageSaver.h" />
     <ClInclude Include="json.h" />
