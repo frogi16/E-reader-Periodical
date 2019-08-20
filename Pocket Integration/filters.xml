@@ -41,7 +41,7 @@
 	
 	<rule>
 		<domain>nowakonfederacja.pl</domain>
-		<minWords>0</minWords>
+		<minWords>200</minWords>
 		<maxWords></maxWords>
 		<XMLFilteringRules>
 			<XMLRule>
@@ -94,7 +94,8 @@ Darczyńcom</substring>
 		<XMLFilteringRules>
 			<XMLRule>
 				<type>text-substring</type>
-				<substring>Prowadzenie bloga naukowego wymaga ponoszenia kosztów.</substring>
+				<substring>Prowadzenie bloga naukowego wymaga
+ponoszenia kosztów.</substring>
 			</XMLRule>
 			<XMLRule>
 				<type>text-substring</type>
@@ -102,13 +103,43 @@ Darczyńcom</substring>
 			</XMLRule>
 			<XMLRule>
 				<type>text-substring</type>
-				<substring>gdzie w
-prosty sposób możecie</substring>
+				<substring>gdzie w prosty
+sposób można</substring>
 			</XMLRule>
 			<XMLRule>
 				<type>attribute-value</type>
 				<attribute>class</attribute>
 				<value>separator</value>
+			</XMLRule>
+		</XMLFilteringRules>
+	</rule>
+	
+	<rule>
+		<domain>weglowy.blogspot.com</domain>
+		<minWords>0</minWords>
+		<maxWords></maxWords>
+		<XMLFilteringRules>
+			<XMLRule>
+				<type>text-substring</type>
+				<substring>Podoba Ci się to co robię? Wpłyń na rozwój strony i zostań patronem Węglowego.</substring>
+			</XMLRule>
+		</XMLFilteringRules>
+	</rule>
+	
+	<rule>
+		<domain>www.pulskosmosu.pl</domain>
+		<minWords>0</minWords>
+		<maxWords></maxWords>
+		<XMLFilteringRules>
+			<XMLRule>
+				<type>attribute-value</type>
+				<attribute>class</attribute>
+				<value>entry-header</value>
+			</XMLRule>
+			<XMLRule>
+				<type>attribute-value</type>
+				<attribute>class</attribute>
+				<value>entry-footer</value>
 			</XMLRule>
 		</XMLFilteringRules>
 	</rule>
