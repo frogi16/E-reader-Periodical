@@ -8,6 +8,7 @@
 #include "ArticleFilter.h"
 #include "EbookCreator.h"
 #include "ArticlesDatabase.h"
+#include "CommandInterpreter.h"
 
 #include <string>
 #include <map>
@@ -19,16 +20,17 @@ class Application
 public:
 	Application() noexcept;
 	void run();
-	~Application();
+	//~Application() noexcept;
 private:
+	void addCommands(CommandInterpreter& commandInterpreter, std::vector<ArticleRSS>& articlesRSS, std::vector<ParsedArticle>& articles);	//creates lambda callbacks and adds commands to the interpreter
 	void authenticateConnection();
 	std::vector<ArticleRSS> checkRSS();													//check all RSS feeds and return vector of new articles
-	std::vector<ArticleRSS> getArticlesFromPocket();									//send request to Pocket and return vector of new articles
 	void addArticlesToPocket(const std::vector<std::string> & urls);					//save given urls to Pocket
-	std::vector<ParsedArticle> parseArticles(const std::vector<ArticleRSS> & items);	//parse and filter ArticleRSSs, return vector of ParsedArticles
-	
+	std::vector<ParsedArticle> parseArticles(const std::vector<ArticleRSS> & items);	//parse ArticleRSSs, return vector of ParsedArticles
+	void filterArticles(std::vector<ParsedArticle>& articles);							//filter ParsedArticles in place
 	void createMobi(std::vector<ParsedArticle> & articles);								//create ebook in .mobi format and save it
 	void loadFeedsToWatch();
+	void promptCommandInterpretationStatus(const eprd::InterpretationResult &interpretation) const;
 
 	APIKeyHolder keyHolder;
 	Authenticator authenticator;

@@ -1,9 +1,14 @@
 #pragma once
 
-enum class CommandType
+namespace EbookPeriodical
 {
-	Update,
-	Parse,
-	Select,
-	Book
-};
+	enum class CommandType
+	{
+		Update,
+		Parse,
+		Filter,
+		Select,
+		Book,
+		Help
+	};
+}

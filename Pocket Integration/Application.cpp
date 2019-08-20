@@ -1,6 +1,8 @@
 #include "Application.h"
+
 #include <iostream>
 
+#include "CommandInterpreter.h"
 
 Application::Application() noexcept :
 	authenticator(keyHolder.pocketKey),
@@ -8,12 +10,13 @@ Application::Application() noexcept :
 	pocketRetriever(keyHolder.pocketKey),
 	parser()
 {
-	srand(time(NULL));
+	srand(static_cast<unsigned int>(time(NULL)));
 	currentUser.username = "";
 	currentUser.accessToken = "";
 	updater.setUpdateFrequencyInMinutes(5);
 	loadFeedsToWatch();
 }
+
 
 void Application::run()
 {
@@ -21,20 +24,37 @@ void Application::run()
 	std::vector<ArticleRSS> articlesRSS = articlesDatabase.loadDatabase();		//info about articles. Title, link, description etc. No actual content
 	std::vector<ParsedArticle> articles;
 
-	while (true)
+	CommandInterpreter commandIntepreter;
+	addCommands(commandIntepreter, articlesRSS, articles);						//articlesRSS and articles are required because they need to be captured by callback function invoked by Command
+
+	commandIntepreter.interpret("help");										//prompt instructions for user at the beginning
+
+	for (std::string input; true;)
 	{
-		std::cout << std::endl << "There are " << articlesRSS.size() << " new articles!" << std::endl;
-		std::cout << "Type \"update\" to check for new articles, \"parse\" to process and filter articles, \"select [NUMBER]\" to take specififc number of articles and \"book\" to create epub and mobi files." << std::endl;
-		
-		std::string input;
+		std::cout << std::endl << "There are " << articlesRSS.size() << " fresh articles and " << articles.size() << " of them are already parsed!" << std::endl << ":\\>";
+		std::getline(std::cin, input);
 
-		while (true)
-		{			
-			std::cin >> input;
-		}
-		
+		auto interpretationResult = commandIntepreter.interpret(input);
+		promptCommandInterpretationStatus(interpretationResult);
+	}
+}
 
-		if (input == "update")
+void Application::addCommands(CommandInterpreter& commandInterpreter, std::vector<ArticleRSS>& articlesRSS, std::vector<ParsedArticle>& articles)
+{
+	using CmdType = eprd::CommandType;
+
+	commandInterpreter.addIfUnique(Command("help", [&](std::vector<ParamVariant>&)
+		{
+			std::cout << "Type:" << std::endl;
+			std::cout << "	\"update\" - check RSS and Pocket for new articles" << std::endl;
+			std::cout << "	\"parse\" - process articles for further filtering and ebook generation" << std::endl;
+			//std::cout << "	\"select [NUMBER]\" - take specififc number of already parsed articles" << std::endl;
+			std::cout << "	\"filter\" - filter parsed articles" << std::endl;
+			std::cout << "	\"book\" - create epub and mobi files" << std::endl;
+			std::cout << "	\"help\" - display this text anytime you like" << std::endl;
+		}), CmdType::Help);
+
+	commandInterpreter.addIfUnique(Command("update", [&](std::vector<ParamVariant>&)
 		{
 			auto newArticles = pocketRetriever.retrieveArticles(currentUser.accessToken);
 			articlesRSS.insert(articlesRSS.end(), newArticles.begin(), newArticles.end());
@@ -42,50 +62,44 @@ void Application::run()
 			newArticles = checkRSS();
 			articlesRSS.insert(articlesRSS.end(), newArticles.begin(), newArticles.end());
 			articlesDatabase.saveDatabase(articlesRSS);
-		}
-		else if (input == "parse")
+		}), CmdType::Update);
+
+	commandInterpreter.addIfUnique(Command("parse", [&](std::vector<ParamVariant>&)
 		{
 			articles = parseArticles(articlesRSS);
-		}
-		else if (input == "select")
+		}), CmdType::Parse);
+
+	commandInterpreter.addIfUnique(Command("filter", [&](std::vector<ParamVariant>&)
 		{
-			std::cin >> input;
+			filterArticles(articles);
+		}), CmdType::Filter);
 
-			try
+	Command selectCmd("select", [&](std::vector<ParamVariant>& params)
+		{
+			size_t quantity = std::get<int>(params[0]);
+
+			if (quantity < 0 || quantity > articlesRSS.size())
+				std::cout << "Invalid quantity of articles!" << std::endl;
+			else
 			{
-				int quantity = std::atoi(input.c_str());
+				articlesRSS.erase(articlesRSS.begin(), articlesRSS.begin() + quantity);
+				articles.erase(articles.begin() + quantity, articles.end());
 
-				if (quantity >= 0 && quantity < articlesRSS.size())
-				{
-					articlesRSS.erase(articlesRSS.begin(), articlesRSS.begin() + quantity);
-					articles.erase(articles.begin() + quantity, articles.end());
+				articlesDatabase.saveDatabase(articlesRSS);
+			}
 
-					articlesDatabase.saveDatabase(articlesRSS);
-				}
-				else
-				{
-					std::cout << "Invalid quantity!" << std::endl;
-				}
-			}
-			catch (const std::exception& e)
-			{
-				std::cout << "Command invalid, selection unsuccessful." << std::endl;
-			}
-		}
-		else if (input == "book")
+		});
+
+	selectCmd.addExpectedParameter(eprd::TokenType::Integer);
+	commandInterpreter.addIfUnique(std::move(selectCmd), CmdType::Select);
+
+	commandInterpreter.addIfUnique(Command("book", [&](std::vector<ParamVariant>&)
 		{
 			createMobi(articles);
 			articles.clear();
 			articlesRSS.clear();
 			articlesDatabase.saveDatabase(articlesRSS);
-		}
-		else
-		{
-			std::cout << "Incorrect input" << std::endl;
-		}
-
-		//addArticlesToPocket(newArticles);
-	}
+		}), CmdType::Book);
 }
 
 void Application::authenticateConnection()
@@ -117,12 +131,7 @@ std::vector<ArticleRSS> Application::checkRSS()
 	return updater.checkUpdates();
 }
 
-std::vector<ArticleRSS> Application::getArticlesFromPocket()
-{
-	return std::vector<ArticleRSS>();
-}
-
-void Application::addArticlesToPocket(const std::vector<std::string> & urls)
+void Application::addArticlesToPocket(const std::vector<std::string>& urls)
 {
 	if (urls.size())
 		std::cout << "Sending " << urls.size() << " articles to pocket" << std::endl;
@@ -136,14 +145,19 @@ std::vector<ParsedArticle> Application::parseArticles(const std::vector<ArticleR
 	{
 		std::cout << "Parsing " << items.size() << " articles" << std::endl;
 		auto articles = parser.getParsedArticles(items);						//after parsing ParsedArticle contains all informations about article - title, description, full content in string and xml tree simultaneously etc.
-
-		std::cout << "Filtering articles" << std::endl;
-		filter.filterArticles(articles);										//filtering out fragments of articles, removing too short and too long ones
-
 		return articles;
 	}
 
 	return std::vector<ParsedArticle>();
+}
+
+void Application::filterArticles(std::vector<ParsedArticle>& articles)
+{
+	if (articles.size())
+	{
+		std::cout << "Filtering articles" << std::endl;
+		filter.filterArticles(articles);										//filtering out fragments of articles, removing too short and too long ones
+	}
 }
 
 void Application::createMobi(std::vector<ParsedArticle>& articles)
@@ -163,14 +177,31 @@ void Application::loadFeedsToWatch()
 {
 	std::fstream watchedFeeds("watchedFeeds.txt", std::ios::in);
 
-	while (!watchedFeeds.eof())
-	{
-		std::string feed;
+	for (std::string feed; !watchedFeeds.eof(); updater.watchFeed(feed))
 		watchedFeeds >> feed;
-		updater.watchFeed(feed);
-	}
 }
 
-Application::~Application()
+void Application::promptCommandInterpretationStatus(const eprd::InterpretationResult& interpretation) const
 {
+	using Status = eprd::InterpretationStatus;
+	
+	switch (interpretation.status)
+	{
+	case Status::Success:		//left blank deliberately, if command succeeded no additional messages should be prompted.
+		break;
+	case Status::CommandNotFound:
+		std::cout << "Command couldn't be find!" << std::endl;
+		break;
+	case Status::TooFewParameters:
+		std::cout << "Too few parameters were delivered." << std::endl;
+		break;
+	case Status::TooManyParameters:
+		std::cout << "Too many parameters were delivered." << std::endl;
+		break;
+	case Status::ParameterTypesInvalid:
+		std::cout << "Types of delivered parameters don't match expected ones." << std::endl;
+		break;
+	default:
+		break;
+	}
 }

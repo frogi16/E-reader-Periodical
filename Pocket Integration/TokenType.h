@@ -1,7 +1,10 @@
 #pragma once
 
-enum class TokenType
+namespace EbookPeriodical
 {
-	String,
-	Integer
-};
+	enum class TokenType
+	{
+		String,
+		Integer
+	};
+}
