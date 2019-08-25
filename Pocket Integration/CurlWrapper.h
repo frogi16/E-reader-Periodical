@@ -22,6 +22,7 @@ public:
 	void setWritingToFile(std::experimental::filesystem::path & pathToImage);	//CURLOPT_WRITEFUNCTION and CURLOPT_WRITEDATA
 	void setNoBody(bool value);													//CURLOPT_NOBODY
 	void setHeaderOnly(bool value);												//CURLOPT_HEADER
+	void setPassword(const std::string& password);								//CURLOPT_PASSWORD
 	void resetSlist();															//curl_slist_free_all
 	void addToSlist(std::string value);											//curl_slist_append
 	void perform();																//CURLOPT_HTTPHEADER and curl_easy_perform

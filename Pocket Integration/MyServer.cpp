@@ -14,6 +14,6 @@ MyServer::MyServer(utility::string_t url, Authenticator* owner) : m_listener(url
 
 void MyServer::handle_get(http_request message)
 {
-	message.reply(status_codes::OK);
+	pplx::task<void> replyTask = message.reply(status_codes::OK);
 	mOwner->receivedCallback(m_listener.uri());
 };

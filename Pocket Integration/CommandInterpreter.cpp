@@ -69,6 +69,8 @@ eprd::InterpretationResult CommandInterpreter::interpret(const std::string& comm
 			return result;
 		}
 	}
+
+	return result;
 }
 
 CommandInterpreter::Tokens CommandInterpreter::tokenize(const std::string& input) const

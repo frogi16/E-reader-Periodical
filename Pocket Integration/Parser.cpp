@@ -71,7 +71,10 @@ ParsedArticle Parser::parseArticle(const ArticleRSS & articleRSS)
 		return parsedArticle;
 	}
 	else
+	{
 		detectAndThrowParserError(jsonResponse);
+		return ParsedArticle();														//function above will throw exception so this line will be never executed. Unfortunately Code Analysis can't understand it and C4715 warning (not all control paths return a value) occures.
+	}
 }
 
 std::string Parser::getRandomFilename(std::string& path, std::string& extension) const
@@ -99,7 +102,9 @@ void Parser::shellExecuteAndWait(std::string & verb, std::string & file, std::st
 	ShExecInfo.nShow = SW_HIDE;
 	ShExecInfo.hInstApp = NULL;
 	ShellExecuteEx(&ShExecInfo);
-	WaitForSingleObject(ShExecInfo.hProcess, INFINITE);
+
+	if(ShExecInfo.hProcess)
+		WaitForSingleObject(ShExecInfo.hProcess, INFINITE);
 }
 
 void Parser::resolveConflicts(ParsedArticle & mercuryArticle, const ArticleRSS & rssArticle)

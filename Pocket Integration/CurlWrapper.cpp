@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-CurlWrapper::CurlWrapper()
+CurlWrapper::CurlWrapper() : code(CURLE_OK), responseType(ResponseType::String)
 {
 	curl = curl_easy_init();
 	curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errorBuffer);
@@ -100,6 +100,15 @@ void CurlWrapper::setHeaderOnly(bool value)
 	if (code != CURLE_OK)
 	{
 		throw std::exception((std::string("Failed to set header mode ") + errorBuffer).c_str());
+	}
+}
+
+void CurlWrapper::setPassword(const std::string & password)
+{
+	code = curl_easy_setopt(curl, CURLOPT_HEADER, password);
+	if (code != CURLE_OK)
+	{
+		throw std::exception((std::string("Failed to set password ") + errorBuffer).c_str());
 	}
 }
 
