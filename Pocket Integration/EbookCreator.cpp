@@ -138,69 +138,59 @@ void EbookCreator::addToManifest(ParsedArticle & article)
 	file.close();
 }
 
-void EbookCreator::saveImages(std::vector<pugi::xml_node> images, const std::string & domain)
+void EbookCreator::saveImages(std::vector<pugi::xml_node> images, const std::string& domain)
 {
 	std::ofstream file("book/OEBPS/content.opf", std::ios::app);
 
 	for (auto& image : images)
 	{
-		std::string srcSetString = image.attribute("srcset").as_string();			//extract links to images with different sizes
 		std::string linkToImg;
-		bool skipImage = false;
 
-		if (srcSetString.size() > 0)												//if these links were found
+		if (std::string srcSetString = image.attribute("srcset").as_string(); srcSetString.size())
 		{
-			try
-			{
-				SrcSet set(srcSetString);											//SrcSet automatically parse sent string - splits links and inserts them into map, where key is their width
-				linkToImg = set.getLargestImageLink();
-			}
-			catch (const std::exception& e)
-			{
-				skipImage = true;
-			}			
+			if (SrcSet set; set.parseAndInsertLinks(srcSetString) > 0)				//parseAndInsertLinks returns number of inserted links
+				linkToImg = *set.getLargestImageLink();
+			else
+				linkToImg = image.attribute("src").as_string();
 		}
 		else
 		{
 			linkToImg = image.attribute("src").as_string();							//extract link to image
 		}
 
-		if (!skipImage)
+		fs::path path("book/OEBPS/Images/Image" + std::to_string(imageIndex++));	//path where image will be downloaded
+
+		std::size_t found = linkToImg.find_first_not_of("/");
+
+		if (found != 0 && found != std::string::npos)
+			linkToImg.erase(0, found);												//eliminate all slashes at the beginning
+
+		try
 		{
-			fs::path path("book/OEBPS/Images/Image" + std::to_string(imageIndex++));	//path where image will be downloaded
+			imageSaver.saveImage(linkToImg, path);									//WARNING! Image downloader detects extension of file and changes path sent to it
 
-			std::size_t found = linkToImg.find_first_not_of("/");
-
-			if (found != 0 || found != std::string::npos)
-				linkToImg.erase(0, found);												//eliminate all slashes at the beginning
-
+			//adding image to manifest. Template: <item id="sample.png" href="Images/sample.png" media-type="image/png"/>
+			file << "<item id=" << '"' << path.filename() << '"' << " href=" << '"' << "Images/" << path.filename() << '"' << " media-type=" << '"' << "image/png" << '"' << "/>";
+		}
+		catch (const std::exception& e)												//if image couldn't be downloaded just use default filler. There is no need to 
+		{
 			try
 			{
-				imageSaver.saveImage(linkToImg, path);									//WARNING! Image downloader detects extension of file and changes path sent to it
+				imageSaver.saveImage(domain + linkToImg, path);						//WARNING! Image downloader detects extension of file and changes path sent to it
 
 				//adding image to manifest. Template: <item id="sample.png" href="Images/sample.png" media-type="image/png"/>
 				file << "<item id=" << '"' << path.filename() << '"' << " href=" << '"' << "Images/" << path.filename() << '"' << " media-type=" << '"' << "image/png" << '"' << "/>";
 			}
-			catch (const std::exception& e)												//if image couldn't be downloaded just use default filler. There is no need to 
+			catch (const std::exception& e)
 			{
-				try
-				{
-					imageSaver.saveImage(domain + linkToImg, path);						//WARNING! Image downloader detects extension of file and changes path sent to it
-
-					//adding image to manifest. Template: <item id="sample.png" href="Images/sample.png" media-type="image/png"/>
-					file << "<item id=" << '"' << path.filename() << '"' << " href=" << '"' << "Images/" << path.filename() << '"' << " media-type=" << '"' << "image/png" << '"' << "/>";
-				}
-				catch (const std::exception& e)
-				{
-					path.replace_filename("filler");
-					path.replace_extension("png");
-					//note that there is no need to add filler.jpeg to file, because each element in file must be unique and filler is already there
-				}
+				path.replace_filename("filler");
+				path.replace_extension("png");
+				//note that there is no need to add filler.jpeg to file, because each element in file must be unique and filler is already there
 			}
-
-			fs::path relativePath("../Images/" + path.filename().string());				//path used in img src="PATH"
-			image.attribute("src").set_value(relativePath.string().c_str());			//replacing link to web with path to file
 		}
+
+		fs::path relativePath("../Images/" + path.filename().string());				//path used in img src="PATH"
+		image.attribute("src").set_value(relativePath.string().c_str());			//replacing link to web with path to file
 	}
 }
 

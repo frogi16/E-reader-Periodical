@@ -1,63 +1,56 @@
 #include "SrcSet.h"
 
-SrcSet::SrcSet(std::string source)
+#include "StringValidation.h"
+
+SrcSet::SrcSet() : widthUnit(ImageWidthUnit::Width)
 {
-	replaceHTMLSpaces(source);
+	charToImageWidthUnit['w'] = ImageWidthUnit::Width;
+	charToImageWidthUnit['d'] = ImageWidthUnit::Density;
+}
 
-	std::istringstream stream(source);
-	std::string link;														//link extracted from set
-	std::string imageSize;													//size extracted from set
+size_t SrcSet::parseAndInsertLinks(std::string srcSetText)
+{
+	size_t insertsCounter{ 0 };
+	replaceHTMLSpaces(srcSetText);
 
-																			//first link is treated differently because function needs to determin widthUnit, later it is done with less effort by just removing useless characters
-	std::getline(stream, link, ' ');
-	std::getline(stream, imageSize, ' ');
+	std::string link, imageSize;
 
-	if (imageSize.back() == ',')											//sizes except the last are separated by comma AND space, so it is easier to remove it ASAP
-		imageSize.pop_back();
-
-	try
+	for(std::istringstream stream(srcSetText); std::getline(stream, link, ' ') && std::getline(stream, imageSize, ' '); )
 	{
-		widthUnit = detectUnit(imageSize.back());							//determinig unit based on last character
-	}
-	catch (const std::exception& e)
-	{
-		widthUnit = ImageWidthUnit::Width;
-	}
-
-	imageSize.pop_back();													//after determinig unit last character can be removed. There are only digits left right now
-
-	try
-	{
-		links[std::stoi(imageSize)] = link;										//adding to the map link to image, where key is its width
-
-		while (std::getline(stream, link, ' '))									//link to image and its width are paired, so lack of link indicates lack of width. Hence only one check
+		if (insertsCounter == 0)
 		{
-			std::getline(stream, imageSize, ' ');
+			removeCommaAfterUnit(imageSize);
+			widthUnit = matchWidthUnit(imageSize.back()).value_or(ImageWidthUnit::Width);		//if match failed fall back to default unit
+		}
 
-			imageSize.erase(std::remove_if(imageSize.begin(), imageSize.end(),	//remove all characters except digits (unit and comma if it exists)
-				[](char c) { return !(c >= 48 && c <= 57); }),					//basically !isdigit(c), but I had problem with getting it work
-				imageSize.end());
+		imageSize.erase(std::remove_if(imageSize.begin(), imageSize.end(),						//remove everything but digits
+			[](char c) { return !std::isdigit(c);}), imageSize.end());
 
+		if (EbookPeriodical::isPositiveInteger(imageSize))
+		{
 			links[std::stoi(imageSize)] = link;
+			insertsCounter++;
 		}
 	}
-	catch (const std::exception& e)											//badly written source set may result in (for example) using part of the link as imageSize. Stoi throws appropriate error
-	{
-		throw(std::exception("Source set couldn't extract informations properly"));
-	}
+
+	return insertsCounter;
 }
 
-void SrcSet::replaceHTMLSpaces(std::string & str)
+void SrcSet::removeCommaAfterUnit(std::string& imageSize) const
 {
-	std::regex_replace(str, std::regex("%20"), " ");
+	if (imageSize.size() >= 2 && imageSize.back() == ',')
+		imageSize.pop_back();
 }
 
-ImageWidthUnit SrcSet::detectUnit(char ch)
+void SrcSet::replaceHTMLSpaces(std::string& str) const
 {
-	if (ch == 'w')
-		return ImageWidthUnit::Width;
-	else if (ch == 'x')
-		return ImageWidthUnit::Density;
+	str = std::regex_replace(str, std::regex("%20"), " ");
+}
+
+std::optional<ImageWidthUnit> SrcSet::matchWidthUnit(char unit) const
+{
+	if (const std::map<char, ImageWidthUnit>::const_iterator pos = charToImageWidthUnit.find(unit); pos == charToImageWidthUnit.end())
+		return std::nullopt;
 	else
-		throw(std::exception("Unit couldn't be recognised."));
+		return pos->second;
 }
