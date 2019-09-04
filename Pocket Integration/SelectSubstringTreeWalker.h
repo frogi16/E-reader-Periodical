@@ -34,13 +34,8 @@ struct SelectSubstringTreeWalker : public pugi::xml_tree_walker
 
 	virtual bool for_each(pugi::xml_node& node)
 	{
-		std::string text = node.value();
-		auto pos = text.find(mSearchedSubstring);
-
-		if (pos != text.npos)
-		{
+		if (auto position = std::string{ node.value() }.find(mSearchedSubstring); position != std::string::npos)
 			results.push_back(node);
-		}
 
 		return true;
 	}

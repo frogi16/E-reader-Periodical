@@ -35,12 +35,8 @@ struct SelectAttributeTreeWalker : public pugi::xml_tree_walker
 
 	virtual bool for_each(pugi::xml_node& node)
 	{
-		std::string attributeValue = node.attribute(mSearchedAttributeName.c_str()).as_string();
-
-		if (attributeValue == mSearchedAttributeValue)
-		{
+		if (auto attributeValue = node.attribute(mSearchedAttributeName.c_str()).as_string(); attributeValue == mSearchedAttributeValue)
 			results.push_back(node);
-		}
 
 		return true;
 	}

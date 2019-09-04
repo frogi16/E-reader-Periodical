@@ -18,17 +18,14 @@ struct CountWordsTreeWalker : public pugi::xml_tree_walker
 	virtual bool for_each(pugi::xml_node& node)
 	{
 		std::string text = node.value();
-
-		std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-		std::wstring wideText = converter.from_bytes(text);
+		std::wstring wideText;
+		wideText.assign(text.begin(), text.end());
 
 		size_t add = 0;
 
 		for (auto& wchar : wideText)
-		{
 			if (std::iswspace(wchar))
 				++add;
-		}
 
 		if (add)
 			words += add + 1;

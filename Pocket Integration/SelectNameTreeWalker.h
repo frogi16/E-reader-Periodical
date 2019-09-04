@@ -36,12 +36,8 @@ struct SelectNameTreeWalker : public pugi::xml_tree_walker
 
 	virtual bool for_each(pugi::xml_node& node)
 	{
-		std::string nodeName = node.name();
-
-		if (nodeName == mSearchedNodeName)
-		{
+		if (node.name() == mSearchedNodeName)
 			results.push_back(node);
-		}
 
 		return true;
 	}
