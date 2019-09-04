@@ -13,7 +13,7 @@ DatetimeParser::DatetimeParser()
 {
 }
 
-std::tm DatetimeParser::parseToTM(const std::string & datetime) const
+std::tm DatetimeParser::parseToTM(const std::string& datetime) const
 {
 	std::tm time;
 	std::istringstream ss(datetime);
@@ -37,7 +37,7 @@ std::tm DatetimeParser::parseToTM(const std::string & datetime) const
 	return time;
 }
 
-time_t DatetimeParser::parseToTime_t(const std::string & datetime) const
+time_t DatetimeParser::parseToTime_t(const std::string& datetime) const
 {
 	return mktime(&parseToTM(datetime));
 }
@@ -46,7 +46,7 @@ DatetimeParser::~DatetimeParser()
 {
 }
 
-void DatetimeParser::modifyTimeForTimezone(std::istringstream &ss, std::tm &time) const noexcept
+void DatetimeParser::modifyTimeForTimezone(std::istringstream& ss, std::tm& time) const noexcept
 {
 	std::string timezone;
 	ss >> timezone;
@@ -70,7 +70,7 @@ void DatetimeParser::modifyTimeForTimezone(std::istringstream &ss, std::tm &time
 	std::mktime(&time);							//normalization, handling overflows etc.
 }
 
-int DatetimeParser::extractTwoDigitsAsInt(std::string & timezone) const
+int DatetimeParser::extractTwoDigitsAsInt(std::string& timezone) const
 {
 	std::string tempString(timezone.begin(), timezone.begin() + 2);
 	int out = std::stoi(tempString);			//potential exception thrown inside stoi will make function break here and no characters will be erased from timezone, which is good

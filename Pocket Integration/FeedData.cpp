@@ -11,7 +11,7 @@
 //		<item>			ArticleRSS		</item>
 //	</feed>
 
-void FeedData::serializeXML(pugi::xml_node & node) const
+void FeedData::serializeXML(pugi::xml_node& node) const
 {
 	node.append_child("link").text().set(link.c_str());
 	node.append_child("lastUpdate").text().set(lastBuildTime.c_str());
@@ -23,7 +23,7 @@ void FeedData::serializeXML(pugi::xml_node & node) const
 	}
 }
 
-void FeedData::deserializeXML(const pugi::xml_node & node)
+void FeedData::deserializeXML(const pugi::xml_node& node)
 {
 	link = node.child("link").child_value();
 	lastBuildTime = node.child("lastUpdate").child_value();

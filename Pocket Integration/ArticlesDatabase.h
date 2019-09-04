@@ -10,7 +10,7 @@ class ArticlesDatabase
 {
 public:
 	ArticlesDatabase();
-	void saveDatabase(std::vector<ArticleRSS> & articles);
+	void saveDatabase(std::vector<ArticleRSS>& articles);
 	std::vector<ArticleRSS> loadDatabase();
 	~ArticlesDatabase();
 };

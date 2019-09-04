@@ -17,7 +17,7 @@ namespace fs = std::experimental::filesystem;
 
 EbookCreator::EbookCreator() : ebookPath("")
 {
-	
+
 }
 
 
@@ -43,7 +43,7 @@ void EbookCreator::prepareDirectory()
 			if (++counter > 10)
 				throw std::exception("After multiple tries couldn't remove /book directory. You are advised to check if application has all permissions it needs.");
 		}
-		
+
 		fs::create_directory(fs::path("book"));
 		fs::copy(fs::path("template"), fs::path("book"), fs::copy_options::recursive);
 	}
@@ -82,7 +82,7 @@ void EbookCreator::appendData(std::vector<ParsedArticle>& articles)
 	buildTableOfContent(articles);
 }
 
-void EbookCreator::saveArticle(ParsedArticle & article, bool addSkipButton)
+void EbookCreator::saveArticle(ParsedArticle& article, bool addSkipButton)
 {
 	std::ofstream file;
 	std::string articleName = "article" + std::to_string(articleIndex) + ".xhtml";
@@ -123,7 +123,7 @@ void EbookCreator::saveArticle(ParsedArticle & article, bool addSkipButton)
 	file.close();
 }
 
-void EbookCreator::addToManifest(ParsedArticle & article)
+void EbookCreator::addToManifest(ParsedArticle& article)
 {
 	std::ofstream file;
 
@@ -203,7 +203,7 @@ void EbookCreator::addSeparationBetweenManifestAndSpine()
 	file << "<itemref idref=" << '"' << "title_page.xhtml" << '"' << "/>";			//list title_page
 }
 
-void EbookCreator::addToSpine(std::vector<ParsedArticle> & articles)
+void EbookCreator::addToSpine(std::vector<ParsedArticle>& articles)
 {
 	std::ofstream file("book/OEBPS/content.opf", std::ios::app);
 
@@ -245,11 +245,11 @@ void EbookCreator::buildTableOfContent(std::vector<ParsedArticle>& articles)
 	for (auto& article : articles)
 	{
 		std::string articleName = "article" + std::to_string(articleIndex) + ".xhtml";
-		
+
 		//entry for every article
 		file << "<div class=" << '"' << "sgc-toc-level-1" << '"' << "><a href =" << '"' << "../Text/" << articleName << '"' << ">" << ++articleIndex << "." << article.title << "</a></div>" << std::endl;
 	}
-	
+
 	file << "<div style='padding:0;border:0;text-indent:0;line-height:normal;margin:0 1cm 0.5cm 1cm;font-size:0pt;color:#FFFFFF;text-decoration:none;text-align:left;background:none;display:none;'>1c300054508041890ea8ce85</div></body></html>";
 
 	file.close();

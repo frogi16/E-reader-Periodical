@@ -181,7 +181,6 @@
     <ClInclude Include="FeedData.h" />
     <ClInclude Include="FeedsDatabase.h" />
     <ClInclude Include="FilteringRule.h" />
-    <ClInclude Include="InterpretationStatus.h" />
     <ClInclude Include="TokenType.h" />
     <ClInclude Include="URLExtensionDetector.h" />
     <ClInclude Include="ImageSaver.h" />

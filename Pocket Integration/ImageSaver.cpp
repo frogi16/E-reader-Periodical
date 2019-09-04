@@ -11,7 +11,7 @@ ImageSaver::ImageSaver()
 {
 }
 
-void ImageSaver::saveImage(const std::string &link, std::experimental::filesystem::path &pathToImage)
+void ImageSaver::saveImage(const std::string& link, std::experimental::filesystem::path& pathToImage)
 {
 	std::string extension = extensionDetector.get(link);
 	pathToImage.replace_extension(extension);
@@ -23,7 +23,7 @@ ImageSaver::~ImageSaver()
 {
 }
 
-void ImageSaver::configureCurlToImageDownloading(const std::string & link, std::experimental::filesystem::path & pathToImage)
+void ImageSaver::configureCurlToImageDownloading(const std::string& link, std::experimental::filesystem::path& pathToImage)
 {
 	curlWrapper.setWritingToFile(pathToImage);
 	curlWrapper.setURL(link);

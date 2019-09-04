@@ -40,7 +40,7 @@ void ArticleFilter::filterArticles(std::vector<ParsedArticle>& articles)
 	std::cout << std::endl;
 }
 
-void ArticleFilter::filter(ParsedArticle & article)
+void ArticleFilter::filter(ParsedArticle& article)
 {
 	auto combinedRule = getCombinedRule(article.domain);
 	bool contentChanged = false;
@@ -74,9 +74,9 @@ void ArticleFilter::filter(ParsedArticle & article)
 		article.content = documentToString((*article.xmlDocument));
 }
 
-FilteringRule ArticleFilter::getCombinedRule(const std::string & domain)
+FilteringRule ArticleFilter::getCombinedRule(const std::string& domain)
 {
-	FilteringRule & globalRule = rules["global"];				//we can assume that global rule is always there
+	FilteringRule& globalRule = rules["global"];				//we can assume that global rule is always there
 	FilteringRule combinedRule;
 
 	auto findSpecificRule = rules.find(domain);
@@ -96,7 +96,7 @@ FilteringRule ArticleFilter::getCombinedRule(const std::string & domain)
 	return combinedRule;
 }
 
-bool ArticleFilter::applyXMLRule(const XMLFilteringRule & rule, ParsedArticle & article)
+bool ArticleFilter::applyXMLRule(const XMLFilteringRule& rule, ParsedArticle& article)
 {
 	if (rule.type == XMLFilteringRuleType::AttributeValue)			//if else was used instead of switch because of variable initialization inside (possible error:"transfer of control bypasses initialization of")
 	{
@@ -114,7 +114,7 @@ bool ArticleFilter::applyXMLRule(const XMLFilteringRule & rule, ParsedArticle & 
 	return false;
 }
 
-bool ArticleFilter::applyNodeNameRule(const XMLFilteringRule & rule, ParsedArticle & article)
+bool ArticleFilter::applyNodeNameRule(const XMLFilteringRule& rule, ParsedArticle& article)
 {
 	auto dataToFilter = dataSelecter.selectNodesByName((*article.xmlDocument), rule.nodeName);
 	size_t removedWords = removeNodes(dataToFilter, article);
@@ -127,7 +127,7 @@ bool ArticleFilter::applyNodeNameRule(const XMLFilteringRule & rule, ParsedArtic
 	return removedWords;
 }
 
-bool ArticleFilter::applyTextSubstringRule(const XMLFilteringRule & rule, ParsedArticle & article)
+bool ArticleFilter::applyTextSubstringRule(const XMLFilteringRule& rule, ParsedArticle& article)
 {
 	auto dataToFilter = dataSelecter.selectNodesByTextSubstring((*article.xmlDocument), rule.substring);
 	size_t removedWords = removeNodes(dataToFilter, article);
@@ -140,7 +140,7 @@ bool ArticleFilter::applyTextSubstringRule(const XMLFilteringRule & rule, Parsed
 	return removedWords;
 }
 
-bool ArticleFilter::applyAttributeValueRule(const XMLFilteringRule & rule, ParsedArticle & article)
+bool ArticleFilter::applyAttributeValueRule(const XMLFilteringRule& rule, ParsedArticle& article)
 {
 	auto dataToFilter = dataSelecter.selectNodesByAttribute((*article.xmlDocument), rule.attributeName, rule.attributeValue);
 	size_t removedWords = removeNodes(dataToFilter, article);
@@ -153,7 +153,7 @@ bool ArticleFilter::applyAttributeValueRule(const XMLFilteringRule & rule, Parse
 	return removedWords;
 }
 
-size_t ArticleFilter::removeNodes(std::vector<pugi::xml_node>& nodes, ParsedArticle & article)
+size_t ArticleFilter::removeNodes(std::vector<pugi::xml_node>& nodes, ParsedArticle& article)
 {
 	size_t removedWords = 0;
 	CountWordsTreeWalker walker;
@@ -169,34 +169,34 @@ size_t ArticleFilter::removeNodes(std::vector<pugi::xml_node>& nodes, ParsedArti
 	return removedWords;
 }
 
-std::string ArticleFilter::documentToString(pugi::xml_document & doc)
+std::string ArticleFilter::documentToString(pugi::xml_document& doc)
 {
 	std::stringstream ss;
 	doc.save(ss, "  ");
 	return ss.str();
 }
 
-bool ArticleFilter::tooFewWords(const FilteringRule & rule, const ParsedArticle & article)
+bool ArticleFilter::tooFewWords(const FilteringRule& rule, const ParsedArticle& article)
 {
 	return (rule.minWords && article.wordCount < rule.minWords);
 }
 
-bool ArticleFilter::tooManyWords(const FilteringRule & rule, const ParsedArticle & article)
+bool ArticleFilter::tooManyWords(const FilteringRule& rule, const ParsedArticle& article)
 {
 	return (rule.maxWords && article.wordCount > rule.maxWords);
 }
 
-void ArticleFilter::addDescriptionTooFewWords(const FilteringRule & rule, ParsedArticle & article)
+void ArticleFilter::addDescriptionTooFewWords(const FilteringRule& rule, ParsedArticle& article)
 {
 	article.filteringDescription->append("Article was removed because had only " + std::to_string(article.wordCount) + " words instead of at least " + std::to_string(rule.minWords) + ".\n");
 }
 
-void ArticleFilter::addDescriptionTooManyWords(const FilteringRule & rule, ParsedArticle & article)
+void ArticleFilter::addDescriptionTooManyWords(const FilteringRule& rule, ParsedArticle& article)
 {
 	article.filteringDescription->append("Article was removed because had only " + std::to_string(article.wordCount) + " words instead of maximum " + std::to_string(rule.maxWords) + " .\n");
 }
 
-void ArticleFilter::loadFilteringRule(const std::string & domain)
+void ArticleFilter::loadFilteringRule(const std::string& domain)
 {
 	pugi::xml_document doc;
 	doc.load_file("filters.xml");

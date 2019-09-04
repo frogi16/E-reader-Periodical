@@ -10,7 +10,7 @@
 //		<description>	PCDATA		</description>
 //	</item>
 
-void ArticleRSS::serializeXML(pugi::xml_node & node) const
+void ArticleRSS::serializeXML(pugi::xml_node& node) const
 {
 	node.append_child("title").text().set(title.c_str());
 	node.append_child("link").text().set(link.c_str());
@@ -18,7 +18,7 @@ void ArticleRSS::serializeXML(pugi::xml_node & node) const
 	node.append_child("description").text().set(description.c_str());
 }
 
-void ArticleRSS::deserializeXML(const pugi::xml_node & node)
+void ArticleRSS::deserializeXML(const pugi::xml_node& node)
 {
 	link = node.child("link").child_value();
 	title = node.child("title").child_value();

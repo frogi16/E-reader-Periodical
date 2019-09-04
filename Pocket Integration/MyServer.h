@@ -16,7 +16,7 @@ class MyServer
 {
 public:
 	MyServer() noexcept : mOwner(nullptr) {}
-	MyServer(utility::string_t url, Authenticator*  owner);
+	MyServer(utility::string_t url, Authenticator* owner);
 
 	pplx::task<void> open() { return m_listener.open(); }
 	pplx::task<void> close() { return m_listener.close(); }

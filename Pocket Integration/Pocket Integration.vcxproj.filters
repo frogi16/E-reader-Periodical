@@ -200,8 +200,5 @@
     <ClInclude Include="CommandType.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="InterpretationStatus.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

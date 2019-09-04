@@ -38,14 +38,14 @@ std::vector<ParsedArticle> Parser::getParsedArticles(const std::vector<ArticleRS
 		{
 			std::cout << std::endl << e.what() << std::endl;
 		}
-		
+
 	}
 	std::cout << std::endl;
 
 	return parsedArticles;
 }
 
-ParsedArticle Parser::parseArticle(const ArticleRSS & articleRSS)
+ParsedArticle Parser::parseArticle(const ArticleRSS& articleRSS)
 {
 	static std::string verb{ "open" };
 	static std::string file{ "cmd.exe" };
@@ -56,7 +56,7 @@ ParsedArticle Parser::parseArticle(const ArticleRSS & articleRSS)
 
 	//command consists of "/C" (carry out the command and terminate), "mercury-parser" (CLI run by npm), article link (parameter for parser), " > filename" (redirecting output stream to file)
 	std::string command = "/C mercury-parser " + articleRSS.link + " > " + filename;
-	
+
 	shellExecuteAndWait(verb, file, command);
 
 	std::ifstream fileParseResult(filename, std::ios::in);
@@ -85,11 +85,11 @@ std::string Parser::getRandomFilename(std::string& path, std::string& extension)
 	std::string filename(stream.str());
 	filename.insert(0, path);
 	filename.append(extension);
-	
+
 	return filename;
 }
 
-void Parser::shellExecuteAndWait(std::string & verb, std::string & file, std::string & parameters) const
+void Parser::shellExecuteAndWait(std::string& verb, std::string& file, std::string& parameters) const
 {
 	SHELLEXECUTEINFO ShExecInfo = { 0 };
 	ShExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
@@ -103,20 +103,20 @@ void Parser::shellExecuteAndWait(std::string & verb, std::string & file, std::st
 	ShExecInfo.hInstApp = NULL;
 	ShellExecuteEx(&ShExecInfo);
 
-	if(ShExecInfo.hProcess)
+	if (ShExecInfo.hProcess)
 		WaitForSingleObject(ShExecInfo.hProcess, INFINITE);
 }
 
-void Parser::resolveConflicts(ParsedArticle & mercuryArticle, const ArticleRSS & rssArticle)
+void Parser::resolveConflicts(ParsedArticle& mercuryArticle, const ArticleRSS& rssArticle)
 {
 	if (rssArticle.title.size())													//Mercury sometimes uses site name as an article title, RSS data is much more reliable
 		mercuryArticle.title = rssArticle.title;
 }
 
-void Parser::loadToXML(ParsedArticle & article)
+void Parser::loadToXML(ParsedArticle& article)
 {
 	std::shared_ptr<pugi::xml_document> document(std::make_shared<pugi::xml_document>());
-	
+
 	TidyBuffer XMLdata = { 0 };
 	TidyBuffer errbuf = { 0 };
 	int rc = -1;				//return code
@@ -149,21 +149,21 @@ void Parser::loadToXML(ParsedArticle & article)
 
 	tidyBufFree(&errbuf);
 	tidyRelease(tidyDoc);
-	
+
 	document->load_buffer(XMLdata.bp, XMLdata.size);								//loading data into pugi document
 	tidyBufFree(&XMLdata);															//removing xml data from tidy buffer
 
 	article.xmlDocument = std::move(document);
 }
 
-void Parser::countWords(ParsedArticle & article)
+void Parser::countWords(ParsedArticle& article)
 {
 	CountWordsTreeWalker walker;
 	article.xmlDocument->traverse(walker);
 	article.wordCount = walker.words;
 }
 
-void Parser::loadParsedData(ParsedArticle & article, nlohmann::json & data)
+void Parser::loadParsedData(ParsedArticle& article, nlohmann::json& data)
 {
 	if (!data["author"].is_null())
 		article.author = data["author"].get<std::string>();
@@ -177,7 +177,7 @@ void Parser::loadParsedData(ParsedArticle & article, nlohmann::json & data)
 		article.pubDate = data["date_published"].get<std::string>();
 }
 
-void Parser::detectAndThrowParserError(const nlohmann::json & response) const
+void Parser::detectAndThrowParserError(const nlohmann::json& response) const
 {
 	std::string message = response["message"].get<std::string>();
 	if (message == "Internal server error")
@@ -192,7 +192,7 @@ void Parser::detectAndThrowParserError(const nlohmann::json & response) const
 	//TODO: Expand list. Mercury has no detailed documentation so all message types have to be discovered by experiencing it.
 }
 
-bool Parser::isResponseValid(const nlohmann::json & response) const
+bool Parser::isResponseValid(const nlohmann::json& response) const
 {
 	return response.count("message") == 0;
 }

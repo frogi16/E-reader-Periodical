@@ -15,7 +15,7 @@ size_t SrcSet::parseAndInsertLinks(std::string srcSetText)
 
 	std::string link, imageSize;
 
-	for(std::istringstream stream(srcSetText); std::getline(stream, link, ' ') && std::getline(stream, imageSize, ' '); )
+	for (std::istringstream stream(srcSetText); std::getline(stream, link, ' ') && std::getline(stream, imageSize, ' '); )
 	{
 		if (insertsCounter == 0)
 		{
@@ -24,7 +24,7 @@ size_t SrcSet::parseAndInsertLinks(std::string srcSetText)
 		}
 
 		imageSize.erase(std::remove_if(imageSize.begin(), imageSize.end(),						//remove everything but digits
-			[](char c) { return !std::isdigit(c);}), imageSize.end());
+			[](char c) { return !std::isdigit(c); }), imageSize.end());
 
 		if (EbookPeriodical::isPositiveInteger(imageSize))
 		{

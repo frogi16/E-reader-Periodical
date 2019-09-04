@@ -27,7 +27,7 @@ public:
 	void addExpectedParameter(eprd::TokenType type) { expectedParameterTypes.push_back(type); }
 	bool areParemetrsExpected() const { return expectedParameterTypes.size() > 0; }
 	void invokeCommand() const;
-	MatchResult matchToken(const ParamVariant& parameter, const eprd::TokenType & tokenType) const;
+	MatchResult matchToken(const ParamVariant& parameter, const eprd::TokenType& tokenType) const;
 private:
 	std::string name;
 	std::vector<eprd::TokenType> expectedParameterTypes;

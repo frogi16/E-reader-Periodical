@@ -15,7 +15,7 @@ public:
 	std::vector<ArticleRSS> forceUpdates();					//updates no matter how long ago was the last update. Returns vector of links to new items
 	void setUpdateFrequencyInSeconds(size_t seconds) noexcept;
 	void setUpdateFrequencyInMinutes(size_t minutes) noexcept;
-	void watchFeed(const std::string & link);
+	void watchFeed(const std::string& link);
 	~RSSupdater();
 private:
 	std::vector<ArticleRSS> downloadFeeds();				//returns vector of links to new items so they can be passed on to the checkUpdates (or forceUpdates)

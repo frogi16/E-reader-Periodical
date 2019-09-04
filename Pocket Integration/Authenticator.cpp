@@ -5,7 +5,7 @@
 
 using njson = nlohmann::json;
 
-Authenticator::Authenticator(const std::string & consumerKey) : mConsumerKey(consumerKey)
+Authenticator::Authenticator(const std::string& consumerKey) : mConsumerKey(consumerKey)
 {
 	curlWrapper.setWritingToString();
 	curlWrapper.addToSlist("Content-Type: application/json; charset=UTF8");

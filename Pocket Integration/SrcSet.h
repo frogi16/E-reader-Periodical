@@ -20,7 +20,9 @@ public:
 	SrcSet();
 	size_t parseAndInsertLinks(std::string srcSetText);				//parse string, detect unit and return number of inserted links
 	optString getLargestImageLink() const
-	{	return links.size() > 0 ? optString{ links.rbegin()->second } : std::nullopt;	}
+	{
+		return links.size() > 0 ? optString{ links.rbegin()->second } : std::nullopt;
+	}
 	ImageWidthUnit getWidthUnit() const { return widthUnit; }
 	std::map<int, std::string> links;
 private:

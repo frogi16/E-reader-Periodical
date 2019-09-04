@@ -15,11 +15,11 @@ class CurlWrapper
 public:
 	CurlWrapper();
 	void reset();
-	void setURL(const std::string & url);										//CURLOPT_URL
+	void setURL(const std::string& url);										//CURLOPT_URL
 	void setPostFields(const std::string& parameters);							//CURLOPT_POSTFIELDS
 	void setFollowLocation(bool value);											//CURLOPT_FOLLOWLOCATION
 	void setWritingToString();													//CURLOPT_WRITEFUNCTION and CURLOPT_WRITEDATA
-	void setWritingToFile(std::experimental::filesystem::path & pathToImage);	//CURLOPT_WRITEFUNCTION and CURLOPT_WRITEDATA
+	void setWritingToFile(std::experimental::filesystem::path& pathToImage);	//CURLOPT_WRITEFUNCTION and CURLOPT_WRITEDATA
 	void setNoBody(bool value);													//CURLOPT_NOBODY
 	void setHeaderOnly(bool value);												//CURLOPT_HEADER
 	void setPassword(const std::string& password);								//CURLOPT_PASSWORD
@@ -32,9 +32,9 @@ private:
 	void setResponseString();													//CURLOPT_WRITEDATA
 	void setHeaderList();														//CURLOPT_HTTPHEADER
 
-	static size_t curlWriteToString(void *contents, size_t size, size_t nmemb, std::string *s);		//needs to be static
+	static size_t curlWriteToString(void* contents, size_t size, size_t nmemb, std::string* s);		//needs to be static
 
-	CURL *curl;
+	CURL* curl;
 	CURLcode code;
 	char errorBuffer[CURL_ERROR_SIZE];
 	struct curl_slist* slist = NULL;
@@ -42,6 +42,6 @@ private:
 	std::string mParameters;
 	ResponseType responseType;
 	std::string responseString;
-	FILE *fp = NULL;
+	FILE* fp = NULL;
 };
 

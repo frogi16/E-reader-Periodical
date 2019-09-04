@@ -11,7 +11,7 @@ ArticleAdder::ArticleAdder(std::string consumerKey) : mConsumerKey(consumerKey)
 	curlWrapper.setURL("https://getpocket.com/v3/add");
 }
 
-void ArticleAdder::addArticles(const std::vector<std::string> & links, const std::string & accessToken)
+void ArticleAdder::addArticles(const std::vector<std::string>& links, const std::string& accessToken)
 {
 	for (auto& link : links)
 	{
@@ -24,7 +24,7 @@ void ArticleAdder::addArticles(const std::vector<std::string> & links, const std
 
 		curlWrapper.setPostFields(parameters);
 		curlWrapper.perform();
-	}	
+	}
 }
 
 ArticleAdder::~ArticleAdder()

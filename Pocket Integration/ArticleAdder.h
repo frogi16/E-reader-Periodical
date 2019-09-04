@@ -9,7 +9,7 @@ class ArticleAdder
 {
 public:
 	ArticleAdder(std::string consumerKey);
-	void addArticles(const std::vector<std::string> & links, const std::string & accessToken);
+	void addArticles(const std::vector<std::string>& links, const std::string& accessToken);
 	~ArticleAdder();
 private:
 	CurlWrapper curlWrapper;

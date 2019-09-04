@@ -16,7 +16,7 @@ struct UserData
 class Authenticator
 {
 public:
-	Authenticator(const std::string & consumerKey);
+	Authenticator(const std::string& consumerKey);
 	UserData authenticate();
 	void receivedCallback(web::uri address);
 	~Authenticator();
@@ -34,7 +34,7 @@ private:
 	std::unique_ptr<MyServer> server;
 	CurlWrapper curlWrapper;
 	std::string mConsumerKey;
-	std::string response;	
+	std::string response;
 
 	void listen(utility::string_t address);
 

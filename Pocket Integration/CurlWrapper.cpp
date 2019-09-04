@@ -14,7 +14,7 @@ void CurlWrapper::reset()
 	curl_easy_reset(curl);
 }
 
-void CurlWrapper::setURL(const std::string & url)
+void CurlWrapper::setURL(const std::string& url)
 {
 	code = curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 	if (code != CURLE_OK)
@@ -23,7 +23,7 @@ void CurlWrapper::setURL(const std::string & url)
 	}
 }
 
-void CurlWrapper::setPostFields(const std::string & parameters)
+void CurlWrapper::setPostFields(const std::string& parameters)
 {
 	mParameters = parameters;					//I spent lovely time trying to figure out why I were getting bad requests. Isolating bugged place wasn't easy, but
 												//turns out that CURL doesn't copy parameters and they have to be in the same place in memory when performing connection.
@@ -59,7 +59,7 @@ void CurlWrapper::setWritingToString()
 	setResponseString();
 }
 
-void CurlWrapper::setWritingToFile(std::experimental::filesystem::path & pathToImage)
+void CurlWrapper::setWritingToFile(std::experimental::filesystem::path& pathToImage)
 {
 	errno_t err = fopen_s(&fp, pathToImage.generic_string().c_str(), "wb");
 
@@ -103,7 +103,7 @@ void CurlWrapper::setHeaderOnly(bool value)
 	}
 }
 
-void CurlWrapper::setPassword(const std::string & password)
+void CurlWrapper::setPassword(const std::string& password)
 {
 	code = curl_easy_setopt(curl, CURLOPT_HEADER, password);
 	if (code != CURLE_OK)
@@ -143,10 +143,10 @@ void CurlWrapper::perform()
 }
 
 size_t CurlWrapper::curlWriteToString
-(void * contents,								//pointer to place where recieved data is located
+(void* contents,								//pointer to place where recieved data is located
 	size_t size,								//size of one data element
 	size_t nmemb,								//number of elements which were recieved from site and passed to write function
-	std::string * s)							//destination where recieved data will be stored
+	std::string* s)							//destination where recieved data will be stored
 {
 	size_t newLength = size * nmemb;			//space necessary to write new data
 	size_t oldLength = s->size();				//currently used space
@@ -165,7 +165,7 @@ size_t CurlWrapper::curlWriteToString
 			s->resize(oldLength + newLength);
 			break;
 		}
-		catch (std::bad_alloc &e)
+		catch (std::bad_alloc& e)
 		{
 			if (++count >= maxTries) throw e;	//if repeating doesn't help, just rethrow the error
 		}

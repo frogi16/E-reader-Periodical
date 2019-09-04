@@ -15,8 +15,8 @@ class CommandInterpreter
 
 public:
 	CommandInterpreter() = default;
-	void addIfUnique(const Command &command, CmdType commandType);								//adds a command if its name is unique
-	void addIfUnique(Command &&command, CmdType commandType);
+	void addIfUnique(const Command& command, CmdType commandType);								//adds a command if its name is unique
+	void addIfUnique(Command&& command, CmdType commandType);
 	eprd::InterpretationResult interpret(const std::string& command) const;						//interprets given string and tries to match it to stored commands
 
 private:

@@ -10,7 +10,7 @@ FeedsDatabase::FeedsDatabase() noexcept
 	loadKeywords();
 }
 
-std::vector<ArticleRSS> FeedsDatabase::updateFeed(const std::string &feedLink, const pugi::xml_node &root)
+std::vector<ArticleRSS> FeedsDatabase::updateFeed(const std::string& feedLink, const pugi::xml_node& root)
 {
 	std::vector<ArticleRSS> newItems;
 
@@ -63,7 +63,7 @@ std::vector<ArticleRSS> FeedsDatabase::updateFeed(const std::string &feedLink, c
 void FeedsDatabase::saveDatabase()
 {
 	pugi::xml_document doc;
-	
+
 	doc.append_child("header");
 	//there is nothing in the header right now
 
@@ -100,7 +100,7 @@ void FeedsDatabase::loadKeywords()
 	for (auto& group : doc.children())
 	{
 		Keyword newKeyword;
-		
+
 		std::string mainKeywordString = group.child("main_keyword").first_child().value();	//main keyword identifies predefined keywords group which is implemented by given node
 		newKeyword.alternatives.push_back(mainKeywordString);
 
@@ -113,12 +113,12 @@ void FeedsDatabase::loadKeywords()
 	}
 }
 
-bool FeedsDatabase::isFeedSaved(const std::string & feedLink) const
+bool FeedsDatabase::isFeedSaved(const std::string& feedLink) const
 {
 	return feeds.find(feedLink) != feeds.end();
 }
 
-bool FeedsDatabase::isFeedChanged(const std::string & feedLink, const std::string & buildTime) const
+bool FeedsDatabase::isFeedChanged(const std::string& feedLink, const std::string& buildTime) const
 {
 	auto searchedFeed = feeds.find(feedLink);
 	if (searchedFeed == feeds.end() || searchedFeed->second.lastBuildTime.empty())		//newly added feed isn't saved in feeds, but of course should be updated. Similarly if because of some mystic reasons (bugs, failed parsing, unexpected exceptions etc.) date string is empty
@@ -135,12 +135,12 @@ bool FeedsDatabase::isFeedChanged(const std::string & feedLink, const std::strin
 	}
 }
 
-bool FeedsDatabase::isItemSaved(const std::vector<ArticleRSS> & savedItems, const std::string & itemLink) const
+bool FeedsDatabase::isItemSaved(const std::vector<ArticleRSS>& savedItems, const std::string& itemLink) const
 {
 	return std::find(savedItems.begin(), savedItems.end(), itemLink) != savedItems.end();
 }
 
-std::vector<pugi::xml_node> FeedsDatabase::searchForKeyword(const pugi::xml_node & root, const Keyword & keyword, size_t minimalResultNumber, bool checkForChild)
+std::vector<pugi::xml_node> FeedsDatabase::searchForKeyword(const pugi::xml_node& root, const Keyword& keyword, size_t minimalResultNumber, bool checkForChild)
 {
 	bool noChildren = false;															//flag set when results were rejected because of lack of children. Used to determine which error should be thrown at the end of function
 
@@ -162,7 +162,7 @@ std::vector<pugi::xml_node> FeedsDatabase::searchForKeyword(const pugi::xml_node
 		throw std::exception(std::string("Filtering nodes for \"" + keyword.mainKeyword() + "\" keyword returned less than expected " + std::to_string(minimalResultNumber) + " results.").c_str());
 }
 
-ArticleRSS FeedsDatabase::createItem(const std::string &itemLink, const pugi::xml_node &itemNode)
+ArticleRSS FeedsDatabase::createItem(const std::string& itemLink, const pugi::xml_node& itemNode)
 {
 	ArticleRSS newItem;
 
@@ -174,7 +174,7 @@ ArticleRSS FeedsDatabase::createItem(const std::string &itemLink, const pugi::xm
 	return newItem;
 }
 
-std::string FeedsDatabase::getLinkToItem(const pugi::xml_node & itemNode)
+std::string FeedsDatabase::getLinkToItem(const pugi::xml_node& itemNode)
 {
 	//most RSS feeds embeds link to item in <link> or <item> markups, but apparently some sites use a different approach
 	//for example blogspot.com shows something like this:
@@ -194,12 +194,12 @@ std::string FeedsDatabase::getLinkToItem(const pugi::xml_node & itemNode)
 	return itemLink;
 }
 
-std::string FeedsDatabase::getLinkFromStandardHref(const pugi::xml_node &root)
+std::string FeedsDatabase::getLinkFromStandardHref(const pugi::xml_node& root)
 {
 	return searchForKeyword(root, keywords["link"], 1, true).front().child_value();
 }
 
-std::string FeedsDatabase::getLinkFromAlternateHref(const pugi::xml_node &root)
+std::string FeedsDatabase::getLinkFromAlternateHref(const pugi::xml_node& root)
 {
 	auto links = dataSelecter.selectNodesByAttribute(root, "rel", "alternate");
 

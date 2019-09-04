@@ -44,62 +44,62 @@ void Application::addCommands(CommandInterpreter& commandInterpreter, std::vecto
 	using CmdType = eprd::CommandType;
 
 	commandInterpreter.addIfUnique(Command("help", [&](std::vector<ParamVariant>&)
-		{
-			std::cout << "Type:" << std::endl;
-			std::cout << "	\"update\" - check RSS and Pocket for new articles" << std::endl;
-			std::cout << "	\"parse\" - process articles for further filtering and ebook generation" << std::endl;
-			//std::cout << "	\"select [NUMBER]\" - take specififc number of already parsed articles" << std::endl;
-			std::cout << "	\"filter\" - filter parsed articles" << std::endl;
-			std::cout << "	\"book\" - create epub and mobi files" << std::endl;
-			std::cout << "	\"help\" - display this text anytime you like" << std::endl;
-		}), CmdType::Help);
+	{
+		std::cout << "Type:" << std::endl;
+		std::cout << "	\"update\" - check RSS and Pocket for new articles" << std::endl;
+		std::cout << "	\"parse\" - process articles for further filtering and ebook generation" << std::endl;
+		//std::cout << "	\"select [NUMBER]\" - take specififc number of already parsed articles" << std::endl;
+		std::cout << "	\"filter\" - filter parsed articles" << std::endl;
+		std::cout << "	\"book\" - create epub and mobi files" << std::endl;
+		std::cout << "	\"help\" - display this text anytime you like" << std::endl;
+	}), CmdType::Help);
 
 	commandInterpreter.addIfUnique(Command("update", [&](std::vector<ParamVariant>&)
-		{
-			auto newArticles = pocketRetriever.retrieveArticles(currentUser.accessToken);
-			articlesRSS.insert(articlesRSS.end(), newArticles.begin(), newArticles.end());
+	{
+		auto newArticles = pocketRetriever.retrieveArticles(currentUser.accessToken);
+		articlesRSS.insert(articlesRSS.end(), newArticles.begin(), newArticles.end());
 
-			newArticles = checkRSS();
-			articlesRSS.insert(articlesRSS.end(), newArticles.begin(), newArticles.end());
-			articlesDatabase.saveDatabase(articlesRSS);
-		}), CmdType::Update);
+		newArticles = checkRSS();
+		articlesRSS.insert(articlesRSS.end(), newArticles.begin(), newArticles.end());
+		articlesDatabase.saveDatabase(articlesRSS);
+	}), CmdType::Update);
 
 	commandInterpreter.addIfUnique(Command("parse", [&](std::vector<ParamVariant>&)
-		{
-			articles = parseArticles(articlesRSS);
-		}), CmdType::Parse);
+	{
+		articles = parseArticles(articlesRSS);
+	}), CmdType::Parse);
 
 	commandInterpreter.addIfUnique(Command("filter", [&](std::vector<ParamVariant>&)
-		{
-			filterArticles(articles);
-		}), CmdType::Filter);
+	{
+		filterArticles(articles);
+	}), CmdType::Filter);
 
 	Command selectCmd("select", [&](std::vector<ParamVariant>& params)
+	{
+		size_t quantity = std::get<int>(params[0]);
+
+		if (quantity < 0 || quantity > articlesRSS.size())
+			std::cout << "Invalid quantity of articles!" << std::endl;
+		else
 		{
-			size_t quantity = std::get<int>(params[0]);
+			articlesRSS.erase(articlesRSS.begin(), articlesRSS.begin() + quantity);
+			articles.erase(articles.begin() + quantity, articles.end());
 
-			if (quantity < 0 || quantity > articlesRSS.size())
-				std::cout << "Invalid quantity of articles!" << std::endl;
-			else
-			{
-				articlesRSS.erase(articlesRSS.begin(), articlesRSS.begin() + quantity);
-				articles.erase(articles.begin() + quantity, articles.end());
+			articlesDatabase.saveDatabase(articlesRSS);
+		}
 
-				articlesDatabase.saveDatabase(articlesRSS);
-			}
-
-		});
+	});
 
 	selectCmd.addExpectedParameter(eprd::TokenType::Integer);
 	commandInterpreter.addIfUnique(std::move(selectCmd), CmdType::Select);
 
 	commandInterpreter.addIfUnique(Command("book", [&](std::vector<ParamVariant>&)
-		{
-			createMobi(articles);
-			articles.clear();
-			articlesRSS.clear();
-			articlesDatabase.saveDatabase(articlesRSS);
-		}), CmdType::Book);
+	{
+		createMobi(articles);
+		articles.clear();
+		articlesRSS.clear();
+		articlesDatabase.saveDatabase(articlesRSS);
+	}), CmdType::Book);
 }
 
 void Application::authenticateConnection()
@@ -119,7 +119,7 @@ void Application::authenticateConnection()
 			users[user.username] = user.accessToken;
 			currentUser = user;
 		}
-		catch (const std::exception &e)
+		catch (const std::exception& e)
 		{
 			std::cout << "Pocket authentication failed: " << e.what() << std::endl;
 		}
@@ -184,7 +184,7 @@ void Application::loadFeedsToWatch()
 void Application::promptCommandInterpretationStatus(const eprd::InterpretationResult& interpretation) const
 {
 	using Status = eprd::InterpretationStatus;
-	
+
 	switch (interpretation.status)
 	{
 	case Status::Success:		//left blank deliberately, if command succeeded no additional messages should be prompted.

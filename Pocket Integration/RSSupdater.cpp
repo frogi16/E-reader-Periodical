@@ -4,7 +4,7 @@
 
 RSSupdater::RSSupdater() noexcept :
 	lastUpdate(NULL),
-	updateFrequency(60*5)
+	updateFrequency(60 * 5)
 {
 }
 
@@ -21,7 +21,7 @@ std::vector<ArticleRSS> RSSupdater::checkUpdates()
 		return downloadFeeds();
 	}
 
-	return std::vector<ArticleRSS> ();
+	return std::vector<ArticleRSS>();
 }
 
 std::vector<ArticleRSS> RSSupdater::forceUpdates()
@@ -40,7 +40,7 @@ void RSSupdater::setUpdateFrequencyInMinutes(size_t minutes) noexcept
 	updateFrequency = minutes * 60;
 }
 
-void RSSupdater::watchFeed(const std::string & link)
+void RSSupdater::watchFeed(const std::string& link)
 {
 	auto position = std::find(linksToFeeds.begin(), linksToFeeds.end(), link);
 

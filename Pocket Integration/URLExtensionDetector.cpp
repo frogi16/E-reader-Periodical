@@ -18,18 +18,19 @@ const std::map<std::string, std::string> URLExtensionDetector::extensionsFromMIM
 
 URLExtensionDetector::URLExtensionDetector()
 {
+
 	curlWrapper.setWritingToString();
 	curlWrapper.setHeaderOnly(true);
 	curlWrapper.setNoBody(true);
 	curlWrapper.addToSlist("Content-Type: application/json");
 }
 
-std::string URLExtensionDetector::get(const std::string & link)
+std::string URLExtensionDetector::get(const std::string& link)
 {
 	configureCurlToHeaderDownloading(link);
 	curlWrapper.perform();
 	std::string response = curlWrapper.getResponseString();
-	std::string MIME = detectExtension(response);	
+	std::string MIME = detectExtension(response);
 
 	auto foundMIME = extensionsFromMIME.find(MIME);								//if map doesn't contain MIME program can't correctly detect extension
 	if (foundMIME == extensionsFromMIME.end())
@@ -38,12 +39,12 @@ std::string URLExtensionDetector::get(const std::string & link)
 		return  (*foundMIME).second;
 }
 
-void URLExtensionDetector::configureCurlToHeaderDownloading(const std::string & url)
+void URLExtensionDetector::configureCurlToHeaderDownloading(const std::string& url)
 {
 	curlWrapper.setURL(url);
 }
 
-std::string URLExtensionDetector::detectExtension(const std::string & header)
+std::string URLExtensionDetector::detectExtension(const std::string& header)
 {
 	std::string MIME;
 
@@ -59,7 +60,7 @@ std::string URLExtensionDetector::detectExtension(const std::string & header)
 	return MIME;
 }
 
-std::string URLExtensionDetector::mimeFromJsonHeader(const std::string & header)
+std::string URLExtensionDetector::mimeFromJsonHeader(const std::string& header)
 {
 	nlohmann::json json = json::parse(header);
 
@@ -69,7 +70,7 @@ std::string URLExtensionDetector::mimeFromJsonHeader(const std::string & header)
 		throw std::exception("Couldn't identify content-type");
 }
 
-std::string URLExtensionDetector::mimeFromHTMLHeader(const std::string & header)
+std::string URLExtensionDetector::mimeFromHTMLHeader(const std::string& header)
 {
 	std::string searched("Content-Type:");
 	std::string result;

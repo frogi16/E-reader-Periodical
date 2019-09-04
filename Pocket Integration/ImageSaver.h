@@ -8,11 +8,11 @@ class ImageSaver
 {
 public:
 	ImageSaver();
-	void saveImage(const std::string &link, std::experimental::filesystem::path &pathToImage);
+	void saveImage(const std::string& link, std::experimental::filesystem::path& pathToImage);
 	~ImageSaver();
 private:
-	void configureCurlToImageDownloading(const std::string &link, std::experimental::filesystem::path &pathToImage);
-	
+	void configureCurlToImageDownloading(const std::string& link, std::experimental::filesystem::path& pathToImage);
+
 	CurlWrapper curlWrapper;
 	URLExtensionDetector extensionDetector;
 };

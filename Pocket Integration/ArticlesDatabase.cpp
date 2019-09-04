@@ -11,7 +11,7 @@ void ArticlesDatabase::saveDatabase(std::vector<ArticleRSS>& articles)
 	pugi::xml_document doc;
 	auto articlesNode = doc.append_child("articles");
 
-	for (auto & article : articles)
+	for (auto& article : articles)
 	{
 		auto articleNode = articlesNode.append_child("article");
 

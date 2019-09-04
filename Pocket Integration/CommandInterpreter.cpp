@@ -31,7 +31,7 @@ eprd::InterpretationResult CommandInterpreter::interpret(const std::string& comm
 	auto commandName = tokens.front();
 	auto commandIterator = commandMap.find(commandName);
 
-	if (commandIterator == commandMap.end())	
+	if (commandIterator == commandMap.end())
 	{
 		result.status = Status::CommandNotFound;
 		return result;
