@@ -2,7 +2,8 @@
 
 #include <string>
 #include <vector>
-#include "json.h"
+
+#include "json_eprd.h"
 
 #include "ParsedArticle.h"
 #include "ArticleRSS.h"

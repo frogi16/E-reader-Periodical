@@ -2,7 +2,7 @@
 
 #include <cwctype>
 
-#include <pugixml.hpp>
+#include <pugixml_eprd.hpp>
 
 struct CountWordsTreeWalker : public pugi::xml_tree_walker
 {

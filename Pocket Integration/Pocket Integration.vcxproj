@@ -90,7 +90,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\make\zlib-1.2.11;F:\Programowanie\pugixml-1.6\src;F:\Programowanie\Tidy\include;F:\Programowanie\Casablanca\cpprestsdk\Release\include;C:\libcurl\builds\libcurl-vc15-x64-release-static-ipv6-sspi-winssl\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>F:\Programowanie\nlohmann_json;C:\make\zlib-1.2.11;F:\Programowanie\pugixml-1.6\src;F:\Programowanie\Tidy\include;F:\Programowanie\Casablanca\cpprestsdk\Release\include;C:\libcurl\builds\libcurl-vc15-x64-release-static-ipv6-sspi-winssl\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>CURL_STATICLIB;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
@@ -125,7 +125,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\make\zlib-1.2.11;F:\Programowanie\pugixml-1.6\src;F:\Programowanie\Tidy\include;F:\Programowanie\Casablanca\cpprestsdk\Release\include;C:\libcurl\builds\libcurl-vc15-x64-release-static-ipv6-sspi-winssl\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>F:\Programowanie\nlohmann_json;C:\make\zlib-1.2.11;F:\Programowanie\pugixml-1.6\src;F:\Programowanie\Tidy\include;F:\Programowanie\Casablanca\cpprestsdk\Release\include;C:\libcurl\builds\libcurl-vc15-x64-release-static-ipv6-sspi-winssl\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>CURL_STATICLIB;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
@@ -164,6 +164,9 @@
     <ClCompile Include="SrcSet.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\nlohmann_json\json.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="APIKeyHolder.h" />
     <ClInclude Include="Application.h" />
     <ClInclude Include="ArticleAdder.h" />
@@ -175,6 +178,7 @@
     <ClInclude Include="CommandInterpreter.h" />
     <ClInclude Include="CommandType.h" />
     <ClInclude Include="CountWordsTreeWalker.h" />
+    <ClInclude Include="CppRestIncludes.h" />
     <ClInclude Include="CurlWrapper.h" />
     <ClInclude Include="DatetimeParser.h" />
     <ClInclude Include="EbookCreator.h" />
@@ -184,7 +188,6 @@
     <ClInclude Include="TokenType.h" />
     <ClInclude Include="URLExtensionDetector.h" />
     <ClInclude Include="ImageSaver.h" />
-    <ClInclude Include="json.h" />
     <ClInclude Include="Keyword.h" />
     <ClInclude Include="MyServer.h" />
     <ClInclude Include="ParsedArticle.h" />

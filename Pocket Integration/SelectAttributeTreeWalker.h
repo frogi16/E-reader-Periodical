@@ -1,7 +1,7 @@
 #include <string>
 #include <vector>
 
-#include <pugixml.hpp>
+#include <pugixml_eprd.hpp>
 
 struct SelectAttributeTreeWalker : public pugi::xml_tree_walker
 {
