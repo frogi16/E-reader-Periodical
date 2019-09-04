@@ -12,10 +12,10 @@
 
 void ArticleRSS::serializeXML(pugi::xml_node & node) const
 {
-	node.append_child("title").append_child(pugi::node_pcdata).set_value(title.c_str());
-	node.append_child("link").append_child(pugi::node_pcdata).set_value(link.c_str());
-	node.append_child("pubDate").append_child(pugi::node_pcdata).set_value(pubDate.c_str());
-	node.append_child("description").append_child(pugi::node_pcdata).set_value(description.c_str());
+	node.append_child("title").text().set(title.c_str());
+	node.append_child("link").text().set(link.c_str());
+	node.append_child("pubDate").text().set(pubDate.c_str());
+	node.append_child("description").text().set(description.c_str());
 }
 
 void ArticleRSS::deserializeXML(const pugi::xml_node & node)

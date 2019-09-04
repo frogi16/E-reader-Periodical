@@ -13,8 +13,8 @@
 
 void FeedData::serializeXML(pugi::xml_node & node) const
 {
-	node.append_child("link").append_child(pugi::node_pcdata).set_value(link.c_str());
-	node.append_child("lastUpdate").append_child(pugi::node_pcdata).set_value(lastBuildTime.c_str());
+	node.append_child("link").text().set(link.c_str());
+	node.append_child("lastUpdate").text().set(lastBuildTime.c_str());
 
 	for (auto& article : items)
 	{

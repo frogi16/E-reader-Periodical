@@ -101,17 +101,17 @@ void EbookCreator::saveArticle(ParsedArticle & article, bool addSkipButton)
 
 	//<p id="anchor"></p>	anchor to which "Skip" button can be tied
 	auto link = header.append_child("p");
-	link.append_child(pugi::node_pcdata).set_value("");
+	link.text().set("");
 	link.append_attribute("id").set_value("anchor");
 
-	header.append_child("h1").append_child(pugi::node_pcdata).set_value(article.title.c_str());			//article title
+	header.append_child("h1").text().set(article.title.c_str());			//article title
 
-	header.append_child("i").append_child(pugi::node_pcdata).set_value(article.domain.c_str());			//domain
+	header.append_child("i").text().set(article.domain.c_str());			//domain
 
 	if (addSkipButton)
 	{
 		auto skip = header.append_child("i").append_child("a");											//"Skip" button is a reference to an anchor within the next article
-		skip.append_child(pugi::node_pcdata).set_value("Skip");
+		skip.text().set("Skip");
 		skip.append_attribute("href").set_value(std::string("article" + std::to_string(articleIndex + 1) + ".xhtml#anchor").c_str());
 		skip.append_attribute("class").set_value("reference");
 		skip.append_attribute("id").set_value("reference1");
