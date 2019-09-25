@@ -132,7 +132,7 @@ void EbookCreator::addToManifest(ParsedArticle& article)
 	std::string articleName = "article" + std::to_string(articleIndex) + ".xhtml";
 	file << "<item id=" << '"' << articleName << '"' << " href=" << '"' << "Text/" << articleName << '"' << " media-type=" << '"' << "application/xhtml+xml" << '"' << "/>";	//adding the article itself
 
-	auto images = dataSelecter.selectNodesByName((*article.xmlDocument), std::string("img"));	//find all images the article links to, because they also have to be listed in manifest
+	auto images = EbookPeriodical::selectNodes<SelectNameTreeWalker>((*article.xmlDocument), std::string("img"));	//find all images the article links to, because they also have to be listed in manifest
 	saveImages(images, article.domain);
 
 	file.close();

@@ -38,6 +38,5 @@ private:
 	void addDescriptionTooManyWords(const FilteringRule& rule, ParsedArticle& article);
 
 	std::map<std::string, FilteringRule> rules;									//stores FilteringRules with domains as keys. Key to global rule is of course "global"
-	DataSelecter dataSelecter;
 };
 

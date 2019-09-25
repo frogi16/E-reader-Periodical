@@ -26,7 +26,6 @@ private:
 	void buildTableOfContent(std::vector<ParsedArticle>& articles);
 
 	ImageSaver imageSaver;
-	DataSelecter dataSelecter;
 
 	std::experimental::filesystem::path ebookPath;
 	size_t articleIndex = 0;															//index of actually processed article

@@ -120,8 +120,7 @@ bool FeedsDatabase::isFeedSaved(const std::string& feedLink) const
 
 bool FeedsDatabase::isFeedChanged(const std::string& feedLink, const std::string& buildTime) const
 {
-	auto searchedFeed = feeds.find(feedLink);
-	if (searchedFeed == feeds.end() || searchedFeed->second.lastBuildTime.empty())		//newly added feed isn't saved in feeds, but of course should be updated. Similarly if because of some mystic reasons (bugs, failed parsing, unexpected exceptions etc.) date string is empty
+	if (auto searchedFeed = feeds.find(feedLink); searchedFeed == feeds.end() || searchedFeed->second.lastBuildTime.empty())		//newly added feed isn't saved in feeds, but of course should be updated. Similarly if because of some mystic reasons (bugs, failed parsing, unexpected exceptions etc.) date string is empty
 		return true;
 	else
 	{
@@ -131,7 +130,7 @@ bool FeedsDatabase::isFeedChanged(const std::string& feedLink, const std::string
 		if (oldTime_t == -1 || newTime_t == -1)											//last resort of error-proofing is check if time_t is equal -1. It may happen if date couldn't be parsed at all. -1 seems to be treated by difftime() as special case and it returns 0, so boolean result has to be handled manually
 			return true;
 
-		return (difftime(newTime_t, oldTime_t) > 0);									//true if newTime is greater then oldTime
+		return difftime(newTime_t, oldTime_t) > 0;									//true if newTime is greater then oldTime
 	}
 }
 
@@ -146,13 +145,15 @@ std::vector<pugi::xml_node> FeedsDatabase::searchForKeyword(const pugi::xml_node
 
 	for (auto& alternative : keyword.alternatives)
 	{
-		std::vector<pugi::xml_node> result = dataSelecter.selectNodesByName(root, alternative);
+		std::vector<pugi::xml_node> result = EbookPeriodical::selectNodes<SelectNameTreeWalker>(root, alternative);
 
 		if (result.size() >= minimalResultNumber && !checkForChild)
 			return result;
-		else if (result.size() >= minimalResultNumber && checkForChild && result[0].first_child())
+
+		if (result.size() >= minimalResultNumber && checkForChild && result[0].first_child())
 			return result;
-		else if (result.size() >= minimalResultNumber && checkForChild && !result[0].first_child())
+
+		if (result.size() >= minimalResultNumber && checkForChild && !result[0].first_child())
 			noChildren = true;
 	}
 
@@ -201,12 +202,12 @@ std::string FeedsDatabase::getLinkFromStandardHref(const pugi::xml_node& root)
 
 std::string FeedsDatabase::getLinkFromAlternateHref(const pugi::xml_node& root)
 {
-	auto links = dataSelecter.selectNodesByAttribute(root, "rel", "alternate");
+	auto links = EbookPeriodical::selectNodes<SelectAttributeTreeWalker>(root, "rel", "alternate");
 
 	if (links.size())
 		return links[0].attribute("href").value();
 	else
-		throw std::string("Haven't found link in node with rel=\'alternate\' attribute!\n");
+		throw std::exception("Haven't found link in node with rel=\'alternate\' attribute!\n");
 }
 
 FeedsDatabase::~FeedsDatabase()

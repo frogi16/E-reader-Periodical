@@ -54,9 +54,6 @@
     <ClCompile Include="ArticleFilter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DataSelecter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CurlWrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

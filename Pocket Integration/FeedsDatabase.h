@@ -39,7 +39,6 @@ private:
 	std::string getLinkFromAlternateHref(const pugi::xml_node& root);										//alternative method to extract link to item from xml data, used only be getLinkToItem() function!
 
 	std::map<std::string, FeedData> feeds;																	//map storing feeds indexed by links
-	DataSelecter dataSelecter;																				//set of functions facilitating scraping and filtering xml nodes
 
 	std::map<std::string, Keyword> keywords;
 

@@ -116,7 +116,7 @@ bool ArticleFilter::applyXMLRule(const XMLFilteringRule& rule, ParsedArticle& ar
 
 bool ArticleFilter::applyNodeNameRule(const XMLFilteringRule& rule, ParsedArticle& article)
 {
-	auto dataToFilter = dataSelecter.selectNodesByName((*article.xmlDocument), rule.nodeName);
+	auto dataToFilter = EbookPeriodical::selectNodes<SelectNameTreeWalker>((*article.xmlDocument), rule.nodeName);
 	size_t removedWords = removeNodes(dataToFilter, article);
 
 	if (removedWords > 0)
@@ -129,7 +129,7 @@ bool ArticleFilter::applyNodeNameRule(const XMLFilteringRule& rule, ParsedArticl
 
 bool ArticleFilter::applyTextSubstringRule(const XMLFilteringRule& rule, ParsedArticle& article)
 {
-	auto dataToFilter = dataSelecter.selectNodesByTextSubstring((*article.xmlDocument), rule.substring);
+	auto dataToFilter = EbookPeriodical::selectNodes<SelectSubstringTreeWalker>((*article.xmlDocument), rule.substring);
 	size_t removedWords = removeNodes(dataToFilter, article);
 
 	if (removedWords > 0)
@@ -142,7 +142,8 @@ bool ArticleFilter::applyTextSubstringRule(const XMLFilteringRule& rule, ParsedA
 
 bool ArticleFilter::applyAttributeValueRule(const XMLFilteringRule& rule, ParsedArticle& article)
 {
-	auto dataToFilter = dataSelecter.selectNodesByAttribute((*article.xmlDocument), rule.attributeName, rule.attributeValue);
+	auto dataToFilter = EbookPeriodical::selectNodes<SelectAttributeTreeWalker>((*article.xmlDocument), rule.attributeName, rule.attributeValue);
+
 	size_t removedWords = removeNodes(dataToFilter, article);
 
 	if (removedWords > 0)
