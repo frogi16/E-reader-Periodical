@@ -14,21 +14,26 @@ std::vector<ArticleRSS> FeedsDatabase::updateFeed(const std::string& feedLink, c
 {
 	std::vector<ArticleRSS> newItems;
 
+	if (!isFeedSaved(feedLink))
+		return newItems;													//to ensure thread-safety this function can't modify map named feeds. No insertion are allowed.
+
 	try
 	{
 		std::string lastBuild = searchForKeyword(root, keywords["pubDate"], 1).front().child_value();
-		//selectDataByName returns vector of all matching nodes, but often we search for unique node(or specified number of them),
+		//selectDataByName returns vector of all matching nodes, but often we search for unique node (or specified number of them),
 		//therefore use of auxillary searchForKeyword function. It allows to use defined lists of alternative keywords, which are used in
 		//predictable order, only if previous one doesn't return expected number of results.
 		//.front().child_value() is necessary and will be repeatedly used all across this object
 
-		if (isFeedChanged(feedLink, lastBuild))								//if feed has been updated since last check (if feed can't be found in map result is always true)
+		if (!isFeedChanged(feedLink, lastBuild))
+			std::cout << "Processing " << feedLink << " content was skipped because site hasn't been updated since last check." << std::endl;
+		else
 		{
 			std::cout << "Updating " << feedLink << std::endl;
 
 			auto itemNodes = searchForKeyword(root, keywords["item"], 1);
 
-			FeedData& feed = feeds[feedLink];								//reference to feeds[feedLink]
+			FeedData& feed = feeds.at(feedLink);							//reference to feeds[feedLink]
 			feed.link = feedLink;											//assigning link to feed. It will have no effect if feed was already used.
 			feed.lastBuildTime = lastBuild;
 
@@ -46,17 +51,13 @@ std::vector<ArticleRSS> FeedsDatabase::updateFeed(const std::string& feedLink, c
 
 			std::cout << "Found " << newItems.size() << " new articles" << std::endl;
 		}
-		else
-		{
-			std::cout << "Processing " << feedLink << " content was skipped because site hasn't been updated since last check." << std::endl;
-		}
 	}
-	catch (const std::exception& e)
+	catch (const std::exception & e)
 	{
 		std::cout << "Unexpected behavior:\n" << e.what() << "\nUpdating this feed failed.\n";
 	}
 
-	std::reverse(newItems.begin(), newItems.end());
+	std::reverse(newItems.begin(), newItems.end());							//items are listed from the newest to the oldest, reverse to get them chronologically sorted
 	return newItems;
 }
 
@@ -72,7 +73,7 @@ void FeedsDatabase::saveDatabase()
 	for (auto& feed : feeds)
 	{
 		auto feedNode = feedsNode.append_child("feed");
-		feed.second.serializeXML(feedNode);					//FeedData (and other classes implementing XMLSerializerInterface) can serialize itself to given node. It takes care of itself and everything inside.
+		feed.second.serializeXML(feedNode);					//FeedData (and other classes implementing XMLSerializerInterface) can serialize itself to given node
 	}
 
 	doc.save_file("database.xml");
@@ -87,7 +88,7 @@ void FeedsDatabase::loadDatabase()
 	for (auto& feed : node.children())
 	{
 		FeedData feedData;
-		feedData.deserializeXML(feed);						//FeedData (and other classes implementing XMLSerializerInterface) can deserialize itself from given node. It takes care of itself and everything inside.
+		feedData.deserializeXML(feed);						//FeedData (and other classes implementing XMLSerializerInterface) can deserialize itself from given node
 		feeds[feedData.link] = feedData;
 	}
 }
@@ -105,59 +106,57 @@ void FeedsDatabase::loadKeywords()
 		newKeyword.alternatives.push_back(mainKeywordString);
 
 		for (auto& alternative : group.child("alternatives").children())
-		{
 			newKeyword.alternatives.push_back(alternative.child_value());
-		}
 
 		keywords[mainKeywordString] = std::move(newKeyword);
 	}
 }
 
-bool FeedsDatabase::isFeedSaved(const std::string& feedLink) const
+bool FeedsDatabase::isFeedSaved(const std::string& feedLink) inline const
 {
 	return feeds.find(feedLink) != feeds.end();
 }
 
+bool FeedsDatabase::isItemSaved(const std::vector<ArticleRSS>& savedItems, const std::string& itemLink) inline const
+{
+	return std::find(savedItems.begin(), savedItems.end(), itemLink) != savedItems.end();
+}
+
 bool FeedsDatabase::isFeedChanged(const std::string& feedLink, const std::string& buildTime) const
 {
-	if (auto searchedFeed = feeds.find(feedLink); searchedFeed == feeds.end() || searchedFeed->second.lastBuildTime.empty())		//newly added feed isn't saved in feeds, but of course should be updated. Similarly if because of some mystic reasons (bugs, failed parsing, unexpected exceptions etc.) date string is empty
+	if (auto searchedFeed = feeds.find(feedLink); searchedFeed == feeds.end())
 		return true;
 	else
 	{
 		std::time_t oldTime_t = datetimeParser.parseToTime_t(searchedFeed->second.lastBuildTime);
 		std::time_t newTime_t = datetimeParser.parseToTime_t(buildTime);
 
-		if (oldTime_t == -1 || newTime_t == -1)											//last resort of error-proofing is check if time_t is equal -1. It may happen if date couldn't be parsed at all. -1 seems to be treated by difftime() as special case and it returns 0, so boolean result has to be handled manually
+		if (oldTime_t == -1 || newTime_t == -1)										//-1 means that date couldn't be parsed at all. It would be indistinguishable from case when both times are the same, so it has to be handled separately
 			return true;
 
 		return difftime(newTime_t, oldTime_t) > 0;									//true if newTime is greater then oldTime
 	}
 }
 
-bool FeedsDatabase::isItemSaved(const std::vector<ArticleRSS>& savedItems, const std::string& itemLink) const
+std::vector<pugi::xml_node> FeedsDatabase::searchForKeyword(const pugi::xml_node& root, const Keyword& keyword, size_t minimalResultNumber, bool checkIfFirstValueValid)
 {
-	return std::find(savedItems.begin(), savedItems.end(), itemLink) != savedItems.end();
-}
-
-std::vector<pugi::xml_node> FeedsDatabase::searchForKeyword(const pugi::xml_node& root, const Keyword& keyword, size_t minimalResultNumber, bool checkForChild)
-{
-	bool noChildren = false;															//flag set when results were rejected because of lack of children. Used to determine which error should be thrown at the end of function
+	bool isFirstValueInvalid = false;												//flag set when results were rejected because of lack of children. Used to determine which error should be thrown at the end of function
 
 	for (auto& alternative : keyword.alternatives)
 	{
 		std::vector<pugi::xml_node> result = EbookPeriodical::selectNodes<SelectNameTreeWalker>(root, alternative);
 
-		if (result.size() >= minimalResultNumber && !checkForChild)
+		if (result.size() >= minimalResultNumber && !checkIfFirstValueValid)
 			return result;
 
-		if (result.size() >= minimalResultNumber && checkForChild && result[0].first_child())
+		if (result.size() >= minimalResultNumber && checkIfFirstValueValid && result[0].first_child())
 			return result;
 
-		if (result.size() >= minimalResultNumber && checkForChild && !result[0].first_child())
-			noChildren = true;
+		if (result.size() >= minimalResultNumber && checkIfFirstValueValid && !result[0].first_child())
+			isFirstValueInvalid = true;
 	}
 
-	if (noChildren)
+	if (isFirstValueInvalid)
 		throw std::exception(std::string("Filtering nodes for \"" + keyword.mainKeyword() + "\" keyword returned results without children.").c_str());
 	else
 		throw std::exception(std::string("Filtering nodes for \"" + keyword.mainKeyword() + "\" keyword returned less than expected " + std::to_string(minimalResultNumber) + " results.").c_str());
@@ -177,7 +176,7 @@ ArticleRSS FeedsDatabase::createItem(const std::string& itemLink, const pugi::xm
 
 std::string FeedsDatabase::getLinkToItem(const pugi::xml_node& itemNode)
 {
-	//most RSS feeds embeds link to item in <link> or <item> markups, but apparently some sites use a different approach
+	//most RSS feeds embeds link to item in <link> or <item> markups, but apparently some sites use different approach
 	//for example blogspot.com shows something like this:
 	//"<id>tag:blogger.com,1999:blog-2442024767695998453.post-2644038318746445557</id>"
 	//and valid link is hidden in here:
@@ -188,9 +187,7 @@ std::string FeedsDatabase::getLinkToItem(const pugi::xml_node& itemNode)
 	std::string itemLink = getLinkFromStandardHref(itemNode);
 
 	if (itemLink.find("http") == std::string::npos)
-	{
 		itemLink = getLinkFromAlternateHref(itemNode);
-	}
 
 	return itemLink;
 }

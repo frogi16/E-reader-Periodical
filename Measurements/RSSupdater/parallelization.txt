@@ -1,0 +1,116 @@
+Hypothesis:
+	
+	Function RSSupdater::downloadFeeds() benefits greatly from parallelization.
+	
+Original solution:
+
+	[1] Single-threaded execution
+	***
+	***			std::vector<ArticleRSS> RSSupdater::downloadFeeds()
+	***			{
+	***				std::cout << "Checking for new articles" << std::endl;
+	***				std::vector<ArticleRSS> newArticles;
+	***			
+	***				for (auto& link : linksToFeeds)
+	***				{
+	***					downloader.downloadSource(link);
+	***					std::vector<ArticleRSS> items = feedsDatabase.updateFeed(link, downloader.getData());
+	***					newArticles.insert(newArticles.end(), items.begin(), items.end());
+	***				}
+	***			
+	***				//feedsDatabase.saveDatabase();		//COMMENTED FOR TESTS SAKE
+	***			
+	***				return newArticles;
+	***			}
+
+Proposed solution #1, rejected because of stability reasons (see ./parallelization_thread_safety.txt):
+
+	[2] Parallel algorithm, no atomics
+	***
+	***			std::vector<ArticleRSS> RSSupdater::downloadFeeds()
+	***			{
+	***				std::cout << "Checking for new articles" << std::endl;
+	***
+	***				std::vector<ArticleRSS> newArticles;
+	***
+	***				//if feed is not known, updateFeed() will add new object to its internal storage. It is not safe to modify container from multiple threads at once, so every feed
+	***				//has to be saved in database before updateFeed() execution in order to achieve thread-safety
+	***				for (auto& link : linksToFeeds)
+	***					feedsDatabase.createFeedIfNeeded(link);
+	***
+	***				std::for_each(std::execution::par, linksToFeeds.begin(), linksToFeeds.end(),
+	***					[&newArticles, &feedsDatabase = feedsDatabase](std::string link)
+	***				{
+	***					SourceDownloader srcDownloader;
+	***					srcDownloader.downloadSource(link);
+	***					std::vector<ArticleRSS> items = feedsDatabase.updateFeed(link, srcDownloader.getData());
+	***					newArticles.insert(newArticles.end(), items.begin(), items.end());
+	***				});
+	***
+	***				//feedsDatabase.saveDatabase();		//COMMENTED FOR TESTS SAKE
+	***
+	***				return newArticles;
+	***			}
+	
+Proposed solution #2:
+
+	[3] Parallel algorithm, critical part secured with mutex
+	***
+	***			std::vector<ArticleRSS> RSSupdater::downloadFeeds()
+	***			{
+	***				std::cout << "Checking for new articles" << std::endl;
+	***			
+	***				std::vector<ArticleRSS> newArticles;
+	***				std::mutex newArticlesMutex;
+	***			
+	***				//if feed is not known, updateFeed() will add new object to its internal storage. It is not safe to modify container from multiple threads at once, so every feed
+	***				//has to be saved in database before updateFeed() execution in order to achieve thread-safety
+	***				for (auto& link : linksToFeeds)
+	***					feedsDatabase.createFeedIfNeeded(link);
+	***			
+	***				std::for_each(std::execution::par, linksToFeeds.begin(), linksToFeeds.end(),
+	***					[&newArticles, &newArticlesMutex, &feedsDatabase = feedsDatabase](std::string link)
+	***				{
+	***					SourceDownloader srcDownloader;
+	***					srcDownloader.downloadSource(link);
+	***					std::vector<ArticleRSS> items = feedsDatabase.updateFeed(link, srcDownloader.getData());
+	***			
+	***					std::lock_guard lock(newArticlesMutex);
+	***					newArticles.insert(newArticles.end(), items.begin(), items.end());
+	***				});
+	***			
+	***				//feedsDatabase.saveDatabase();		//COMMENTED FOR TESTS SAKE
+	***			
+	***				return newArticles;
+	***			}
+	
+Measurements:
+	
+	1. 15 real feeds, i7-7700HQ (Debug x64)
+	
+		[1]	7661 ms			[3]	1478 ms
+			7077 ms				1335 ms
+			7254 ms				1380 ms    
+			7983 ms				1352 ms    
+			7478 ms				1476 ms    
+			-------				-------    
+			7490.6 ms			1404.2 ms	(-81.25%)
+														
+	2. 15 real feeds, i7-7700HQ (Release x64):
+	
+		[1]	9493 ms			[3]	1476 ms
+			6973 ms				1374 ms
+			7180 ms				1492 ms
+			7806 ms				1280 ms
+			7421 ms				1781 ms
+			-------				-------
+			7774.5 ms			1480.6 ms	(-80.96%)
+
+Conclusions:
+
+	Single threaded [1] program wastes majority of time waiting for server responses.
+	Presented solution [3] may greatly reduce execution time and requires no major changes in the codebase.
+	
+Recommendation:
+
+	Accept proposed solution. 

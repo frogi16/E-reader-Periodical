@@ -20,7 +20,6 @@ public:
 private:
 	std::vector<ArticleRSS> downloadFeeds();				//returns vector of links to new items so they can be passed on to the checkUpdates (or forceUpdates)
 
-	SourceDownloader downloader;
 	FeedsDatabase feedsDatabase;
 
 	std::vector<std::string> linksToFeeds;

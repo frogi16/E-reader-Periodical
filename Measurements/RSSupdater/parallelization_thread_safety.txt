@@ -1,0 +1,94 @@
+Hypothesis:
+	
+	Function RSSupdater::downloadFeeds() is unsafe because of parallel writing to newArticles vector.
+	
+	[1] Present Source Code
+	***
+	***			std::vector<ArticleRSS> RSSupdater::downloadFeeds()
+	***			{
+	***				std::cout << "Checking for new articles" << std::endl;
+	***
+	***				std::vector<ArticleRSS> newArticles;
+	***
+	***				//feed has to be saved in database before updating calling updateFeed in order to achieve thread-safety without use of atomics
+	***				for (auto& link : linksToFeeds)
+	***					feedsDatabase.createFeedIfNeeded(link);
+	***
+	***				std::for_each(std::execution::par, linksToFeeds.begin(), linksToFeeds.end(),
+	***					[&newArticles, &feedsDatabase = feedsDatabase](std::string link)
+	***				{
+	***					SourceDownloader srcDownloader;
+	***					srcDownloader.downloadSource(link);
+	***					std::vector<ArticleRSS> items = feedsDatabase.updateFeed(link, srcDownloader.getData());
+	***					newArticles.insert(newArticles.end(), items.begin(), items.end());
+	***				});
+	***
+	***				//feedsDatabase.saveDatabase();		//COMMENTED FOR TESTS SAKE
+	***
+	***				return newArticles;
+	***			}
+
+Proposed solution:
+
+	Lock mutex around critical section of function.
+	
+	[2] Critical part secured with mutex
+	***
+	***			std::vector<ArticleRSS> RSSupdater::downloadFeeds()
+	***			{
+	***				std::cout << "Checking for new articles" << std::endl;
+	***			
+	***				std::vector<ArticleRSS> newArticles;
+	***				std::mutex newArticlesMutex;
+	***			
+	***				//if feed is not known, updateFeed() will add new object to its internal storage. It is not safe to modify container from multiple threads at once, so every feed
+	***				//has to be saved in database before updateFeed() execution in order to achieve thread-safety
+	***				for (auto& link : linksToFeeds)
+	***					feedsDatabase.createFeedIfNeeded(link);
+	***				
+	***				std::for_each(std::execution::par, linksToFeeds.begin(), linksToFeeds.end(),
+	***					[&newArticles, &newArticlesMutex, &feedsDatabase = feedsDatabase](std::string link)
+	***				{
+	***					SourceDownloader srcDownloader;
+	***					srcDownloader.downloadSource(link);
+	***					std::vector<ArticleRSS> items = feedsDatabase.updateFeed(link, srcDownloader.getData());
+	***				
+	***					std::lock_guard lock(newArticlesMutex);
+	***					newArticles.insert(newArticles.end(), items.begin(), items.end());
+	***				});
+	***			
+	***				//feedsDatabase.saveDatabase();		//COMMENTED FOR TESTS SAKE
+	***			
+	***				return newArticles;
+	***			}
+	
+Measurements:
+	
+	1. 15 real feeds, i7-7700HQ (Debug x64)
+	
+		[1]	1775 ms			[2]	1381 ms
+			1379 ms				1332 ms
+			1403 ms				1284 ms
+			1263 ms				1423 ms
+			1348 ms				1375 ms
+			-------				-------
+			1433.6 ms			1359 ms		(-5.2%)
+														
+	2. 15 real feeds on, i7-7700HQ (Release x64):
+	
+		[1]	1293 ms			[2]	1407 ms
+			1331 ms				1646 ms
+			1379 ms				1344 ms
+			1397 ms				1244 ms
+			1332 ms				1263 ms
+			-------				-------		(+2.49%)
+			1346.4 ms			1380.8 ms
+			
+Conclusions:
+
+	The original code was a source of errors - in course of conducting measurements program [1] crashed once. As expected, exception was caused by std::vector::insert.
+	Presented solution [2] has little or no effect on execution time and no erroneous behavior was observed while testing it
+	
+Recommendation:
+
+	Accept proposed solution. 

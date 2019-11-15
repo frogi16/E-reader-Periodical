@@ -1,6 +1,8 @@
 #include "RSSupdater.h"
 
 #include <algorithm>
+#include <execution>
+#include <mutex>
 
 RSSupdater::RSSupdater() noexcept :
 	lastUpdate(NULL),
@@ -54,24 +56,34 @@ void RSSupdater::watchFeed(const std::string& link)
 	}
 }
 
-
-RSSupdater::~RSSupdater()
-{
-}
-
 std::vector<ArticleRSS> RSSupdater::downloadFeeds()
 {
 	std::cout << "Checking for new articles" << std::endl;
-	std::vector<ArticleRSS> newItems;
 
+	std::vector<ArticleRSS> newArticles;
+	std::mutex newArticlesMutex;
+
+	//if feed is not known, updateFeed() will add new object to its internal storage. It is not safe to modify container from multiple threads at once, so every feed
+	//has to be saved in database before updateFeed() execution in order to achieve thread-safety
 	for (auto& link : linksToFeeds)
+		feedsDatabase.createFeedIfNeeded(link);
+
+	std::for_each(std::execution::par, linksToFeeds.begin(), linksToFeeds.end(),
+		[&newArticles, &newArticlesMutex, &feedsDatabase = feedsDatabase](std::string link)
 	{
-		downloader.downloadSource(link);
-		std::vector<ArticleRSS> items = feedsDatabase.updateFeed(link, downloader.getData());
-		newItems.insert(newItems.end(), items.begin(), items.end());					//inefficient if size of links vector is big. TODO: prevent copying elements of links. Maybe deque?
-	}
+		SourceDownloader srcDownloader;
+		srcDownloader.downloadSource(link);
+		std::vector<ArticleRSS> items = feedsDatabase.updateFeed(link, srcDownloader.getData());
+
+		std::lock_guard lock(newArticlesMutex);
+		newArticles.insert(newArticles.end(), items.begin(), items.end());
+	});
 
 	feedsDatabase.saveDatabase();
 
-	return newItems;
+	return newArticles;
+}
+
+RSSupdater::~RSSupdater()
+{
 }
