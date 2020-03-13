@@ -14,7 +14,7 @@ public:
 	void createEpub(std::vector<ParsedArticle>& articles);
 	void convertToMobi();																//convert ready .epub to .mobi using kindlegen
 	void removeEpub();
-	std::experimental::filesystem::path getEbookPath() { return ebookPath; }
+	std::filesystem::path getEbookPath() { return ebookPath; }
 private:
 	void prepareDirectory();
 	void appendData(std::vector<ParsedArticle>& articles);								//whole process of saving articles to files, constructing table of content, manifest etc.
@@ -27,7 +27,7 @@ private:
 
 	ImageSaver imageSaver;
 
-	std::experimental::filesystem::path ebookPath;
+	std::filesystem::path ebookPath;
 	size_t articleIndex = 0;															//index of actually processed article
 	size_t imageIndex = 0;																//index of actually processed image
 };

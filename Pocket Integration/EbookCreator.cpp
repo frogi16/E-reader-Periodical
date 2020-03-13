@@ -13,7 +13,7 @@
 #include "EbookCreator.h"
 #include "SrcSet.h"
 
-namespace fs = std::experimental::filesystem;
+namespace fs = std::filesystem;
 
 EbookCreator::EbookCreator() : ebookPath("")
 {
@@ -47,7 +47,7 @@ void EbookCreator::prepareDirectory()
 		fs::create_directory(fs::path("book"));
 		fs::copy(fs::path("template"), fs::path("book"), fs::copy_options::recursive);
 	}
-	catch (const std::exception& e)
+	catch (const std::exception & e)
 	{
 		std::cout << "Unexpected error: " << e.what() << std::endl;
 	}
@@ -172,7 +172,7 @@ void EbookCreator::saveImages(std::vector<pugi::xml_node> images, const std::str
 			//adding image to manifest. Template: <item id="sample.png" href="Images/sample.png" media-type="image/png"/>
 			file << "<item id=" << '"' << path.filename() << '"' << " href=" << '"' << "Images/" << path.filename() << '"' << " media-type=" << '"' << "image/png" << '"' << "/>";
 		}
-		catch (const std::exception& e)												//if image couldn't be downloaded just use default filler. There is no need to 
+		catch (const std::exception & e)												//if image couldn't be downloaded just use default filler. There is no need to 
 		{
 			try
 			{
@@ -181,7 +181,7 @@ void EbookCreator::saveImages(std::vector<pugi::xml_node> images, const std::str
 				//adding image to manifest. Template: <item id="sample.png" href="Images/sample.png" media-type="image/png"/>
 				file << "<item id=" << '"' << path.filename() << '"' << " href=" << '"' << "Images/" << path.filename() << '"' << " media-type=" << '"' << "image/png" << '"' << "/>";
 			}
-			catch (const std::exception& e)
+			catch (const std::exception & e)
 			{
 				path.replace_filename("filler");
 				path.replace_extension("png");

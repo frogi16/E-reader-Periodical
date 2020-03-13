@@ -19,7 +19,7 @@ public:
 	void setPostFields(const std::string& parameters);							//CURLOPT_POSTFIELDS
 	void setFollowLocation(bool value);											//CURLOPT_FOLLOWLOCATION
 	void setWritingToString();													//CURLOPT_WRITEFUNCTION and CURLOPT_WRITEDATA
-	void setWritingToFile(std::experimental::filesystem::path& pathToImage);	//CURLOPT_WRITEFUNCTION and CURLOPT_WRITEDATA
+	void setWritingToFile(std::filesystem::path& pathToImage);					//CURLOPT_WRITEFUNCTION and CURLOPT_WRITEDATA
 	void setNoBody(bool value);													//CURLOPT_NOBODY
 	void setHeaderOnly(bool value);												//CURLOPT_HEADER
 	void setPassword(const std::string& password);								//CURLOPT_PASSWORD

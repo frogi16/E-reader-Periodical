@@ -15,7 +15,7 @@
 #include "ArticleRSS.h"
 #include "CountWordsTreeWalker.h"
 
-namespace fs = std::experimental::filesystem;
+namespace fs = std::filesystem;
 
 std::vector<ParsedArticle> Parser::getParsedArticles(const std::vector<ArticleRSS>& items)
 {
@@ -33,7 +33,7 @@ std::vector<ParsedArticle> Parser::getParsedArticles(const std::vector<ArticleRS
 
 			std::cout << "*";
 		}
-		catch (const std::exception& e)						//if anything went wrong it would be better not to show this article to end user inside an ebook, so parsedArticle won't be added to the output
+		catch (const std::exception & e)						//if anything went wrong it would be better not to show this article to end user inside an ebook, so parsedArticle won't be added to the output
 															//(it is probably an internal error which returns no real content, only short message and article title)
 		{
 			std::cout << std::endl << e.what() << std::endl;

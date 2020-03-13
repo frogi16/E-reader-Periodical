@@ -59,7 +59,7 @@ void CurlWrapper::setWritingToString()
 	setResponseString();
 }
 
-void CurlWrapper::setWritingToFile(std::experimental::filesystem::path& pathToImage)
+void CurlWrapper::setWritingToFile(std::filesystem::path& pathToImage)
 {
 	errno_t err = fopen_s(&fp, pathToImage.generic_string().c_str(), "wb");
 
@@ -165,7 +165,7 @@ size_t CurlWrapper::curlWriteToString
 			s->resize(oldLength + newLength);
 			break;
 		}
-		catch (std::bad_alloc& e)
+		catch (std::bad_alloc & e)
 		{
 			if (++count >= maxTries) throw e;	//if repeating doesn't help, just rethrow the error
 		}

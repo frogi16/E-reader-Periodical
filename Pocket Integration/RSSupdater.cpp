@@ -64,7 +64,7 @@ std::vector<ArticleRSS> RSSupdater::downloadFeeds()
 	std::mutex newArticlesMutex;
 
 	//if feed is not known, updateFeed() will add new object to its internal storage. It is not safe to modify container from multiple threads at once, so every feed
-	//has to be saved in database before updateFeed() execution in order to achieve thread-safety
+	//has to be saved in database before updateFeed() execution in order to achieve thread-safety and shorten critical path to minimum
 	for (auto& link : linksToFeeds)
 		feedsDatabase.createFeedIfNeeded(link);
 
