@@ -39,7 +39,8 @@ std::tm DatetimeParser::parseToTM(const std::string& datetime) const
 
 time_t DatetimeParser::parseToTime_t(const std::string& datetime) const
 {
-	return mktime(&parseToTM(datetime));
+	auto time = parseToTM(datetime);
+	return mktime(&time);
 }
 
 DatetimeParser::~DatetimeParser()
