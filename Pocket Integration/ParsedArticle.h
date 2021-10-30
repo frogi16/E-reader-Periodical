@@ -15,6 +15,7 @@ struct ParsedArticle
 	std::string author;
 	std::string content;
 	std::string domain;
+	std::string domainFromRSS;
 	std::string pubDate;
 	size_t wordCount;
 	std::shared_ptr<pugi::xml_document> xmlDocument;

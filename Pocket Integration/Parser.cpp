@@ -14,6 +14,7 @@
 
 #include "ArticleRSS.h"
 #include "CountWordsTreeWalker.h"
+#include "StringUtils.h"
 
 namespace fs = std::filesystem;
 
@@ -34,7 +35,7 @@ std::vector<ParsedArticle> Parser::getParsedArticles(const std::vector<ArticleRS
 			std::cout << "*";
 		}
 		catch (const std::exception & e)						//if anything went wrong it would be better not to show this article to end user inside an ebook, so parsedArticle won't be added to the output
-															//(it is probably an internal error which returns no real content, only short message and article title)
+																//(it is probably an internal error which returns no real content, only short message and article title)
 		{
 			std::cout << std::endl << e.what() << std::endl;
 		}
@@ -67,6 +68,7 @@ ParsedArticle Parser::parseArticle(const ArticleRSS& articleRSS)
 	if (isResponseValid(jsonResponse))												//if something was sent using message field it means that something went wrong
 	{
 		ParsedArticle parsedArticle;
+		parsedArticle.domainFromRSS = eprd::getDomain(articleRSS.link);
 		loadParsedData(parsedArticle, jsonResponse);
 		return parsedArticle;
 	}

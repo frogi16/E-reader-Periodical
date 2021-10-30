@@ -154,6 +154,7 @@
     <ClCompile Include="FeedData.cpp" />
     <ClCompile Include="FeedsDatabase.cpp" />
     <ClCompile Include="FilteringRule.cpp" />
+    <ClCompile Include="StringUtils.cpp" />
     <ClCompile Include="URLExtensionDetector.cpp" />
     <ClCompile Include="ImageSaver.cpp" />
     <ClCompile Include="maincpp.cpp" />
@@ -186,6 +187,7 @@
     <ClInclude Include="FeedData.h" />
     <ClInclude Include="FeedsDatabase.h" />
     <ClInclude Include="FilteringRule.h" />
+    <ClInclude Include="StringUtils.h" />
     <ClInclude Include="TokenType.h" />
     <ClInclude Include="URLExtensionDetector.h" />
     <ClInclude Include="ImageSaver.h" />

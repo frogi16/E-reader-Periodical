@@ -12,6 +12,7 @@
 #include "tidybuffio.h"
 #include "EbookCreator.h"
 #include "SrcSet.h"
+#include "StringUtils.h"
 
 namespace fs = std::filesystem;
 
@@ -133,7 +134,7 @@ void EbookCreator::addToManifest(ParsedArticle& article)
 	file << "<item id=" << '"' << articleName << '"' << " href=" << '"' << "Text/" << articleName << '"' << " media-type=" << '"' << "application/xhtml+xml" << '"' << "/>";	//adding the article itself
 
 	auto images = EbookPeriodical::selectNodes<SelectNameTreeWalker>((*article.xmlDocument), std::string("img"));	//find all images the article links to, because they also have to be listed in manifest
-	saveImages(images, article.domain);
+	saveImages(images, article.domainFromRSS);
 
 	file.close();
 }
@@ -176,7 +177,7 @@ void EbookCreator::saveImages(std::vector<pugi::xml_node> images, const std::str
 		{
 			try
 			{
-				imageSaver.saveImage(domain + linkToImg, path);						//WARNING! Image downloader detects extension of file and changes path sent to it
+				imageSaver.saveImage(eprd::mergePathFragments(domain, linkToImg), path);	//WARNING! Image downloader detects extension of file and changes path sent to it
 
 				//adding image to manifest. Template: <item id="sample.png" href="Images/sample.png" media-type="image/png"/>
 				file << "<item id=" << '"' << path.filename() << '"' << " href=" << '"' << "Images/" << path.filename() << '"' << " media-type=" << '"' << "image/png" << '"' << "/>";

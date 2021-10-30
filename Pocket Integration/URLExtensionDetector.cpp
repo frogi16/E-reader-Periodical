@@ -6,6 +6,8 @@
 
 #include "json_eprd.h"
 
+#include "StringUtils.h"
+
 using json = nlohmann::json;
 
 const std::map<std::string, std::string> URLExtensionDetector::extensionsFromMIME = {
@@ -72,10 +74,10 @@ std::string URLExtensionDetector::mimeFromJsonHeader(const std::string& header)
 
 std::string URLExtensionDetector::mimeFromHTMLHeader(const std::string& header)
 {
-	std::string searched("Content-Type:");
+	std::string searched("content-type:");
 	std::string result;
 
-	size_t position = header.find(searched);									//get position of first occurence of searched string
+	size_t position = eprd::stringToLower(header).find(searched);									//get position of first occurence of searched string
 
 	if (position == std::string::npos)											//nothing was found
 	{
