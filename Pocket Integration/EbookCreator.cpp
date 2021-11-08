@@ -267,7 +267,7 @@ void EbookCreator::convertToMobi()
 	ebookPath = filename;
 
 	int retCode = system("kindlegen.exe book/OEBPS/content.opf -o book.mobi");		//-o is the output file name
-	fs::copy(fs::path("book/OEBPS/book.mobi"), ebookPath);
+	fs::rename(fs::path("book/OEBPS/book.mobi"), ebookPath);
 }
 
 void EbookCreator::removeEpub()
